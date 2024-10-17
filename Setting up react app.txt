@@ -1,0 +1,17 @@
+Setting up react app
+
+- create app (where you want to create it)- npx create-expo@latest
+
+- start dev server (in app folder)- npx expo start
+
+- scan QR code generated
+
+
+
+
+- without android phone - need android emulator (only one I know is android studios)
+more on that here: https://docs.expo.dev/get-started/set-up-your-environment/?platform=android&device=simulated
+
+
+
+
