@@ -1,5 +1,6 @@
-import { Text, View } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { Linking } from 'react-native';
+import { Link } from 'expo-router';
 export default function Index() {
   return (
     <View
@@ -22,6 +23,8 @@ export default function Index() {
             onPress={() => Linking.openURL('https://callstack.github.io/react-native-paper/')}>
         React Native Paper - For UI components
       </Text>
+      <Text>Next, go to the</Text>
+      <Link href="/thread">Thread Page</Link>
     </View>
   );
 }
