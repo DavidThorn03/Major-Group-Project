@@ -2,27 +2,38 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 
-const testSchema = new mongoose.Schema({
-  name: String,
-  description: String,
+const userSchema = new mongoose.Schema({
+  userName: String,
+  email: String,
+  password: String,
+  threads: Array,
+  comments: Array,
+  post: Array,
+  followThreads: Array,
+  admin: Boolean
 });
 
-const Item = mongoose.model("test", testSchema);
+const User = mongoose.model("User", userSchema, "User");
 
-router.get("/test", async (req, res) => {
+router.get("/users", async (req, res) => {
   try {
-    console.log("test");
-    const items = await Item.find();
+    const items = await User.find();
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-router.post("/items", async (req, res) => {
-  const item = new Item({
-    name: req.body.name,
-    description: req.body.description,
+router.post("/users", async (req, res) => {
+  const item = new User({
+    userName: req.body.userName,
+    email: req.body.email,
+    password: req.body.password,
+    threads: req.body.threads,
+    comments: req.body.comments,
+    post: req.body.post,
+    followThreads: req.body.followThreads,
+    admin: req.body.admin
   });
 
   try {

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://192.168.0.11:8081/threadud", {
+    await mongoose.connect("mongodb+srv://b00152842:iWSVCle4kfbnFsUg@threadud.ga2og.mongodb.net/?retryWrites=true&w=majority&appName=ThreadUD", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
