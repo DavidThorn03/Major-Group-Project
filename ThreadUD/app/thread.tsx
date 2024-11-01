@@ -1,17 +1,33 @@
-import { View, Text, StyleSheet } from 'react-native';
+// app/ThreadScreen.js
+import React, { useEffect, useState } from "react";
+import { View, Text, Button, FlatList } from "react-native";
+import { test } from "../api/api.js";
 
-export default function ThreadScreen() {
+const ThreadScreen = () => {
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    loadItems();
+  }, []);
+
+  const loadItems = async () => {
+    console.log("Loading items...");
+    const fetchedItems = await test();
+    console.log("Fetched items: ", fetchedItems);
+    setItems(fetchedItems);
+  };
+  if (items == null) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
   return (
-    <View style={styles.container}>
-      <Text>Thread</Text>
+    <View>
+      <Text>Thread Screen</Text>
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+export default ThreadScreen;
