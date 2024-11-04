@@ -2,10 +2,10 @@ import axios from "axios";
 
 const API_URL = "http://192.168.0.11:5000/api";
 
-// Get all items
-export const User = async () => {
+export const User = async (filters = {}) => {
   try {
-    const response = await axios.get(`${API_URL}/users`);
+    const queryParams = new URLSearchParams(filters).toString();
+    const response = await axios.get(`${API_URL}/users?${queryParams}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching items:", error);

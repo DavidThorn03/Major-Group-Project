@@ -1,22 +1,24 @@
 // app/ThreadScreen.js
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, FlatList } from "react-native";
-import { User } from "../api/api.js";
+import { User } from "../api/getUser.js";
 
 const ThreadScreen = () => {
-  const [items, setItems] = useState([]);
-
+  const [user, setUser] = useState([]);
   useEffect(() => {
-    loadItems();
+    getUser();
   }, []);
 
-  const loadItems = async () => {
+  const getUser = async () => {
     console.log("Loading items...");
-    const fetchedItems = await User();
-    console.log("Fetched items: ", fetchedItems);
-    setItems(fetchedItems);
+    const filters = {
+      userName: "Dave",
+    };
+    const fetchedUser = await User(filters);
+    console.log("Fetched items: ", fetchedUser);
+    setUser(fetchedUser);
   };
-  if (items == null) {
+  if (user == null) {
     return (
       <View>
         <Text>Loading...</Text>

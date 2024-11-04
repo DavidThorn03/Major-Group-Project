@@ -17,15 +17,22 @@ const User = mongoose.model("User", userSchema, "User");
 
 router.get("/users", async (req, res) => {
   try {
-    const items = await User.find();
-    res.json(items);
+    const filers = {};
+    if(req.query.userName) {
+      filers.userName = req.query.userName;
+    }
+    if(req.query.email) {
+      filers.email = req.query.email;
+    }
+    const user = await User.find(filters);
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
 router.post("/users", async (req, res) => {
-  const item = new User({
+  const user = new User({
     userName: req.body.userName,
     email: req.body.email,
     password: req.body.password,
@@ -37,8 +44,8 @@ router.post("/users", async (req, res) => {
   });
 
   try {
-    const savedItem = await item.save();
-    res.status(201).json(savedItem);
+    const savedUser = await user.save();
+    res.status(201).json(savedUser);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
