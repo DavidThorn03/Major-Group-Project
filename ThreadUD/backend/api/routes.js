@@ -22,6 +22,8 @@ router.get("/users", async (req, res) => {
 
 let un = req.query.userName;
 console.log("username is " + un)
+let pass = req.query.password;
+console.log("password is " + pass)
   
   try {
 
@@ -29,7 +31,7 @@ console.log("username is " + un)
     //if(req.query.email) {
      // filters.email = req.query.email;
     //}
-    const user = await User.find({ "userName": un}).exec();
+    const user = await User.findOne({ "userName": un, "password": pass}).exec();
     res.json(user);
 
 

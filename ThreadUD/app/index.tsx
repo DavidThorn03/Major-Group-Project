@@ -23,8 +23,12 @@ export default function Index() {
             onPress={() => Linking.openURL('https://callstack.github.io/react-native-paper/')}>
         React Native Paper - For UI components
       </Text>
+      <Text style={{color: 'blue'}}
+            onPress={() => Linking.openURL('https://reactnative.dev/docs/turbo-native-modules-ios#implement-localstorage-with-nsuserdefaults')}>
+        Save to local storage
+      </Text>
       <Text>Next, go to the</Text>
-      <Link href="/thread">Thread Page</Link>
+      <Link href="/login">Login Page</Link>
     </View>
   );
 }
