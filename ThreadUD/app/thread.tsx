@@ -12,10 +12,11 @@ const ThreadScreen = () => {
   const getUser = async () => {
     console.log("Loading items...");
     const filters = {
-      userName: "Dave",
+      userName: "Dave"
     };
+    const userName = "Dave";
     const fetchedUser = await User(filters);
-    console.log("Fetched items: ", fetchedUser);
+    console.log("Fetched items: ", JSON.stringify(fetchedUser, undefined, 4));
     setUser(fetchedUser);
   };
   if (user == null) {

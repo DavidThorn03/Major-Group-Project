@@ -16,19 +16,31 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema, "User");
 
 router.get("/users", async (req, res) => {
+
+  console.log("inside page")
+
+
+let un = req.query.userName;
+console.log("username is " + un)
+  
   try {
-    const filers = {};
-    if(req.query.userName) {
-      filers.userName = req.query.userName;
-    }
-    if(req.query.email) {
-      filers.email = req.query.email;
-    }
-    const user = await User.find(filters);
+
+ 
+    //if(req.query.email) {
+     // filters.email = req.query.email;
+    //}
+    const user = await User.find({ "userName": un}).exec();
     res.json(user);
+
+
+    
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+
+  
+
+ 
 });
 
 router.post("/users", async (req, res) => {
@@ -43,6 +55,7 @@ router.post("/users", async (req, res) => {
     admin: req.body.admin
   });
 
+  
   try {
     const savedUser = await user.save();
     res.status(201).json(savedUser);
