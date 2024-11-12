@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, FlatList } from "react-native";
+import { View, Text, Button, FlatList, TextInput } from "react-native";
 import { User } from "../api/getUser.js";
 
 const LoginScreen = () => {
   const [user, setUser] = useState([]);
-  useEffect(() => {
-    getUser();
-  }, []);
+  const [UserName, setUserName] = useState("");
+  const [Password, setPassword] = useState("");
 
   const getUser = async () => {
     console.log("Loading items...");
     const filters = {
-      userName: "Dave",
-      password: "pass"
+      userName: UserName,
+      password: Password
     };
     const fetchedUser = await User(filters);
     /*if(fetchedUser == null) {
@@ -37,6 +36,9 @@ const LoginScreen = () => {
   return (
     <View>
       <Text>Log in</Text>
+      <TextInput placeholder="Username" onChangeText = {UserName =>setUserName(UserName.toLowerCase())}/>
+      <TextInput placeholder="Password" onChangeText = {Password =>setPassword(Password)} secureTextEntry={true}/>
+      <Button title="Log in" onPress={getUser} />
     </View>
   );
 };
