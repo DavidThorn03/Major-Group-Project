@@ -16,33 +16,15 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema, "User");
 
 router.get("/users", async (req, res) => {
-
-  console.log("inside page")
-
-
 let un = req.query.userName;
-console.log("username is " + un)
 let pass = req.query.password;
-console.log("password is " + pass)
   
   try {
-
- 
-    //if(req.query.email) {
-     // filters.email = req.query.email;
-    //}
     const user = await User.findOne({ "userName": un, "password": pass}).exec();
     res.json(user);
-
-
-    
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-
-  
-
- 
 });
 
 router.post("/users", async (req, res) => {
