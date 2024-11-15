@@ -1,7 +1,9 @@
-import { Text, View, StyleSheet } from "react-native";
-import { Linking } from 'react-native';
-import { Link } from 'expo-router';
-export default function Index() {
+import React, { useEffect, useState } from "react";
+import { View, Text, Button, FlatList, TextInput, Linking } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+
+const HomeScreen = () => {
+    const navigation = useNavigation();
   return (
     <View
       style={{
@@ -28,7 +30,8 @@ export default function Index() {
         Save to local storage
       </Text>
       <Text>Next, go to the</Text>
-      <Link href="/login">Login Page</Link>
+      <Button title="Log in" onPress={() => navigation.navigate("login")} />
     </View>
   );
 }
+export default HomeScreen;

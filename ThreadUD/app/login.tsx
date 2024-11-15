@@ -1,42 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, FlatList } from "react-native";
+import { View, Text, Button, FlatList, TextInput } from "react-native";
 import { User } from "../api/getUser.js";
+import * as AsyncStorage from "../util/AsyncStorage.js"
+import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = () => {
+  const navigation = useNavigation();
   const [user, setUser] = useState([]);
-  useEffect(() => {
-    getUser();
-  }, []);
-
+  const [UserName, setUserName] = useState("");
+  const [Password, setPassword] = useState("");
   const getUser = async () => {
     console.log("Loading items...");
     const filters = {
-      userName: "Dave",
-      password: "pass"
+      userName: UserName,
+      password: Password
     };
     const fetchedUser = await User(filters);
-    /*if(fetchedUser == null) {
-      console.log("Print incorrect password or username method");
-      getUser();
-    }*/
-    //else {
-        console.log("Fetched items: ", JSON.stringify(fetchedUser, undefined, 4));
-        const userArray = JSON.parse(fetchedUser);
-        //save to local storage
+    if(fetchedUser == null) {
+        console.log("No user found");
+    }
+    else{
+        
+        await AsyncStorage.setItem("User", fetchedUser);
         setUser(fetchedUser);
-    //}
-    //redirect to home page
+        const userFromStor = await AsyncStorage.getItem("User");
+        //console.log("User from storage: ", userFromStor);
+        await navigation.navigate("profile");
+    }
   };
-  if (user == null) {
-    return (
-      <View>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
   return (
     <View>
       <Text>Log in</Text>
+      <TextInput placeholder="Username" onChangeText = {UserName =>setUserName(UserName.toLowerCase())}/>
+      <TextInput placeholder="Password" onChangeText = {Password =>setPassword(Password)} secureTextEntry={true}/>
+      <Button title="Log in" onPress={getUser} />
     </View>
   );
 };
