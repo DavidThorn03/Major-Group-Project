@@ -89,6 +89,7 @@ router.get("/posts", async (req, res) => {
           threadName: { $arrayElemAt: ["$threadData.threadName", 0] },
           author: "$author",
           content: "$content",
+          likes: "$likes",
         },
       },
     ]);
