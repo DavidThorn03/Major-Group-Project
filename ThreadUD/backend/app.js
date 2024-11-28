@@ -3,7 +3,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const connectDB = require("./config/db");
-const routes = require("./api/routes");
+const userRoutes = require("./api/user");
+const postRoutes = require("./api/post");
 
 const app = express();
 
@@ -15,7 +16,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Routes
-app.use("/api", routes);
+app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
