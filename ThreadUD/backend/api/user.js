@@ -1,58 +1,61 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const router = express.Router();
+const mongoose = require("mongoose");
 
-// User Schema
-const userSchema = new mongoose.Schema({
-  userName: String,
-  email: String,
-  password: String,
-  course: String,
-  year: Number,
-  threads: Array,
-  comments: Array,
-  posts: Array,
-  followThreads: Array,
-  admin: Boolean,
+// Student Schema
+const studentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  year: { type: Number, required: true },
+  course: { type: String, required: true },
+  threads: { type: Array, default: [] },
+  posts: { type: Array, default: [] },
+  comments: { type: Array, default: [] },
+  followedThreads: { type: Array, default: [] },
+  likedPosts: { type: Array, default: [] },
+  likedComments: { type: Array, default: [] },
 });
 
-const User = mongoose.model("User", userSchema, "User");
+const Student = mongoose.model("Student", studentSchema, "Student");
 
-// Route: Fetch user with filters
-router.get("/", async (req, res) => {
-  try {
-    const filters = req.query;
-    const user = await User.findOne(filters).exec();
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ message: "User not found" });
-    }
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching user", error });
+// POST /students/register
+router.post("/students/register", async (req, res) => {
+  const { name, email, password, year, course } = req.body;
+
+  // Validate required fields
+  if (!name || !email || !password || !year || !course) {
+    return res.status(400).json({ message: "All fields are required." });
   }
-});
-
-// Route: Create a new user
-router.post("/", async (req, res) => {
-  const user = new User({
-    userName: req.body.userName,
-    email: req.body.email,
-    password: req.body.password,
-    course: req.body.course,
-    year: req.body.year,
-    threads: req.body.threads || [],
-    comments: req.body.comments || [],
-    posts: req.body.posts || [],
-    followThreads: req.body.followThreads || [],
-    admin: req.body.admin || false,
-  });
 
   try {
-    const savedUser = await user.save();
-    res.status(201).json(savedUser);
+    // Check if email already exists
+    const existingStudent = await Student.findOne({ email });
+    if (existingStudent) {
+      return res.status(400).json({ message: "Email is already registered." });
+    }
+
+    // Create and save the student
+    const newStudent = new Student({
+      name,
+      email,
+      password,
+      year,
+      course,
+    });
+
+    const savedStudent = await newStudent.save();
+    res
+      .status(201)
+      .json({
+        message: "Student registered successfully.",
+        student: savedStudent,
+      });
   } catch (error) {
-    res.status(400).json({ message: "Error creating user", error });
+    console.error("Error registering student:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while registering the student." });
   }
 });
 
