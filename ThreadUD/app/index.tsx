@@ -14,37 +14,32 @@ import { useNavigation } from "@react-navigation/native";
 import Icon from 'react-native-vector-icons/AntDesign';
 import { TouchableHighlight } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
-
+import {Likes} from "./services/updateLikes";
 
 const IndexPage = () => {
   const navigation = useNavigation();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState([]);
+  const [userSearched, setUserSearched] = useState(false);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const postsData = await getPosts();
-        setPosts(postsData);
-      } catch (err) {
-        setError("Failed to load posts.");
-        console.error(err); 
-      } finally {
-        setLoading(false);
-      }
-    };
+  const liked = <Icon name="heart" size={25} color="red" />;
+  const unliked = <Icon name="hearto" size={25} color="red" />;
 
-    fetchPosts();
-  }, []); 
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userData = await AsyncStorage.getItem("User");
-        setUser(userData);
-        console.log("User data:", userData);
+        if(userData) {
+          setUser(userData);
+          console.log("User data:", userData);
+        }
+        else {
+          console.log("No user data found");
+        }
+        setUserSearched(true);
       } catch (err) {
         console.error(err);
       }
@@ -53,9 +48,22 @@ const IndexPage = () => {
     fetchUser();
   }, []);
 
-  const likePost = (post) => {
-    
-  }
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        if (userSearched) { 
+          const postsData = await getPosts();
+          setPosts(postsData);
+          setLoading(false);
+        }
+      } catch (err) {
+        setError("Failed to load posts.");
+        console.error(err);
+      }
+    };
+
+    fetchPosts();
+  }, [userSearched]); 
 
   if (loading) {
     return (
@@ -72,6 +80,35 @@ const IndexPage = () => {
       </Container>
     );
   }
+
+  const likePost = async (post) => {
+    if (user) { 
+      console.log("User logged in", user.email);
+      let likes = post.likes;
+      if(likes.includes(user.email)) {
+        likes.pop(user.email);
+      }
+      else{
+        likes.push(user.email);
+      }
+      console.log("Likes", likes);
+      const filters = { post: post.postTitle, likes: likes };
+
+      try {
+        const like = await Likes(filters);
+        console.log("Like", like);
+      } catch (err) {
+        console.error(err);
+      }
+      window.location.reload();
+    }
+    else {
+      console.log("User not logged in");
+      navigation.navigate("login");
+    }
+  }
+
+
   return (
     <Container>
       <Header>Welcome to the ThreadUD {user.email}</Header>
@@ -92,9 +129,8 @@ const IndexPage = () => {
               <GeneralText style={IndexStyles.author}>
                 Author: {item.author}
               </GeneralText>
-              <GeneralText>Likes: {item.likes}</GeneralText>
-              <TouchableHighlight onPress={() => likePost(item)}>
-              <Icon name="hearto" size={30} color="black" /></TouchableHighlight>
+              <TouchableHighlight onPress={() => likePost(item)}>{unliked}</TouchableHighlight>
+              <GeneralText>          {item.likes.length}</GeneralText>
             </PostCard>
           )}
         />
