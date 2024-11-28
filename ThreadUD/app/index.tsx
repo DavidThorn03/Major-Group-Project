@@ -1,34 +1,84 @@
-import { Text, View, StyleSheet } from "react-native";
-import { Linking } from 'react-native';
-import { Link } from 'expo-router';
-export default function Index() {
+import React, { useEffect, useState } from "react";
+import { FlatList } from "react-native";
+import {
+  Container,
+  Header,
+  PostCard,
+  ThreadName,
+  GeneralText,
+  Button,
+} from "./components/StyledWrappers";
+import IndexStyles from "./styles/IndexStyles";
+import { getPosts } from "./services/getPost";
+
+const IndexPage = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const postsData = await getPosts();
+        setPosts(postsData);
+      } catch (err) {
+        setError("Failed to load posts.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  if (loading) {
+    return (
+      <Container>
+        <GeneralText>Loading posts...</GeneralText>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <GeneralText>{error}</GeneralText>
+      </Container>
+    );
+  }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>We start here!!!</Text>
-      <Text>VS Code extentions for react:</Text>
-      <Text>- React Native Tools</Text>
-      <Text>- ESLint</Text>
-      <Text>For more development stuff: </Text>
-      <Text style={{color: 'blue'}}
-            onPress={() => Linking.openURL('https://docs.expo.dev/get-started/start-developing/')}>
-        React Native Getting started
-      </Text>
-      <Text style={{color: 'blue'}}
-            onPress={() => Linking.openURL('https://callstack.github.io/react-native-paper/')}>
-        React Native Paper - For UI components
-      </Text>
-      <Text style={{color: 'blue'}}
-            onPress={() => Linking.openURL('https://reactnative.dev/docs/turbo-native-modules-ios#implement-localstorage-with-nsuserdefaults')}>
-        Save to local storage
-      </Text>
-      <Text>Next, go to the</Text>
-      <Link href="/login">Login Page</Link>
-    </View>
+    <Container>
+      <Header>Welcome to ThreadUD</Header>
+      {posts.length === 0 ? (
+        <GeneralText>
+          No posts available. Start by creating a new post!
+        </GeneralText>
+      ) : (
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <PostCard>
+              <ThreadName>{item.threadName}</ThreadName>
+              <GeneralText style={IndexStyles.postContent}>
+                {item.content}
+              </GeneralText>
+              <GeneralText style={IndexStyles.author}>
+                Author: {item.author}
+              </GeneralText>
+              <GeneralText>Likes: {item.likes}</GeneralText>
+            </PostCard>
+          )}
+        />
+      )}
+      <Button
+        title="Create Post"
+        onPress={() => console.log("Navigate to Create Post")}
+      />
+    </Container>
   );
-}
+};
+
+export default IndexPage;

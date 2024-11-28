@@ -45,12 +45,10 @@ router.post("/students/register", async (req, res) => {
     });
 
     const savedStudent = await newStudent.save();
-    res
-      .status(201)
-      .json({
-        message: "Student registered successfully.",
-        student: savedStudent,
-      });
+    res.status(201).json({
+      message: "Student registered successfully.",
+      student: savedStudent,
+    });
   } catch (error) {
     console.error("Error registering student:", error);
     res
