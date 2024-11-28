@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_URL } from "../../constants/apiConfig";
+import { API_URL } from "../../backend/config/apiConfig";
 
 export const getPosts = async () => {
   try {

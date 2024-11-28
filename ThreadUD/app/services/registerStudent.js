@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_URL } from "../../config/apiConfig";
+import { API_URL } from "../../backend/config/apiConfig";
 
 export const registerStudent = async (studentData) => {
   try {
