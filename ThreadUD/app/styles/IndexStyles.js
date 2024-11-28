@@ -1,8 +1,19 @@
 import { StyleSheet } from "react-native";
 
 const IndexStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f9f9f9",
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
+  },
   postCard: {
-    backgroundColor: "#E0F7FA",
+    backgroundColor: "#68BBE3",
     padding: 16,
     marginVertical: 8,
     borderRadius: 8,
@@ -13,19 +24,21 @@ const IndexStyles = StyleSheet.create({
     elevation: 2,
   },
   threadName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#00796B",
-  },
-  postContent: {
     fontSize: 16,
-    color: "#333",
-    marginVertical: 8,
+    fontWeight: "bold",
   },
   author: {
     fontSize: 14,
-    color: "#666",
-    marginTop: 4,
+    color: "#555",
+    marginVertical: 4,
+  },
+  postContent: {
+    fontSize: 14,
+    color: "#333",
+  },
+  buttonContainer: {
+    marginTop: 16,
+    alignItems: "center",
   },
 });
 

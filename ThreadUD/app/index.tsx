@@ -10,8 +10,10 @@ import {
 } from "./components/StyledWrappers";
 import IndexStyles from "./styles/IndexStyles";
 import { getPosts } from "./services/getPost";
+import { useNavigation } from "@react-navigation/native";
 
 const IndexPage = () => {
+  const navigation = useNavigation();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -76,6 +78,16 @@ const IndexPage = () => {
       <Button
         title="Create Post"
         onPress={() => console.log("Navigate to Create Post")}
+      />
+      <Button
+        title="Login"
+        onPress={() => navigation.navigate("login")}
+        style={{ marginTop: 16 }}
+      />
+      <Button
+        title="Sign Up"
+        onPress={() => navigation.navigate("register")}
+        style={{ marginTop: 8 }}
       />
     </Container>
   );

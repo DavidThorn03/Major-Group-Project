@@ -27,8 +27,8 @@ export const GeneralText = ({ children }) => (
 );
 
 // Reusable button component
-export const Button = ({ onPress, title }) => (
-  <TouchableOpacity style={styles.button} onPress={onPress}>
+export const Button = ({ onPress, title, style }) => (
+  <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
     <Text style={styles.buttonText}>{title}</Text>
   </TouchableOpacity>
 );
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   postCard: {
-    backgroundColor: "#fff",
+    backgroundColor: "#68BBE3",
     padding: 16,
     marginVertical: 8,
     borderRadius: 8,
@@ -57,17 +57,16 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   threadName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#68BBE3",
   },
   text: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#333",
   },
   button: {
     backgroundColor: "#68BBE3",
-    padding: 10,
+    padding: 16,
     borderRadius: 8,
     alignItems: "center",
     marginVertical: 10,

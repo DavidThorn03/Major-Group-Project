@@ -4,8 +4,7 @@ const RegisterStyles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    justifyContent: "center",
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#5A4FCF",
   },
   header: {
     fontSize: 24,
