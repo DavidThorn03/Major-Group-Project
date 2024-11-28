@@ -4,7 +4,7 @@ import { API_URL } from "../constants/apiConfig";
 export const registerStudent = async (studentData) => {
   try {
     const response = await axios.post(
-      `${API_URL}/students/register`,
+      `${API_URL}/user/students/register`,
       studentData
     );
     return response.data; // Return the success response

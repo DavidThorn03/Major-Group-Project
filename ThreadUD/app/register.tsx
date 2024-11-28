@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import RegisterStyles from "./styles/RegisterStyles";
 import { registerStudent } from "./services/registerStudent";
+import * as AsyncStorage from "../util/AsyncStorage.js";
+import { useNavigation } from "@react-navigation/native";
+
 
 const RegisterPage = () => {
+  const navigation = useNavigation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,6 +30,8 @@ const RegisterPage = () => {
       };
       const response = await registerStudent(studentData);
       Alert.alert("Success", "Account created successfully!");
+      await AsyncStorage.setItem("User", studentData);
+      await navigation.navigate("index");
       // Optionally navigate to the login page
     } catch (error) {
       Alert.alert(

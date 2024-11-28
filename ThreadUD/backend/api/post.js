@@ -10,7 +10,7 @@ const postSchema = new mongoose.Schema({
   postTitle: String,
   content: String,
   author: String,
-  likes: Number,
+  likes: Array,
   comments: Array,
 });
 
@@ -18,6 +18,7 @@ const Post = mongoose.model("Post", postSchema, "Post");
 
 // Route: Fetch all posts with thread details
 router.get("/", async (req, res) => {
+  console.log("in api");
   try {
     const posts = await Post.aggregate([
       {

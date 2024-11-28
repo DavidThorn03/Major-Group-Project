@@ -11,12 +11,17 @@ import {
 import IndexStyles from "./styles/IndexStyles";
 import { getPosts } from "./services/getPost";
 import { useNavigation } from "@react-navigation/native";
+import Icon from 'react-native-vector-icons/AntDesign';
+import { TouchableHighlight } from "react-native";
+import * as AsyncStorage from "../util/AsyncStorage.js";
+
 
 const IndexPage = () => {
   const navigation = useNavigation();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -25,14 +30,32 @@ const IndexPage = () => {
         setPosts(postsData);
       } catch (err) {
         setError("Failed to load posts.");
-        console.error(err);
+        console.error(err); 
       } finally {
         setLoading(false);
       }
     };
 
     fetchPosts();
+  }, []); 
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("User");
+        setUser(userData);
+        console.log("User data:", userData);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
   }, []);
+
+  const likePost = (post) => {
+    
+  }
 
   if (loading) {
     return (
@@ -49,10 +72,9 @@ const IndexPage = () => {
       </Container>
     );
   }
-
   return (
     <Container>
-      <Header>Welcome to ThreadUD</Header>
+      <Header>Welcome to the ThreadUD {user.email}</Header>
       {posts.length === 0 ? (
         <GeneralText>
           No posts available. Start by creating a new post!
@@ -71,6 +93,8 @@ const IndexPage = () => {
                 Author: {item.author}
               </GeneralText>
               <GeneralText>Likes: {item.likes}</GeneralText>
+              <TouchableHighlight onPress={() => likePost(item)}>
+              <Icon name="hearto" size={30} color="black" /></TouchableHighlight>
             </PostCard>
           )}
         />
