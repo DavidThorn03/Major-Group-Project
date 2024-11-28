@@ -1,7 +1,6 @@
-// post.js
 const express = require("express");
-const router = express.Router();
 const mongoose = require("mongoose");
+const router = express.Router();
 
 // Post Schema
 const postSchema = new mongoose.Schema({
@@ -17,7 +16,7 @@ const postSchema = new mongoose.Schema({
 
 const Post = mongoose.model("Post", postSchema, "Post");
 
-// Post Routes
+// Route: Fetch all posts with thread details
 router.get("/", async (req, res) => {
   try {
     const posts = await Post.aggregate([
@@ -37,9 +36,11 @@ router.get("/", async (req, res) => {
       {
         $project: {
           threadName: { $arrayElemAt: ["$threadData.threadName", 0] },
+          postTitle: "$postTitle",
           author: "$author",
           content: "$content",
           likes: "$likes",
+          comments: "$comments",
         },
       },
     ]);

@@ -1,10 +1,9 @@
-// app.js
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const connectDB = require("./config/db");
-const userRoutes = require("./api/user");
-const postRoutes = require("./api/post");
+const connectDB = require("./config/db"); // Database connection
+const userRoutes = require("./api/user"); // User routes
+const postRoutes = require("./api/post"); // Post routes
 
 const app = express();
 

@@ -1,7 +1,6 @@
-// user.js
 const express = require("express");
-const router = express.Router();
 const mongoose = require("mongoose");
+const router = express.Router();
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -12,25 +11,29 @@ const userSchema = new mongoose.Schema({
   year: Number,
   threads: Array,
   comments: Array,
-  post: Array,
+  posts: Array,
   followThreads: Array,
   admin: Boolean,
 });
 
 const User = mongoose.model("User", userSchema, "User");
 
-// User Routes
+// Route: Fetch user with filters
 router.get("/", async (req, res) => {
-  const { userName, password } = req.query;
-
   try {
-    const user = await User.findOne({ userName, password }).exec();
-    res.json(user);
+    const filters = req.query;
+    const user = await User.findOne(filters).exec();
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Error fetching user", error });
   }
 });
 
+// Route: Create a new user
 router.post("/", async (req, res) => {
   const user = new User({
     userName: req.body.userName,
@@ -38,18 +41,18 @@ router.post("/", async (req, res) => {
     password: req.body.password,
     course: req.body.course,
     year: req.body.year,
-    threads: req.body.threads,
-    comments: req.body.comments,
-    post: req.body.post,
-    followThreads: req.body.followThreads,
-    admin: req.body.admin,
+    threads: req.body.threads || [],
+    comments: req.body.comments || [],
+    posts: req.body.posts || [],
+    followThreads: req.body.followThreads || [],
+    admin: req.body.admin || false,
   });
 
   try {
     const savedUser = await user.save();
     res.status(201).json(savedUser);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: "Error creating user", error });
   }
 });
 
