@@ -82,36 +82,55 @@ const IndexPage = () => {
   }
 
   const likePost = async (post) => {
-    if (user) { 
-      console.log("User logged in", user.email);
-      let likes = post.likes;
-      if(likes.includes(user.email)) {
-        likes.pop(user.email);
-      }
-      else{
-        likes.push(user.email);
-      }
-      console.log("Likes", likes);
-      const filters = { post: post.postTitle, likes: likes };
-
-      try {
-        const like = await Likes(filters);
-        console.log("Like", like);
-      } catch (err) {
-        console.error(err);
-      }
-      window.location.reload();
-    }
-    else {
+    if (!user) {
       console.log("User not logged in");
       navigation.navigate("login");
+      return;
+    }
+  
+    const updatedPosts = posts.map((p) => {
+      if (p._id === post._id) {
+        let updatedLikes;
+  
+        if (p.likes.includes(user.email)) {
+          updatedLikes = p.likes.filter((email) => email !== user.email);
+        } else {
+          updatedLikes = [...p.likes, user.email];
+        }
+  
+        return { ...p, likes: updatedLikes }; 
+      }
+      return p;
+    });
+  
+    setPosts(updatedPosts);
+  
+    try {
+      const updatedPost = updatedPosts.find((p) => p._id === post._id);
+      const filters = { post: post.postTitle, likes: updatedPost.likes };
+      await Likes(filters);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  
+
+  const getLike = (post) => {
+    if(!user) {
+      return unliked;
+    }
+    else if(post.likes.includes(user.email)) {
+      return liked;
+    }
+    else {
+      return unliked;
     }
   }
 
 
   return (
     <Container>
-      <Header>Welcome to the ThreadUD {user.email}</Header>
+      <Header>Welcome to the ThreadUD</Header>
       {posts.length === 0 ? (
         <GeneralText>
           No posts available. Start by creating a new post!
@@ -129,7 +148,7 @@ const IndexPage = () => {
               <GeneralText style={IndexStyles.author}>
                 Author: {item.author}
               </GeneralText>
-              <TouchableHighlight onPress={() => likePost(item)}>{unliked}</TouchableHighlight>
+              <TouchableHighlight onPress={() => likePost(item)}>{getLike(item)}</TouchableHighlight>
               <GeneralText>          {item.likes.length}</GeneralText>
             </PostCard>
           )}
