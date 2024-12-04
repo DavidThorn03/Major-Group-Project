@@ -50,6 +50,10 @@ const LoginScreen = () => {
       <View style={LoginStyles.buttonContainer}>
         <Button title="Log in" onPress={handleLogin} />
       </View>
+      <View style={LoginStyles.buttonContainer}>
+      <Text style={GeneralStyles.text}>Don't have an account?</Text>
+      <Button title="Register new user" onPress={() => navigation.navigate("register")}/>
+        </View>
     </View>
   );
 };
