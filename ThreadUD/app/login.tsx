@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, TextInput } from "react-native";
+import { View, Text, Button, TextInput, Alert } from "react-native";
 import { User } from "./services/getUser"; // Corrected import path and function name
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { useNavigation } from "@react-navigation/native";
@@ -22,8 +22,10 @@ const LoginScreen = () => {
     try {
       const fetchedUser = await User(filters); // Using getUser function as intended
       if (!fetchedUser) {
+        Alert.alert("Failure", "Incorrect email or password");
         console.log("No user found");
       } else {
+        Alert.alert("Success", "Logged in successfully!");
         await AsyncStorage.setItem("User", fetchedUser);
         setUser(fetchedUser);
         await navigation.navigate("index");

@@ -22,10 +22,10 @@ const User = mongoose.model("User", userSchema, "User");
 
 // POST /students/register
 router.post("/students/register", async (req, res) => {
-  const { name, email, password, year, course } = req.body;
+  const { userName, email, password, year, course } = req.body;
 
   // Validate required fields
-  if (!name || !email || !password || !year || !course) {
+  if (!userName || !email || !password || !year || !course) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
@@ -36,7 +36,7 @@ router.post("/students/register", async (req, res) => {
       return res.status(400).json({ message: "Email is already registered." });
     }
 
-    const savedStudent = await User.create({userName: name, email: email, password: password, year: year, course: course, comments: [], threads: [], posts: [], followedThreads: []});
+    const savedStudent = await User.create({userName: userName, email: email, password: password, year: year, course: course, comments: [], threads: [], posts: [], followedThreads: []});
     res.status(201).json({
       message: "Student registered successfully.",
       student: savedStudent,

@@ -149,7 +149,7 @@ const IndexPage = () => {
                 Author: {item.author}
               </GeneralText>
               <TouchableHighlight onPress={() => likePost(item)}>{getLike(item)}</TouchableHighlight>
-              <GeneralText>          {item.likes.length}</GeneralText>
+              <GeneralText>         {item.likes.length}</GeneralText>
             </PostCard>
           )}
         />

@@ -12,6 +12,7 @@ import {
 import { NavigatorContext } from "expo-router/build/views/Navigator.js";
 import { useNavigation } from "@react-navigation/native";
 
+
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [user, setUser] = useState(null); 

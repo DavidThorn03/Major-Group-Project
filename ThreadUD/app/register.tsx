@@ -15,18 +15,18 @@ const RegisterPage = () => {
   const [course, setCourse] = useState("");
 
   const handleRegister = async () => {
+    console.log("Registering...", name, email, password, year, course);
     if (!name || !email || !password || !year || !course) {
       Alert.alert("Error", "All fields are required!");
       return;
     }
-
     try {
       const studentData = {
-        name,
-        email,
-        password,
+        userName : name,
+        email : email,
+        password  : password,
         year: parseInt(year),
-        course,
+        course  : course,
       };
       const response = await registerStudent(studentData);
       Alert.alert("Success", "Account created successfully!");
@@ -47,34 +47,29 @@ const RegisterPage = () => {
       <TextInput
         style={RegisterStyles.input}
         placeholder="Name"
-        value={name}
         onChangeText={setName}
       />
       <TextInput
         style={RegisterStyles.input}
         placeholder="Email"
         keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
+        onChangeText={(email) => setEmail(email.toLowerCase())}
       />
       <TextInput
         style={RegisterStyles.input}
         placeholder="Password"
         secureTextEntry
-        value={password}
         onChangeText={setPassword}
       />
       <TextInput
         style={RegisterStyles.input}
         placeholder="Year"
         keyboardType="numeric"
-        value={year}
         onChangeText={setYear}
       />
       <TextInput
         style={RegisterStyles.input}
         placeholder="Course"
-        value={course}
         onChangeText={setCourse}
       />
       <TouchableOpacity style={RegisterStyles.button} onPress={handleRegister}>
