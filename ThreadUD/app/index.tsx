@@ -38,6 +38,7 @@ const IndexPage = () => {
         }
         else {
           console.log("No user data found");
+          setUser(null);
         }
         setUserSearched(true);
       } catch (err) {
@@ -64,7 +65,6 @@ const IndexPage = () => {
 
     fetchPosts();
   }, [userSearched]); 
-
   if (loading) {
     return (
       <Container>
@@ -158,6 +158,13 @@ const IndexPage = () => {
         title="Create Post"
         onPress={() => console.log("Navigate to Create Post")}
       />
+      {user && 
+      <Button
+        title="Profile"
+        onPress={() => navigation.navigate("profile")}
+        style={{ marginTop: 8 }}
+      />
+    }
       <Button
         title="Login"
         onPress={() => navigation.navigate("login")}
