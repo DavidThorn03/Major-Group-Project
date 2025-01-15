@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const bcrypt = require('bcrypt');
+
 
 const userSchema = new mongoose.Schema(
   {
@@ -23,6 +25,8 @@ const User = mongoose.model("User", userSchema, "User");
 // POST /students/register
 router.post("/students/register", async (req, res) => {
   const { userName, email, password, year, course } = req.body;
+  const saltRounds = 10;
+  const hash = bcrypt.hashSync(password, saltRounds);
 
   // Validate required fields
   if (!userName || !email || !password || !year || !course) {
@@ -35,8 +39,8 @@ router.post("/students/register", async (req, res) => {
     if (existingStudent) {
       return res.status(400).json({ message: "Email is already registered." });
     }
-
-    const savedStudent = await User.create({userName: userName, email: email, password: password, year: year, course: course, comments: [], threads: [], posts: [], followedThreads: []});
+    
+    const savedStudent = await User.create({userName: userName, email: email, password: hash, year: year, course: course, comments: [], threads: [], posts: [], followedThreads: []});
     res.status(201).json({
       message: "Student registered successfully.",
       student: savedStudent,
@@ -50,13 +54,18 @@ router.post("/students/register", async (req, res) => {
 });
 
 router.get("/student", async (req, res) => {
-  const email  = req.query.email;
+  const email = req.query.email;
   const password = req.query.password;
   console.log("email", email);
   console.log("password", password);
   try {
-    const student = await User.findOne({ email: email, password: password }).exec();
-    return res.json(student);
+    const student = await User.findOne({ email: email}).exec();
+    let hashResult = bcrypt.compareSync(password, student.password)
+    if(hashResult){
+      return res.json(student);
+    }
+    console.error("Error fetching student:", error);
+    res.status(500).json({ message: "Incorrect password entered." });
   }
   catch (error) {
     console.error("Error fetching student:", error);
