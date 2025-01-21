@@ -1,24 +1,41 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 const cors = require("cors");
-const connectDB = require("./config/db"); // Database connection
-const userRoutes = require("./api/user"); // User routes
-const postRoutes = require("./api/post"); // Post routes
+
+// Import routes
+const threadRoutes = require("./api/thread");
 
 const app = express();
 
+// Middleware
+app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(express.json()); // Parse JSON requests
+
 // Connect to MongoDB
+const connectDB = async () => {
+  try {
+    await mongoose.connect("mongodb://localhost:27017/threadUD", {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("MongoDB connected successfully");
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+    process.exit(1); // Exit with failure
+  }
+};
 connectDB();
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
+// Define routes
+app.use("/api", threadRoutes); // Use the thread-related routes
 
-// Routes
-app.use("/api/user", userRoutes);
-app.use("/api/post", postRoutes);
+// Default route for health check
+app.get("/", (req, res) => {
+  res.send("ThreadUD Backend is running!");
+});
 
-const PORT = process.env.PORT || 5000;
+// Start the server
+const PORT = 5000; // Default port
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
