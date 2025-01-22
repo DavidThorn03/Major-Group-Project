@@ -4,6 +4,7 @@ const cors = require("cors");
 const connectDB = require("./config/db"); // Database connection
 const userRoutes = require("./api/user"); // User routes
 const postRoutes = require("./api/post"); // Post routes
+const commentRoutes = require("./api/comment"); // Comment routes
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(bodyParser.json());
 // Routes
 app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
+app.use("/api/comment", commentRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

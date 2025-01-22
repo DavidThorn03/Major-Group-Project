@@ -17,6 +17,7 @@ export default function RootLayout() {
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />
       <Stack.Screen name="profile" />
+      <Stack.Screen name="post" />
     </Stack>
   );
 }

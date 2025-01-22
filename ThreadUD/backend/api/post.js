@@ -57,14 +57,12 @@ router.put("/likes", async (req, res) => {
 
   const post = req.body.post;
   const likes = req.body.likes;
-  console.log("Here");
 
   try {
-    // Use findOneAndUpdate instead of findByIdAndUpdate
     const updatedPost = await Post.findOneAndUpdate(
-      { postTitle: post }, // Filter by _id
-      { likes: likes },  // Update the likes field
-      { new: true }      // Return the updated document
+      { postTitle: post }, 
+      { likes: likes }, 
+      { new: true }  
     );
 
     if (!updatedPost) {
@@ -79,6 +77,33 @@ router.put("/likes", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+router.put("/comments", async (req, res) => {
+  console.log("Query Parameters:", req.body);
+
+  const post = req.body.post;
+  const comments = req.body.comments;
+
+  try {
+    const updatedPost = await Post.findOneAndUpdate(
+      { _id: post }, 
+      { comments: comments }, 
+      { new: true }  
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    console.log("Updated Post:", updatedPost);
+    res.json(updatedPost);
+    return updatedPost;
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 
 module.exports = router;
