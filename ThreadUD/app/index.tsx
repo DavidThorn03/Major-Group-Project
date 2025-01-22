@@ -11,10 +11,10 @@ import {
 import IndexStyles from "./styles/IndexStyles";
 import { getPosts } from "./services/getPost";
 import { useNavigation } from "@react-navigation/native";
-import Icon from 'react-native-vector-icons/AntDesign';
+import Icon from "react-native-vector-icons/AntDesign";
 import { TouchableHighlight } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
-import {Likes} from "./services/updateLikes";
+import { Likes } from "./services/updateLikes";
 
 const IndexPage = () => {
   const navigation = useNavigation();
@@ -27,16 +27,14 @@ const IndexPage = () => {
   const liked = <Icon name="heart" size={25} color="red" />;
   const unliked = <Icon name="hearto" size={25} color="red" />;
 
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userData = await AsyncStorage.getItem("User");
-        if(userData) {
+        if (userData) {
           setUser(userData);
           console.log("User data:", userData);
-        }
-        else {
+        } else {
           console.log("No user data found");
           setUser(null);
         }
@@ -52,7 +50,7 @@ const IndexPage = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        if (userSearched) { 
+        if (userSearched) {
           const postsData = await getPosts();
           setPosts(postsData);
           setLoading(false);
@@ -64,7 +62,7 @@ const IndexPage = () => {
     };
 
     fetchPosts();
-  }, [userSearched]); 
+  }, [userSearched]);
   if (loading) {
     return (
       <Container>
@@ -87,24 +85,24 @@ const IndexPage = () => {
       navigation.navigate("login");
       return;
     }
-  
+
     const updatedPosts = posts.map((p) => {
       if (p._id === post._id) {
         let updatedLikes;
-  
+
         if (p.likes.includes(user.email)) {
           updatedLikes = p.likes.filter((email) => email !== user.email);
         } else {
           updatedLikes = [...p.likes, user.email];
         }
-  
-        return { ...p, likes: updatedLikes }; 
+
+        return { ...p, likes: updatedLikes };
       }
       return p;
     });
-  
+
     setPosts(updatedPosts);
-  
+
     try {
       const updatedPost = updatedPosts.find((p) => p._id === post._id);
       const filters = { post: post.postTitle, likes: updatedPost.likes };
@@ -113,20 +111,16 @@ const IndexPage = () => {
       console.error(err);
     }
   };
-  
 
   const getLike = (post) => {
-    if(!user) {
+    if (!user) {
       return unliked;
-    }
-    else if(post.likes.includes(user.email)) {
+    } else if (post.likes.includes(user.email)) {
       return liked;
-    }
-    else {
+    } else {
       return unliked;
     }
-  }
-
+  };
 
   return (
     <Container>
@@ -148,8 +142,10 @@ const IndexPage = () => {
               <GeneralText style={IndexStyles.author}>
                 Author: {item.author}
               </GeneralText>
-              <TouchableHighlight onPress={() => likePost(item)}>{getLike(item)}</TouchableHighlight>
-              <GeneralText>         {item.likes.length}</GeneralText>
+              <TouchableHighlight onPress={() => likePost(item)}>
+                {getLike(item)}
+              </TouchableHighlight>
+              <GeneralText> {item.likes.length}</GeneralText>
             </PostCard>
           )}
         />
@@ -158,13 +154,13 @@ const IndexPage = () => {
         title="Create Post"
         onPress={() => console.log("Navigate to Create Post")}
       />
-      {user && 
-      <Button
-        title="Profile"
-        onPress={() => navigation.navigate("profile")}
-        style={{ marginTop: 8 }}
-      />
-    }
+      {user && (
+        <Button
+          title="Profile"
+          onPress={() => navigation.navigate("profile")}
+          style={{ marginTop: 8 }}
+        />
+      )}
       <Button
         title="Login"
         onPress={() => navigation.navigate("login")}

@@ -1,18 +1,17 @@
 const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema({
-  threadId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Thread",
+  threadID: {
+    type: mongoose.Schema.Types.ObjectId, // Ensures threadID is an ObjectId
+    ref: "Thread", // References the Thread collection
     required: true,
-  }, // Associated thread
+  },
+  postTitle: { type: String, required: true }, // Post title
   content: { type: String, required: true }, // Post content
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  }, // Creator of the post
-  createdAt: { type: Date, default: Date.now }, // Creation date
+  author: { type: String, required: true }, // Post author
+  likes: { type: Array, default: [] }, // Array of likes
+  comments: { type: Array, default: [] }, // Array of comments
+  createdAt: { type: Date, default: Date.now }, // Creation timestamp
 });
 
-module.exports = mongoose.model("Post", postSchema);
+module.exports = mongoose.models.Post || mongoose.model("Post", postSchema);
