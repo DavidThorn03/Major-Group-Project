@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
+const ObjectId = mongoose.Types.ObjectId;
 
 // Post Schema
 const postSchema = new mongoose.Schema({
@@ -83,10 +84,12 @@ router.put("/comments", async (req, res) => {
 
   const post = req.body.post;
   const comments = req.body.comments;
+  console.log("post", post);
+  console.log("comments", comments);
 
   try {
     const updatedPost = await Post.findOneAndUpdate(
-      { _id: post }, 
+      { postTitle: post }, 
       { comments: comments }, 
       { new: true }  
     );
@@ -97,7 +100,7 @@ router.put("/comments", async (req, res) => {
 
     console.log("Updated Post:", updatedPost);
     res.json(updatedPost);
-    return updatedPost;
+    return updatedPost._id;
   } catch (error) {
     console.error("Error updating post:", error);
     res.status(500).json({ message: error.message });

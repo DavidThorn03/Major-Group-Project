@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "../constants/apiConfig";
 
-export const AddComment = async (commentFilter = {}, postFilter = {}) => {
+export const AddReply = async (commentFilter = {}, postFilter = {}) => {
   console.log("Comment", commentFilter);
   console.log("Post", postFilter);
 

@@ -6,7 +6,7 @@ const commentSchema = new mongoose.Schema(
   {
     author: { type: String, required: true },
     content: { type: String, required: true },
-    replies: { type: Array, required: true },
+    replyid: { type: Array, required: true },
     likes: { type: Array, required: true }
   },
   { versionKey: false } 
@@ -15,9 +15,8 @@ const commentSchema = new mongoose.Schema(
 const Comment = mongoose.model("Comment", commentSchema, "Comment");
 
 router.post("/add", async (req, res) => {
-  console.log("Query Parameters:", req.body);
-    let author = req.query.comment.author;
-    let content = req.query.comment.content;
+    let author = req.body.comment.author;
+    let content = req.body.comment.content;
   
     console.log("author", author);
     console.log("content", content);
@@ -44,13 +43,14 @@ router.post("/add", async (req, res) => {
     if (ids.length === 0) {
       return res.status(400).json({ message: "No valid IDs provided" });
     }
+    console.log("ids", ids);
   
     try {
       const comments = await Comment.find({ _id: { $in: ids } }).exec();
       if (!comments || comments.length === 0) {
         return res.status(404).json({ message: "No comments found for the provided IDs" });
       }
-  
+      console.log("comments", comments);
       return res.json(comments);
     } catch (error) {
       console.error("Error fetching comments:", error);
@@ -58,8 +58,7 @@ router.post("/add", async (req, res) => {
     }
   });
   
-  
-  
+
 
 router.put("/likes", async (req, res) => {
     console.log("Query Parameters:", req.body);
@@ -92,7 +91,7 @@ router.put("/likes", async (req, res) => {
     }
   });
 
-router.put("/comment/replies", async (req, res) => {
+router.put("/comment/reply", async (req, res) => {
     console.log("Query Parameters:", req.body);
   
     const comment = req.body.post;

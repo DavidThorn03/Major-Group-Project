@@ -5,7 +5,8 @@ import {
   Header,
   PostCard,
   ThreadName,
-  GeneralText
+  GeneralText,
+  Button
 } from "./components/StyledWrappers";
 import { useNavigation } from "@react-navigation/native";
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -25,7 +26,8 @@ const PostPage = () => {
   const [user, setUser] = useState([]);
   const [postSearched, setPostsearched] = useState(false);
   const [comments, setComments] = useState([]);
-  const [text, onChangeText] = React.useState("");
+  const [text, onChangeText] = useState("");
+  const [input, setInput] = useState(false)
 
   const postLiked = <Icon name="heart" size={25} color="red" />;
   const postUnliked = <Icon name="hearto" size={25} color="red" />;
@@ -143,17 +145,25 @@ const PostPage = () => {
       navigation.navigate("login");
       return;
     }
-    let newComment = { content: text, author: user.email, likes: [], replies: [] };
+    else if (text === "") {
+      console.log("No comment entered");
+      return;
+    }
+    let newComment = { content: text, author: user.email, likes: [], replyid: [] };
     let updatedComments = [ ...comments, newComment ];
     console.log("Updated comments: ", updatedComments);
     setComments(updatedComments);
   
     try {
       const commentFilters = { comment: newComment };
-      const postFilters = { post: post._id, comments: post.comments };
+      const postFilters = { post: post.postTitle, comments: post.comments };
       console.log("Adding comment ");
-      await AddComment(commentFilters, postFilters);
+      const newID = await AddComment(commentFilters, postFilters); 
+      console.log("New comment ID: ", newID);
+      post.comments.push(newID);
+      setPost(post);
       console.log("Comment added");
+      setInput(false);
     } catch (err) {
       console.error(err);
     }
@@ -182,7 +192,7 @@ const PostPage = () => {
       });
     
       setComments(updatedComments);
-    
+       
       try {
         const updatedComment = updatedComments.find((c) => c._id === comment._id);
         const filters = { comment: comment._id, likes: updatedComment.likes };
@@ -217,6 +227,41 @@ const PostPage = () => {
     }
   }
 
+  const getReplies = async (comment) => {
+    const replies = await getComments( { id: comment.replyid } );
+    const updatedComments = comments.map((c) => {
+      if (c._id === comment._id) {
+        let updatedLikes;
+  
+        c.replies = replies;
+      }
+      else if (c.replies) {
+        c.replies = null;
+      }
+      return c;
+    });
+    setComments(updatedComments);
+    console.log("Updated comments: ", comments);
+  }
+
+  const commentInput = () => {
+    setInput(!input);
+  }
+
+  const reply = async (comment) => {
+    if (!user) {
+      console.log("User not logged in");
+      navigation.navigate("login");
+      return;
+    }
+    else if (text === "") {
+      console.log("No comment entered");
+      return;
+    }
+    let newComment = { content: text, author: user.email, likes: [], replyid: [] };
+    
+  }
+
   const printComments = (comments) => {
     return (
       <FlatList
@@ -225,8 +270,29 @@ const PostPage = () => {
           <PostCard>
             <GeneralText>{item.content}</GeneralText>
             <GeneralText>Author: {item.author}</GeneralText>
+            <View style={{flexDirection: "row"}}>
             <TouchableOpacity onPress={() => likeComment(item)}>{getCommentLike(item)}</TouchableOpacity>
-            <GeneralText>         {item.likes.length}</GeneralText>
+            <GeneralText> {item.likes.length}   </GeneralText>
+            <TouchableOpacity onPress={() => reply(item)}><Icon name="message1" size={15}/></TouchableOpacity>
+            <GeneralText> {item.replyid.length}  </GeneralText>
+            </View>
+            {input && 
+            <View style={{flexDirection: "row"}}>
+            <TextInput 
+                onChangeText={onChangeText}
+                value={text}
+                placeholder="Reply to comment"
+                autoFocus={true}
+              />
+              <TouchableOpacity onPress={() => reply(item)}>
+                <Icon name="plus" size={25}/>
+              </TouchableOpacity>
+              </View>
+            }
+            {(item.replyid.length > 0 && !item.replies) && 
+            <Button title="View Replies" onPress={() => getReplies(item)} />
+            }
+            {item.replies && printComments(item.replies)}
           </PostCard>
         )}
         keyExtractor={(item) => item._id}
@@ -247,21 +313,25 @@ const PostPage = () => {
         <TouchableOpacity onPress={() => likePost(post)}>{getPostLike(post)}</TouchableOpacity>
         <GeneralText>  {post.likes.length}  </GeneralText>
 
-        <TouchableOpacity><Icon name="message1" size={25}/></TouchableOpacity>
+        <TouchableOpacity onPress={() => commentInput()}><Icon name="message1" size={25}/></TouchableOpacity>
         <GeneralText>  {post.comments.length}  </GeneralText>
       </View>
       <Header>Comments</Header>
+      {input && 
       <View style={{flexDirection: "row"}}>
-      <TextInput
+      <TextInput 
           onChangeText={onChangeText}
           value={text}
           placeholder="Add a comment"
+          autoFocus={true}
         />
         <TouchableOpacity onPress={() => addComment(post)}>
           <Icon name="plus" size={25}/>
         </TouchableOpacity>
-      </View>
+        </View>
+      }
       {printComments(comments)}
+      <Button title="Back" onPress={() => navigation.navigate("index")} /> 
     </Container>
   );
 };
