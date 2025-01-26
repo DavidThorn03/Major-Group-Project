@@ -15,6 +15,9 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import { TouchableHighlight } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import {Likes} from "./services/updateLikes";
+import io from "socket.io-client";
+import { API_URL } from "./constants/apiConfig";
+
 
 const IndexPage = () => {
   const navigation = useNavigation();
@@ -63,14 +66,33 @@ const IndexPage = () => {
       }
     };
 
-    fetchPosts();
+    fetchPosts(); 
   }, [userSearched]); 
+
+  useEffect(() => {
+    console.log('Setting up socket connection...');
+    const socket = io("http://192.168.0.11:3000/");  // same as route in api url but without the /api
+  
+    socket.on('update posts', (updatedPosts) => {
+      console.log('Received updated posts:', updatedPosts);  // Check if this is logged
+      setPosts(updatedPosts);
+    });
+  
+    return () => {
+      socket.disconnect();
+      console.log('Socket disconnected');
+    };
+  }, []);
+  
+
+
+
   if (loading) {
     return (
       <Container>
         <GeneralText>Loading posts...</GeneralText>
       </Container>
-    );
+    ); 
   }
 
   if (error) {
