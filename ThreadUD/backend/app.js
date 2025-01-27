@@ -1,24 +1,26 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const connectDB = require("./config/db"); // Database connection
-const userRoutes = require("./api/user"); // User routes
-const postRoutes = require("./api/post"); // Post routes
+const http = require("http");
+const { Server } = require("socket.io");
+const { handlePostChangeStream, router: postRoutes } = require("./api/post");
+const userRoutes = require("./api/user");
+const connectDB = require("./config/db");
 
 const app = express();
-
-// Connect to MongoDB
-connectDB();
+const server = http.createServer(app);
+const io = new Server(server);
 
 // Middleware
-app.use(cors());
-app.use(bodyParser.json());
-
-// Routes
-app.use("/api/user", userRoutes);
+app.use(express.json());
 app.use("/api/post", postRoutes);
+app.use("/api/user", userRoutes);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Database Connection
+connectDB();
+
+// Start Real-Time Streams
+handlePostChangeStream(io);
+
+// Start Server
+server.listen(3000, () => {
+    console.log("Server listening");
 });
