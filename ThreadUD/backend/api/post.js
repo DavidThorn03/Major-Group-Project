@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
+const ObjectId = mongoose.Types.ObjectId;
 
 // Post Schema
 const postSchema = new mongoose.Schema({
@@ -78,6 +79,35 @@ router.put("/likes", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+router.put("/comments", async (req, res) => {
+  console.log("Query Parameters:", req.body);
+
+  const post = req.body.post;
+  const comments = req.body.comments;
+  console.log("post", post);
+  console.log("comments", comments);
+
+  try {
+    const updatedPost = await Post.findOneAndUpdate(
+      { postTitle: post }, 
+      { comments: comments }, 
+      { new: true }  
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    console.log("Updated Post:", updatedPost);
+    res.json(updatedPost);
+    return updatedPost._id;
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 
 const handlePostChangeStream = (io) => { // and then this is use to get any new informtion that relates to the same query

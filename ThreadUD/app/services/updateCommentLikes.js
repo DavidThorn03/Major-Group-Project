@@ -1,10 +1,10 @@
 import axios from "axios";
 import { API_URL } from "../constants/apiConfig";
 
-export const Likes = async (filters = {}) => {
+export const CommentLikes = async (filters = {}) => {
   console.log("filters", filters);
   try {
-    const response = await axios.put(`${API_URL}/post/likes`, filters);
+    const response = await axios.put(`${API_URL}/comment/likes`, filters);
     return response.data;
   } catch (error) {
     console.error("Error fetching user:", error);

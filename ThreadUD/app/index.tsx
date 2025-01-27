@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FlatList } from "react-native";
+import { FlatList, View } from "react-native";
 import {
   Container,
   Header,
@@ -12,7 +12,7 @@ import IndexStyles from "./styles/IndexStyles";
 import { getPosts } from "./services/getPost";
 import { useNavigation } from "@react-navigation/native";
 import Icon from 'react-native-vector-icons/AntDesign';
-import { TouchableHighlight } from "react-native";
+import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import {Likes} from "./services/updateLikes";
 import io from "socket.io-client";
@@ -149,6 +149,11 @@ const IndexPage = () => {
     }
   }
 
+  const ViewPost = (post) => {
+    AsyncStorage.setItem("Post", JSON.stringify(post));
+    navigation.navigate("post");
+  }
+
 
   return (
     <Container>
@@ -170,8 +175,13 @@ const IndexPage = () => {
               <GeneralText style={IndexStyles.author}>
                 Author: {item.author}
               </GeneralText>
-              <TouchableHighlight onPress={() => likePost(item)}>{getLike(item)}</TouchableHighlight>
-              <GeneralText>         {item.likes.length}</GeneralText>
+              <View style={{flexDirection: "row"}}>
+              <TouchableOpacity onPress={() => likePost(item)}>{getLike(item)}</TouchableOpacity>
+              <GeneralText>  {item.likes.length}  </GeneralText>
+              <TouchableOpacity onPress={() => ViewPost(item)}><Icon name="message1" size={25}/></TouchableOpacity>
+              <GeneralText>  {item.comments.length}  </GeneralText>
+              </View>
+              
             </PostCard>
           )}
         />
