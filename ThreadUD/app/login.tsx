@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, TextInput, Alert } from "react-native";
-import { User } from "./services/getUser"; // Corrected import path and function name
+import { User } from "./services/getUser";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { useNavigation } from "@react-navigation/native";
-import GeneralStyles from "./styles/GeneralStyles"; // Importing general styles (same directory as login.tsx)
-import LoginStyles from "./styles/LoginStyles"; // Importing specific styles for the login page
+import GeneralStyles from "./styles/GeneralStyles"; 
+import LoginStyles from "./styles/LoginStyles";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -20,7 +20,7 @@ const LoginScreen = () => {
     };
 
     try {
-      const fetchedUser = await User(filters); // Using getUser function as intended
+      const fetchedUser = await User(filters); 
       if (!fetchedUser) {
         Alert.alert("Failure", "Incorrect email or password");
         console.log("No user found");

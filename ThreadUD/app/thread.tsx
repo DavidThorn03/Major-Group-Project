@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, ScrollView } from "react-native";
-
+import React, { useEffect, useState } from "react";
+import { View, Text, Button, FlatList, ScrollView} from "react-native";
+import { User } from "./services/getUser.js";
 const Thread = () => {
   return (
     <ScrollView className="flex-1 bg-gray-100">
