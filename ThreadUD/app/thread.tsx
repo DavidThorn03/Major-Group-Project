@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, FlatList } from "react-native";
-import { User } from "../api/getUser.js";
+import { User } from "./services/getUser.js";
 
 const ThreadScreen = () => {
   const [user, setUser] = useState([]);
