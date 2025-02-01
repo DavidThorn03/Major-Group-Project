@@ -2,7 +2,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const { handlePostChangeStream, router: postRoutes } = require("./api/post");
-const commentRoutes = require("./api/comment"); // Comment routes
+const { handleCommentChangeStream, router: commentRoutes } = require("./api/comment");
 const userRoutes = require("./api/user");
 const connectDB = require("./config/db");
 
@@ -22,6 +22,7 @@ connectDB();
 
 // Start Real-Time Streams
 handlePostChangeStream(io);
+handleCommentChangeStream(io);
 
 
 // Start Server

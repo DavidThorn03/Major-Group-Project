@@ -16,7 +16,6 @@ import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import {Likes} from "./services/updateLikes";
 import io from "socket.io-client";
-import { API_URL } from "./constants/apiConfig";
 
 
 const IndexPage = () => {
@@ -71,10 +70,10 @@ const IndexPage = () => {
 
   useEffect(() => {
     console.log('Setting up socket connection...');
-    const socket = io("http://192.168.0.11:3000/");  // same as route in api url but without the /api
+    const socket = io("http://192.168.0.11:3000/"); 
   
     socket.on('update posts', (updatedPosts) => {
-      console.log('Received updated posts:', updatedPosts);  // Check if this is logged
+      console.log('Received updated posts:', updatedPosts); 
       setPosts(updatedPosts);
     });
   
@@ -83,9 +82,6 @@ const IndexPage = () => {
       console.log('Socket disconnected');
     };
   }, []);
-  
-
-
 
   if (loading) {
     return (
@@ -104,37 +100,26 @@ const IndexPage = () => {
   }
 
   const likePost = async (post) => {
-    if (!user) {
-      console.log("User not logged in");
-      navigation.navigate("login");
-      return;
-    }
-  
-    const updatedPosts = posts.map((p) => {
-      if (p._id === post._id) {
-        let updatedLikes;
-  
-        if (p.likes.includes(user.email)) {
-          updatedLikes = p.likes.filter((email) => email !== user.email);
-        } else {
-          updatedLikes = [...p.likes, user.email];
-        }
-  
-        return { ...p, likes: updatedLikes }; 
+      if (!user) {
+        console.log("User not logged in");
+        navigation.navigate("login");
+        return;
       }
-      return p;
-    });
-  
-    setPosts(updatedPosts);
-  
-    try {
-      const updatedPost = updatedPosts.find((p) => p._id === post._id);
-      const filters = { post: post.postTitle, likes: updatedPost.likes };
-      await Likes(filters);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+      let action;
+    
+      if (post.likes.includes(user.email)) {
+        action = -1;
+      } else {
+        action = 1;
+      }
+    
+      try {
+        const filters = { post: post.postTitle, like: user.email, action: action };
+        await Likes(filters);
+      } catch (err) {
+        console.error(err);
+      }
+    };
   
 
   const getLike = (post) => {
@@ -150,7 +135,7 @@ const IndexPage = () => {
   }
 
   const ViewPost = (post) => {
-    AsyncStorage.setItem("Post", JSON.stringify(post));
+    AsyncStorage.setItem("Post",  {"_id": post._id, "threadName": post.threadName});
     navigation.navigate("post");
   }
 
@@ -168,7 +153,8 @@ const IndexPage = () => {
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
             <PostCard>
-              <ThreadName>{item.threadName}</ThreadName>
+              <GeneralText>{item.threadName}</GeneralText>
+              <ThreadName>{item.postTitle}</ThreadName>
               <GeneralText style={IndexStyles.postContent}>
                 {item.content}
               </GeneralText>
