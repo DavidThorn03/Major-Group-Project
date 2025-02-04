@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
-import { getPostsByThread } from "./services/getPost";
+import { getPostsByThread } from "./services/getThreadPosts.js";
 import { useRoute } from "@react-navigation/native";
 
 const Thread = () => {
