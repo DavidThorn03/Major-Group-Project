@@ -11,10 +11,10 @@ import {
 import IndexStyles from "./styles/IndexStyles";
 import { getPosts } from "./services/getPost";
 import { useNavigation } from "@react-navigation/native";
-import Icon from 'react-native-vector-icons/AntDesign';
+import Icon from "react-native-vector-icons/AntDesign";
 import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
-import {Likes} from "./services/updateLikes";
+import { Likes } from "./services/updateLikes";
 import io from "socket.io-client";
 import { API_URL } from "./constants/apiConfig";
 
@@ -63,33 +63,30 @@ const IndexPage = () => {
       }
     };
 
-    fetchPosts(); 
-  }, [userSearched]); 
+    fetchPosts();
+  }, [userSearched]);
 
   useEffect(() => {
-    console.log('Setting up socket connection...');
-    const socket = io("http://192.168.1.8:3000/");  // same as route in api url but without the /api
-  
-    socket.on('update posts', (updatedPosts) => {
-      console.log('Received updated posts:', updatedPosts);  // Check if this is logged
+    console.log("Setting up socket connection...");
+    const socket = io("http://192.168.1.17:3000/"); // same as route in api url but without the /api
+
+    socket.on("update posts", (updatedPosts) => {
+      console.log("Received updated posts:", updatedPosts); // Check if this is logged
       setPosts(updatedPosts);
     });
-  
+
     return () => {
       socket.disconnect();
-      console.log('Socket disconnected');
+      console.log("Socket disconnected");
     };
   }, []);
-  
-
-
 
   if (loading) {
     return (
       <Container>
         <GeneralText>Loading posts...</GeneralText>
       </Container>
-    ); 
+    );
   }
 
   if (error) {
@@ -141,13 +138,12 @@ const IndexPage = () => {
     } else {
       return unliked;
     }
-  }
+  };
 
   const ViewPost = (post) => {
     AsyncStorage.setItem("Post", JSON.stringify(post));
     navigation.navigate("post");
-  }
-
+  };
 
   return (
     <Container>
@@ -169,13 +165,16 @@ const IndexPage = () => {
               <GeneralText style={IndexStyles.author}>
                 Author: {item.author}
               </GeneralText>
-              <View style={{flexDirection: "row"}}>
-              <TouchableOpacity onPress={() => likePost(item)}>{getLike(item)}</TouchableOpacity>
-              <GeneralText>  {item.likes.length}  </GeneralText>
-              <TouchableOpacity onPress={() => ViewPost(item)}><Icon name="message1" size={25}/></TouchableOpacity>
-              <GeneralText>  {item.comments.length}  </GeneralText>
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity onPress={() => likePost(item)}>
+                  {getLike(item)}
+                </TouchableOpacity>
+                <GeneralText> {item.likes.length} </GeneralText>
+                <TouchableOpacity onPress={() => ViewPost(item)}>
+                  <Icon name="message1" size={25} />
+                </TouchableOpacity>
+                <GeneralText> {item.comments.length} </GeneralText>
               </View>
-              
             </PostCard>
           )}
         />
