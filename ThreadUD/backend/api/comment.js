@@ -15,7 +15,7 @@ const commentSchema = new mongoose.Schema(
 
 const Comment = mongoose.model("Comment", commentSchema, "Comment");
 
-router.post("/add", async (req, res) => {
+router.post("/add", async (req, res) => { // THIS WORKS
     let author = req.body.comment.author;
     let content = req.body.comment.content;
   
@@ -68,7 +68,26 @@ router.post("/add", async (req, res) => {
     }
   });
   
-
+  router.delete("/remove", async (req, res) => {
+    console.log("Query:", req.body);
+    
+    const comment = req.body.comment;
+  
+    try {
+      const deletedComment = await Comment.findOneAndDelete({ _id: comment });
+  
+      if (!deletedComment) {
+        return res.status(404).json({ message: "No comment found for the provided ID" });
+      }
+  
+      return res.json({ deletedId: deletedComment._id });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      res.status(500).json({ message: "An error occurred while deleting the comment." });
+    }
+  });
+  
+  
 
 router.put("/likes", async (req, res) => {
   console.log("Query Parameters:", req.body);
@@ -108,17 +127,14 @@ router.put("/likes", async (req, res) => {
   }
 });
 
-router.post("/reply", async (req, res) => {
+router.put("/reply", async (req, res) => {
   console.log("Query Parameters:", req.body);
 
-  const content = req.body.content;
-  const author = req.body.author;
+  const reply_id = req.body.reply_id;
   const _id = req.body._id;
-  const action = req.body.action;
+  const action = req.body.action; 
 
   try {
-    const reply = await Comment.create({author: author, content: content, replyid: [], likes: []});
-    const reply_id = reply._id;
 
     let updatedQuery = {};
 
@@ -153,56 +169,48 @@ router.post("/reply", async (req, res) => {
     
     io.on("connection", (socket) => {
       const id = socket.handshake.query.post;
-      changeCommentStream.on("change", async (next) => {
-        //console.log("Listening for changes to post with id:", id);
-
+      console.log(`New client connected for post ${id}`);
+    
+      const handleCommentChange = async (next) => {
         try {
-          //console.log("Change detected in Comment collection:", next);
-  
-          if (["insert", "update", "delete"].includes(next.operationType)) {
+          if (next.operationType === "update") {
             const post = await getSinglePost(id);
-            if (!post) {
-              //console.log(`Post with id ${id} not found.`);
-              return;
-            }
-  
+            if (!post) return;
+    
             const ids = post.comments || [];
             const updatedComments = await getComments(ids);
-            io.emit("update comments", updatedComments);
-            //console.log("Emitted updated comments to clients in room:", id);
+            socket.emit("update comments", updatedComments);
           }
         } catch (error) {
-          //console.error("Error processing comment change stream:", error);
+          console.error("Error processing comment change stream:", error);
         }
-      });
-
-    changePostStream.on("change", async (next) => {
-      //console.log("Listening for changes to post with id:", id);
-
-      try {
-        //console.log("Change detected in Comment collection:", next);
-
-        if ("update".includes(next.operationType)) {
-          const post = await getSinglePost(id);
-          if (!post) {
-            //console.log(`Post with id ${id} not found.`);
-            return;
+      };
+    
+      const handlePostChange = async (next) => {
+        try {
+          if (next.operationType === "update") {
+            const post = await getSinglePost(id);
+            if (!post) return;
+    
+            const ids = post.comments || [];
+            const updatedComments = await getComments(ids);
+            socket.emit("update comments", updatedComments);
           }
-
-          const ids = post.comments || [];
-          const updatedComments = await getComments(ids);
-          io.emit("update comments", updatedComments);
-          //console.log("Emitted updated comments to clients in room:", id);
+        } catch (error) {
+          console.error("Error processing post change stream:", error);
         }
-      } catch (error) {
-        //console.error("Error processing comment change stream:", error);
-      }
+      };
+    
+      changeCommentStream.on("change", handleCommentChange);
+      changePostStream.on("change", handlePostChange);
+    
+      socket.on("disconnect", () => {
+        console.log(`Client disconnected from post ${id}`);
+        changeCommentStream.removeListener("change", handleCommentChange);
+        changePostStream.removeListener("change", handlePostChange);
+      });
     });
-
-    socket.on("disconnect", () => {
-      //console.log("Client disconnected");
-    });
-  });
+    
   };
   
 

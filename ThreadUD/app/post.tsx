@@ -18,6 +18,8 @@ import {getComments} from "./services/getComments";
 import {AddComment} from "./services/addComment";
 import {AddReply} from "./services/addReply";
 import {getSinglePost} from "./services/getSinglePost";
+import {RemoveComment} from "./services/removeComment";
+import {RemoveReply} from "./services/removeReply";
 import IndexStyles from "./styles/IndexStyles";
 import io from "socket.io-client";
 
@@ -31,6 +33,7 @@ const PostPage = () => {
   const [comments, setComments] = useState([]);
   const [text, onChangeText] = useState("");
   const [input, setInput] = useState(false)
+  const [socket, setSocket] = useState(null);
 
   const postLiked = <Icon name="heart" size={25} color="red" />;
   const postUnliked = <Icon name="hearto" size={25} color="red" />;
@@ -104,27 +107,35 @@ const PostPage = () => {
     fetchComments();
   }, [postSearched]); 
 
-  useEffect(() => {
-    if (postSearched && post._id) {  // Ensure post._id exists
-      console.log('Setting up socket connection...');
-      
-      const socket = io("http://192.168.0.11:3000/", {
-        query: { post: post._id }, 
-      });
-  
-      console.log("Post ID: ", post._id);
-      
-      socket.on('update comments', (updatedComments) => {
-        console.log('Received updated comments:', updatedComments); 
-        setComments(updatedComments);
-      });
-  
-      return () => {
-        socket.disconnect();
-        console.log('Socket disconnected');
-      };
+
+useEffect(() => {
+  if (postSearched && post?._id) {
+    console.log("Setting up socket connection for post:", post._id);
+
+    if (socket) {
+      console.log("Disconnecting previous socket before setting up a new one");
+      socket.disconnect();
     }
-  }, [postSearched, post._id]); // Include post._id in dependencies
+
+    const newSocket = io("http://192.168.0.11:3000/", {
+      query: { post: post._id },
+    });
+
+    newSocket.on("update comments", (updatedComments) => {
+      console.log("Received updated comments:", updatedComments);
+      setComments(updatedComments);
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      console.log("Disconnecting socket for post:", post._id);
+      newSocket.disconnect();
+    };
+  }
+}, [postSearched, post?._id]); 
+
+  
   
 
 
@@ -184,9 +195,13 @@ const PostPage = () => {
   
     try {
       const commentFilters = { comment: newComment };
-      const postFilters = { post: post.postTitle, action: 1 };
+      const postFilters = { post: post._id, action: 1 };
       console.log("Adding comment ");
       const newID = await AddComment(commentFilters, postFilters); 
+      const updatedCommentsIDs = [...post.comments, newID];	
+      const updatedPost = { ...post, comments: updatedCommentsIDs };
+      setPost(updatedPost);
+
       console.log("Comment added");
       setInput(false);
       onChangeText("");
@@ -283,7 +298,8 @@ const PostPage = () => {
     }
   
     try {
-      const filter = { content: text, author: user.email, _id: comment._id, action: 1 };
+      const reply = { content: text, author: user.email };
+      const filter = { comment: reply, _id: comment._id, action: 1 };
       console.log("Adding comment "); 
       const newID = await AddReply(filter); 
       console.log("Comment added");
@@ -293,6 +309,41 @@ const PostPage = () => {
       console.error(err);
     }
   };
+
+  const deleteComment = async (comment, parent) => {
+    if (!user) {
+      console.log("User not logged in");
+      navigation.navigate("login");
+      return;
+    }
+    else if (comment.author !== user.email) {
+      console.log("User not authorized to delete comment");
+      return;
+    } 
+    if(parent === null){
+      try {
+        const filter = { comment: comment._id, action: -1, post: post._id };
+        console.log("Deleting comment ");
+        await RemoveComment(filter); 
+        console.log("Comment deleted");
+      } catch (err) {
+        console.error(err);
+      }
+      const updatedCommentIDs = post.comments.filter((id) => id !== comment._id);
+      const updatedPost = { ...post, comments: updatedCommentIDs };
+      setPost(updatedPost);
+    }
+    else {
+      try {
+        const filter = { reply_id: comment._id, action: -1, _id: parent._id };
+        console.log("Deleting reply "); 
+        await RemoveReply(filter); 
+        console.log("Reply deleted");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
 
   const enterReply = (comment) => {
     comment.replyInput = true;
@@ -318,7 +369,11 @@ const PostPage = () => {
             <TouchableOpacity onPress={() => likeComment(item)}>{getCommentLike(item)}</TouchableOpacity>
             <GeneralText> {item.likes.length}   </GeneralText>
             <TouchableOpacity onPress={() => enterReply(item)}><Icon name="message1" size={15}/></TouchableOpacity>
-            <GeneralText> {item.replyid.length}  </GeneralText>
+            <GeneralText> {item.replyid.length} </GeneralText>
+            {item.author === user.email && 
+              <TouchableOpacity onPress={() => deleteComment(item, comment)}>
+                <Icon name="delete" size={20} color="red"/>
+              </TouchableOpacity>}
             </View>
             {item.replyInput && 
             <View style={{flexDirection: "row"}}>

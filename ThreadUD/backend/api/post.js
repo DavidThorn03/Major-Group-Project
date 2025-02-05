@@ -1,18 +1,19 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
-const ObjectId = mongoose.Types.ObjectId;
 
 // Post Schema
-const postSchema = new mongoose.Schema({
-  threadID: String,
-  threadName: String,
-  postTitle: String,
-  content: String,
-  author: String,
-  likes: Array,
-  comments: Array,
-});
+const postSchema = new mongoose.Schema(
+  {
+    threadID: String,
+    threadName: String,
+    postTitle: String,
+    content: String,
+    author: String,
+    likes: Array,
+    comments: Array
+  },{ versionKey: false } 
+);
 
 const Post = mongoose.model("Post", postSchema, "Post");
 
@@ -89,7 +90,7 @@ router.put("/likes", async (req, res) => {
   }
 });
 
-router.put("/comments", async (req, res) => {
+router.put("/comments", async (req, res) => {   // THIS WORKS FINE, OTHERS ARE PROBLEM
   console.log("Query Parameters:", req.body);
 
   const post = req.body.post;
@@ -107,7 +108,7 @@ router.put("/comments", async (req, res) => {
     }
 
     const updatedPost = await Post.findOneAndUpdate(
-      { postTitle: post }, 
+      { _id: post }, 
       updatedQuery, 
       { new: true }  
     );
