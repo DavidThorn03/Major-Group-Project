@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const posts = await Post.find({ threadID: mongoose.Types.ObjectId(threadId) });
 
 const connectDB = async () => {
   try {
