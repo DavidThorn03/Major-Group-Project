@@ -1,29 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import User from "../models/User.js"; // Import the User model
 
 const router = express.Router();
 
-const userSchema = new mongoose.Schema(
-  {
-    userName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    admin: { type: Boolean, default: false },
-    year: { type: Number, required: true },
-    course: { type: String, required: true },
-    threads: { type: Array, default: [] },
-    posts: { type: Array, default: [] },
-    comments: { type: Array, default: [] },
-    followedThreads: { type: Array, default: [] },
-  },
-  { versionKey: false }
-);
-
-const User = mongoose.model("User", userSchema, "User");
-
-// POST /students/register
-router.post("/students/register", async (req, res) => {
+// POST /user/register
+router.post("/register", async (req, res) => {
   const { userName, email, password, year, course } = req.body;
   const saltRounds = 10;
   const hash = bcrypt.hashSync(password, saltRounds);
@@ -35,52 +18,109 @@ router.post("/students/register", async (req, res) => {
 
   try {
     // Check if email already exists
-    const existingStudent = await User.findOne({ email });
-    if (existingStudent) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({ message: "Email is already registered." });
     }
 
-    const savedStudent = await User.create({
-      userName: userName,
-      email: email,
+    const newUser = await User.create({
+      userName,
+      email,
       password: hash,
-      year: year,
-      course: course,
-      comments: [],
-      threads: [],
-      posts: [],
-      followedThreads: [],
+      year,
+      course,
     });
+
     res.status(201).json({
-      message: "Student registered successfully.",
-      student: savedStudent,
+      message: "User registered successfully.",
+      user: newUser,
     });
   } catch (error) {
-    console.error("Error registering student:", error);
+    console.error("Error registering user:", error);
     res
       .status(500)
-      .json({ message: "An error occurred while registering the student." });
+      .json({ message: "An error occurred while registering the user." });
   }
 });
 
-router.get("/student", async (req, res) => {
+// GET /user
+router.get("/", async (req, res) => {
   const email = req.query.email;
   const password = req.query.password;
-  console.log("email", email);
-  console.log("password", password);
+
   try {
-    const student = await User.findOne({ email: email }).exec();
-    let hashResult = bcrypt.compareSync(password, student.password);
-    if (hashResult) {
-      return res.json(student);
+    const user = await User.findOne({ email }).exec();
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
     }
-    console.error("Error fetching student:", error);
-    res.status(500).json({ message: "Incorrect password entered." });
+
+    const hashResult = bcrypt.compareSync(password, user.password);
+    if (!hashResult) {
+      return res.status(401).json({ message: "Incorrect password entered." });
+    }
+
+    return res.json(user);
   } catch (error) {
-    console.error("Error fetching student:", error);
+    console.error("Error fetching user:", error);
     res
       .status(500)
-      .json({ message: "An error occurred while fetching the student." });
+      .json({ message: "An error occurred while fetching the user." });
+  }
+});
+
+// PUT /user/:userId/joinThread
+router.put("/:userId/joinThread", async (req, res) => {
+  const { userId } = req.params;
+  const { threadId } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.threads.includes(threadId)) {
+      return res
+        .status(400)
+        .json({ message: "User already joined the thread." });
+    }
+
+    user.threads.push(threadId);
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "Thread added to user's joined threads", user });
+  } catch (error) {
+    console.error("Error joining thread:", error);
+    res.status(500).json({ message: "Error joining thread", error });
+  }
+});
+
+// PUT /user/:userId/leaveThread
+router.put("/:userId/leaveThread", async (req, res) => {
+  const { userId } = req.params;
+  const { threadId } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.threads.includes(threadId)) {
+      return res.status(400).json({ message: "User is not in this thread." });
+    }
+
+    // Remove threadId from the user's threads list
+    user.threads = user.threads.filter((id) => id.toString() !== threadId);
+    await user.save();
+
+    res.status(200).json({ message: "User left the thread", user });
+  } catch (error) {
+    console.error("Error leaving thread:", error);
+    res.status(500).json({ message: "Error leaving thread", error });
   }
 });
 

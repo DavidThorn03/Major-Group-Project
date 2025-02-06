@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, Button, TextInput, Alert } from "react-native";
-import { User } from "./services/getUser";
-import * as AsyncStorage from "../util/AsyncStorage.js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getUser } from "./services/getUser";
 import { useNavigation } from "@react-navigation/native";
-import GeneralStyles from "./styles/GeneralStyles"; 
+import { useUser } from "./context/UserContext"; // Use useUser hook
+import GeneralStyles from "./styles/GeneralStyles";
 import LoginStyles from "./styles/LoginStyles";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const [user, setUser] = useState([]);
+  const { updateUser } = useUser(); // Use context to update user globally
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
 
@@ -20,15 +21,21 @@ const LoginScreen = () => {
     };
 
     try {
-      const fetchedUser = await User(filters); 
+      const fetchedUser = await getUser(filters);
       if (!fetchedUser) {
         Alert.alert("Failure", "Incorrect email or password");
         console.log("No user found");
       } else {
         Alert.alert("Success", "Logged in successfully!");
-        await AsyncStorage.setItem("User", fetchedUser);
-        setUser(fetchedUser);
-        await navigation.navigate("index");
+        console.log("User logged in:", fetchedUser);
+
+        // Store user in AsyncStorage
+        await AsyncStorage.setItem("User", JSON.stringify(fetchedUser));
+
+        // Update context (if using UserContext)
+        getUser(fetchedUser);
+
+        navigation.navigate("index");
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -53,9 +60,12 @@ const LoginScreen = () => {
         <Button title="Log in" onPress={handleLogin} />
       </View>
       <View style={LoginStyles.buttonContainer}>
-      <Text style={GeneralStyles.text}>Don't have an account?</Text>
-      <Button title="Register new user" onPress={() => navigation.navigate("register")}/>
-        </View>
+        <Text style={GeneralStyles.text}>Don't have an account?</Text>
+        <Button
+          title="Register new user"
+          onPress={() => navigation.navigate("register")}
+        />
+      </View>
     </View>
   );
 };

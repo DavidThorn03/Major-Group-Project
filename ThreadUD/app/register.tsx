@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import RegisterStyles from "./styles/RegisterStyles";
 import { registerStudent } from "./services/registerStudent";
-import * as AsyncStorage from "../util/AsyncStorage.js";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Use the standard AsyncStorage
 import { useNavigation } from "@react-navigation/native";
-
 
 const RegisterPage = () => {
   const navigation = useNavigation();
@@ -21,19 +20,28 @@ const RegisterPage = () => {
       return;
     }
     try {
-      const studentData = {
-        userName : name,
-        email : email,
-        password  : password,
-        year: parseInt(year),
-        course  : course,
+      const userData = {
+        userName: name.trim(),
+        email: email.toLowerCase(),
+        password: password.trim(),
+        year: parseInt(year, 10),
+        course: course.trim(),
       };
-      const response = await registerStudent(studentData);
-      Alert.alert("Success", "Account created successfully!");
-      await AsyncStorage.setItem("User", studentData);
-      await navigation.navigate("index");
-      // Optionally navigate to the login page
+
+      console.log("User data being sent:", userData);
+
+      const response = await registerStudent(userData);
+      console.log("Response from backend:", response);
+
+      if (response && response.user) {
+        Alert.alert("Success", "Account created successfully!");
+        await AsyncStorage.setItem("User", JSON.stringify(response.user));
+        navigation.navigate("index");
+      } else {
+        Alert.alert("Error", "Registration failed. Please try again.");
+      }
     } catch (error) {
+      console.error("Error during registration:", error);
       Alert.alert(
         "Error",
         error.message || "Failed to register. Please try again."

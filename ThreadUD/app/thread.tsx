@@ -1,14 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import { getPostsByThread } from "./services/getThreadPosts";
+import { getUser } from "./services/getUser";
 import { useRoute, useNavigation } from "@react-navigation/native";
+import { useUser } from "./context/UserContext"; // Import useUser
 import ThreadStyles from "./styles/ThreadStyles";
-import Icon from "react-native-vector-icons/AntDesign"; // Import Icon for like and comment buttons
+import Icon from "react-native-vector-icons/AntDesign";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-dayjs.extend(relativeTime); // Enable relative time support
+import { API_URL } from "./constants/apiConfig";
+
+dayjs.extend(relativeTime);
 
 const Thread = () => {
+  const { user, updateUser } = useUser(); // Use UserContext
   const route = useRoute();
   const navigation = useNavigation();
   const { threadID, threadName } = route.params || {};
@@ -17,20 +22,11 @@ const Thread = () => {
 
   const [posts, setPosts] = useState([]);
   const [joined, setJoined] = useState(false);
-  const [user, setUser] = useState(null);
 
   const liked = <Icon name="heart" size={25} color="red" />;
   const unliked = <Icon name="hearto" size={25} color="red" />;
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      // Mock user fetch (replace with actual logic if needed)
-      setUser({ email: "test@example.com" });
-    };
-
-    fetchUser();
-  }, []);
-
+  // Fetch posts for the thread
   useEffect(() => {
     if (!threadID) {
       console.error("Error: threadID is missing!");
@@ -44,9 +40,90 @@ const Thread = () => {
     fetchPosts();
   }, [threadID]);
 
-  const handleJoinThread = () => {
-    console.log(`User joined thread: ${threadID}`);
-    setJoined(true);
+  // Check if user already joined the thread
+  useEffect(() => {
+    if (user && user.threads?.includes(threadID)) {
+      setJoined(true);
+    }
+  }, [user, threadID]);
+
+  // Handle joining the thread
+  const handleJoinThread = async () => {
+    if (!user) {
+      console.log("User not logged in");
+      navigation.navigate("login");
+      return;
+    }
+
+    try {
+      console.log("Joining thread...", {
+        userId: user._id,
+        threadId: threadID,
+      });
+
+      const response = await fetch(`${API_URL}/user/${user._id}/joinThread`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ threadId: threadID }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error joining thread:", errorData);
+        return;
+      }
+
+      console.log("User successfully joined the thread");
+
+      setUser((prevUser) => ({
+        ...prevUser,
+        threads: [...prevUser.threads, threadID],
+      }));
+      setJoined(true);
+    } catch (error) {
+      console.error("Error making join thread request:", error);
+    }
+  };
+
+  const handleLeaveThread = async () => {
+    if (!user) {
+      console.log("User not logged in");
+      navigation.navigate("login");
+      return;
+    }
+
+    try {
+      console.log("Leaving thread...", {
+        userId: user._id,
+        threadId: threadID,
+      });
+
+      const response = await fetch(`${API_URL}/user/${user._id}/leaveThread`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ threadId: threadID }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error leaving thread:", errorData);
+        return;
+      }
+
+      console.log("User successfully left the thread");
+
+      getUser((prevUser) => ({
+        ...prevUser,
+        threads: prevUser.threads.filter((id) => id !== threadID),
+      }));
+      setJoined(false);
+    } catch (error) {
+      console.error("Error making leave thread request:", error);
+    }
   };
 
   const likePost = async (post) => {
@@ -69,7 +146,7 @@ const Thread = () => {
     setPosts(updatedPosts);
 
     try {
-      await fetch("http://192.168.1.17:3000/api/post/likes", {
+      await fetch(`${API_URL}/post/likes`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +174,15 @@ const Thread = () => {
     <View style={ThreadStyles.container}>
       <View style={ThreadStyles.header}>
         <Text style={ThreadStyles.headerText}>{threadName}</Text>
-        {!joined && (
+
+        {joined ? (
+          <TouchableOpacity
+            style={ThreadStyles.joinedButton}
+            onPress={handleLeaveThread}
+          >
+            <Text style={ThreadStyles.joinedButtonText}>Joined</Text>
+          </TouchableOpacity>
+        ) : (
           <TouchableOpacity
             style={ThreadStyles.joinButton}
             onPress={handleJoinThread}
@@ -113,7 +198,7 @@ const Thread = () => {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={ThreadStyles.postCard}
-            onPress={() => navigateToPost(item._id)} // Navigate to the post page when clicking anywhere on the card
+            onPress={() => navigateToPost(item._id)}
           >
             <View>
               <Text style={ThreadStyles.author}>{item.author}</Text>
@@ -126,9 +211,7 @@ const Thread = () => {
                   {getLike(item)}
                 </TouchableOpacity>
                 <Text style={ThreadStyles.likeCount}>{item.likes.length}</Text>
-                <TouchableOpacity
-                  onPress={() => navigateToPost(item._id)} // Navigate to the post page when clicking the comment icon
-                >
+                <TouchableOpacity onPress={() => navigateToPost(item._id)}>
                   <Icon name="message1" size={25} />
                 </TouchableOpacity>
                 <Text style={ThreadStyles.commentCount}>
