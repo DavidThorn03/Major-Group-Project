@@ -1,7 +1,9 @@
-const express = require("express");
+import express from "express";
+import mongoose from "mongoose";
+import Thread from "../models/Thread.js";
+import Post from "../models/Post.js";
+
 const router = express.Router();
-const Thread = require("../models/Thread"); // Import Thread model
-const Post = require("../models/Post"); // Import Post model
 
 // Create a new thread
 router.post("/", async (req, res) => {
@@ -20,7 +22,7 @@ router.post("/", async (req, res) => {
 // Get all threads
 router.get("/", async (req, res) => {
   try {
-    const threads = await Thread.find(); // No need to populate posts
+    const threads = await Thread.find();
     res.status(200).json(threads);
   } catch (error) {
     console.error("Error fetching threads:", error);
@@ -34,8 +36,14 @@ router.post("/:threadID/posts", async (req, res) => {
   const { threadID } = req.params;
 
   try {
+    const thread = await Thread.findById(threadID);
+    if (!thread) {
+      return res.status(404).json({ message: "Thread not found" });
+    }
+
     const post = new Post({
-      threadID: mongoose.Types.ObjectId(threadID), // Save threadID as ObjectId
+      threadID: new mongoose.Types.ObjectId(threadID),
+      threadName: thread.threadName,
       postTitle,
       content,
       author,
@@ -52,17 +60,14 @@ router.post("/:threadID/posts", async (req, res) => {
 router.get("/:threadID/posts", async (req, res) => {
   const { threadID } = req.params;
 
-  console.log("Fetching posts for threadID:", threadID); // Debug log
-
-  if (!threadID) {
-    return res.status(400).json({ message: "threadID is required" });
+  if (!mongoose.Types.ObjectId.isValid(threadID)) {
+    return res.status(400).json({ message: "Invalid threadID format" });
   }
 
   try {
     const posts = await Post.find({
-      threadID: mongoose.Types.ObjectId(threadID),
-    }); // Ensure threadID matches in the DB
-    console.log("Posts fetched:", posts); // Debug log
+      threadID: new mongoose.Types.ObjectId(threadID),
+    });
     res.status(200).json(posts);
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -70,4 +75,48 @@ router.get("/:threadID/posts", async (req, res) => {
   }
 });
 
-module.exports = router;
+// Update likes for a post
+router.put("/likes", async (req, res) => {
+  const { post, likes } = req.body;
+
+  try {
+    const updatedPost = await Post.findOneAndUpdate(
+      { postTitle: post },
+      { likes },
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error("Error updating likes:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update comments for a post
+router.put("/comments", async (req, res) => {
+  const { post, comments } = req.body;
+
+  try {
+    const updatedPost = await Post.findOneAndUpdate(
+      { postTitle: post },
+      { comments },
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error("Error updating comments:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+export default router;

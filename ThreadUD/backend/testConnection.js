@@ -1,21 +1,18 @@
-const mongoose = require("mongoose");
-const connectDB = require("./config/db");
+// backend/testConnection.js
+import mongoose from "mongoose";
+import Thread from "./models/Thread.js";
 
-const testConnection = async () => {
-  try {
-    await connectDB();
+const MONGO_URI =
+  "mongodb+srv://b00152842:kWDcbYMGg9IOfpEt@threadud.ga2og.mongodb.net/?retryWrites=true&w=majority&appName=ThreadUD"; // Replace with your actual MongoDB URI
 
-    const collections = await mongoose.connection.db
-      .listCollections()
-      .toArray();
-    console.log("Collections in the database:");
-    console.log(collections.map((col) => col.name));
-
-    process.exit(); // Exit after fetching collections
-  } catch (error) {
-    console.error("Error testing connection:", error);
-    process.exit(1);
-  }
-};
-
-testConnection();
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(async () => {
+    console.log("Connected to MongoDB!");
+    const thread = await Thread.findById("67292eba16505c7370748e83");
+    console.log("Found thread:", thread);
+    mongoose.connection.close();
+  })
+  .catch((err) => {
+    console.error("Connection error:", err);
+  });

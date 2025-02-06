@@ -19,24 +19,24 @@ const ThreadStyles = StyleSheet.create({
     fontWeight: "bold",
   },
   joinButton: {
-    backgroundColor: "white",
+    backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },
   joinButtonText: {
-    color: "#3498db",
+    color: "white",
     fontWeight: "bold",
   },
   postCard: {
-    backgroundColor: "white",
-    marginBottom: 10,
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: "#68BBE3",
+    padding: 16,
+    marginVertical: 8,
+    borderRadius: 8,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 3,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   author: {
     fontWeight: "bold",
@@ -60,6 +60,10 @@ const ThreadStyles = StyleSheet.create({
   likeButtonText: {
     color: "#3498db",
     fontWeight: "bold",
+  },
+  buttonContainer: {
+    marginTop: 16,
+    alignItems: "center",
   },
 });
 

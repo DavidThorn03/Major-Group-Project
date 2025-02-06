@@ -1,6 +1,7 @@
-const mongoose = require("mongoose");
-const posts = await Post.find({ threadID: mongoose.Types.ObjectId(threadId) });
+import mongoose from "mongoose";
+import Post from "../models/Post.js"; // Ensure the Post model is properly imported
 
+// Function to connect to MongoDB
 const connectDB = async () => {
   try {
     await mongoose.connect(
@@ -9,8 +10,25 @@ const connectDB = async () => {
     console.log("MongoDB connected successfully");
   } catch (error) {
     console.error("MongoDB connection error:", error.message);
-    process.exit(1); // Exit the process with failure
+    process.exit(1); // Exit process with failure
   }
 };
 
-module.exports = connectDB;
+// Function to fetch posts for a specific thread
+export const getPostsByThread = async (threadID) => {
+  try {
+    // Ensure threadID is correctly converted to ObjectId
+    const posts = await Post.find({
+      threadID: new mongoose.Types.ObjectId(threadID),
+    });
+
+    console.log(`Posts fetched for threadID ${threadID}:`, posts);
+    return posts;
+  } catch (error) {
+    console.error(`Error fetching posts for threadID ${threadID}:`, error);
+    return []; // Return empty array in case of error
+  }
+};
+
+// Export database connection function
+export default connectDB;

@@ -9,6 +9,7 @@ export const getPostsByThread = async (threadID) => {
 
   try {
     const response = await axios.get(`${API_URL}/thread/${threadID}/posts`);
+    console.log("API Response for posts by thread:", response.data);
     return response.data;
   } catch (error) {
     console.error(`Error fetching posts for thread ${threadID}:`, error);

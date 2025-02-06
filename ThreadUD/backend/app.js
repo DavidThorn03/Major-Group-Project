@@ -1,12 +1,12 @@
-const express = require("express");
-const http = require("http");
-const cors = require("cors");
-const { Server } = require("socket.io");
-const { handlePostChangeStream, router: postRoutes } = require("./api/post");
-const commentRoutes = require("./api/comment");
-const userRoutes = require("./api/user");
-const threadRoutes = require("./api/thread"); // Added thread routes
-const connectDB = require("./config/db");
+import express from "express";
+import http from "http";
+import cors from "cors";
+import { Server } from "socket.io";
+import { handlePostChangeStream, router as postRoutes } from "./api/post.js";
+import commentRoutes from "./api/comment.js";
+import userRoutes from "./api/user.js";
+import threadRoutes from "./api/thread.js";
+import connectDB from "./config/db.js";
 
 const app = express();
 const server = http.createServer(app);
