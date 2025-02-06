@@ -65,6 +65,15 @@ const ThreadStyles = StyleSheet.create({
     marginTop: 16,
     alignItems: "center",
   },
+  joinedButton: {
+    backgroundColor: "#808080",
+    padding: 10,
+    borderRadius: 5,
+  },
+  joinedButtonText: {
+    color: "black",
+    fontWeight: "bold",
+  },
 });
 
 export default ThreadStyles;

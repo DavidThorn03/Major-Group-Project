@@ -9,6 +9,7 @@ import Icon from "react-native-vector-icons/AntDesign";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { API_URL } from "./constants/apiConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 dayjs.extend(relativeTime);
 
@@ -23,8 +24,8 @@ const Thread = () => {
   const [posts, setPosts] = useState([]);
   const [joined, setJoined] = useState(false);
 
-  const liked = <Icon name="heart" size={25} color="red" />;
-  const unliked = <Icon name="hearto" size={25} color="red" />;
+  const liked = (<Icon name="heart" size={25} color="red" />) as JSX.Element;
+  const unliked = (<Icon name="hearto" size={25} color="red" />) as JSX.Element;
 
   // Fetch posts for the thread
   useEffect(() => {
@@ -55,6 +56,11 @@ const Thread = () => {
       return;
     }
 
+    if (user.threads?.includes(threadID)) {
+      console.log("User already joined the thread");
+      return;
+    }
+
     try {
       console.log("Joining thread...", {
         userId: user._id,
@@ -77,10 +83,8 @@ const Thread = () => {
 
       console.log("User successfully joined the thread");
 
-      setUser((prevUser) => ({
-        ...prevUser,
-        threads: [...prevUser.threads, threadID],
-      }));
+      const updatedUserData = await response.json();
+      updateUser(updatedUserData.user);
       setJoined(true);
     } catch (error) {
       console.error("Error making join thread request:", error);
@@ -114,12 +118,11 @@ const Thread = () => {
         return;
       }
 
+      const updatedUserData = await response.json();
       console.log("User successfully left the thread");
 
-      getUser((prevUser) => ({
-        ...prevUser,
-        threads: prevUser.threads.filter((id) => id !== threadID),
-      }));
+      // Update both context and AsyncStorage with the new user data
+      updateUser(updatedUserData.user);
       setJoined(false);
     } catch (error) {
       console.error("Error making leave thread request:", error);

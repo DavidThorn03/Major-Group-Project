@@ -105,6 +105,7 @@ router.put("/:userId/leaveThread", async (req, res) => {
 
   try {
     const user = await User.findById(userId);
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -113,7 +114,6 @@ router.put("/:userId/leaveThread", async (req, res) => {
       return res.status(400).json({ message: "User is not in this thread." });
     }
 
-    // Remove threadId from the user's threads list
     user.threads = user.threads.filter((id) => id.toString() !== threadId);
     await user.save();
 
