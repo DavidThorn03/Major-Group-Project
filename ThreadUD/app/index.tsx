@@ -11,12 +11,11 @@ import {
 import IndexStyles from "./styles/IndexStyles";
 import { getPosts } from "./services/getPost";
 import { useNavigation } from "@react-navigation/native";
-import Icon from 'react-native-vector-icons/AntDesign';
+import Icon from "react-native-vector-icons/AntDesign";
 import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
-import {Likes} from "./services/updateLikes";
+import { Likes } from "./services/updateLikes";
 import io from "socket.io-client";
-
 
 const IndexPage = () => {
   const navigation = useNavigation();
@@ -29,16 +28,14 @@ const IndexPage = () => {
   const liked = <Icon name="heart" size={25} color="red" />;
   const unliked = <Icon name="hearto" size={25} color="red" />;
 
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userData = await AsyncStorage.getItem("User");
-        if(userData) {
+        if (userData) {
           setUser(userData);
           console.log("User data:", userData);
-        }
-        else {
+        } else {
           console.log("No user data found");
           setUser(null);
         }
@@ -54,7 +51,7 @@ const IndexPage = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        if (userSearched) { 
+        if (userSearched) {
           const postsData = await getPosts();
           setPosts(postsData);
           setLoading(false);
@@ -65,21 +62,21 @@ const IndexPage = () => {
       }
     };
 
-    fetchPosts(); 
-  }, [userSearched]); 
+    fetchPosts();
+  }, [userSearched]);
 
   useEffect(() => {
-    console.log('Setting up socket connection...');
-    const socket = io("http://192.168.0.11:3000/"); 
-  
-    socket.on('update posts', (updatedPosts) => {
-      console.log('Received updated posts:', updatedPosts); 
+    console.log("Setting up socket connection...");
+    const socket = io("http://192.168.1.17:3000/"); // same as route in api url but without the /api
+
+    socket.on("update posts", (updatedPosts) => {
+      console.log("Received updated posts:", updatedPosts); // Check if this is logged
       setPosts(updatedPosts);
     });
-  
+
     return () => {
       socket.disconnect();
-      console.log('Socket disconnected');
+      console.log("Socket disconnected");
     };
   }, []);
 
@@ -88,7 +85,7 @@ const IndexPage = () => {
       <Container>
         <GeneralText>Loading posts...</GeneralText>
       </Container>
-    ); 
+    );
   }
 
   if (error) {
@@ -120,25 +117,26 @@ const IndexPage = () => {
         console.error(err);
       }
     };
-  
 
   const getLike = (post) => {
-    if(!user) {
+    if (!user) {
       return unliked;
-    }
-    else if(post.likes.includes(user.email)) {
+    } else if (post.likes.includes(user.email)) {
       return liked;
-    }
-    else {
+    } else {
       return unliked;
     }
-  }
+  };
+
+  const navigateToThread = (threadID, threadName) => {
+    console.log("Navigating to thread with:", { threadID, threadName });
+    navigation.navigate("thread", { threadID, threadName });
+  };
 
   const ViewPost = (post) => {
     AsyncStorage.setItem("Post",  {"_id": post._id, "threadName": post.threadName});
     navigation.navigate("post");
-  }
-
+  };
 
   return (
     <Container>
@@ -151,38 +149,49 @@ const IndexPage = () => {
         <FlatList
           data={posts}
           keyExtractor={(item) => item._id}
-          renderItem={({ item }) => (
-            <PostCard>
-              <GeneralText>{item.threadName}</GeneralText>
-              <ThreadName>{item.postTitle}</ThreadName>
-              <GeneralText style={IndexStyles.postContent}>
-                {item.content}
-              </GeneralText>
-              <GeneralText style={IndexStyles.author}>
-                Author: {item.author}
-              </GeneralText>
-              <View style={{flexDirection: "row"}}>
-              <TouchableOpacity onPress={() => likePost(item)}>{getLike(item)}</TouchableOpacity>
-              <GeneralText>  {item.likes.length}  </GeneralText>
-              <TouchableOpacity onPress={() => ViewPost(item)}><Icon name="message1" size={25}/></TouchableOpacity>
-              <GeneralText>  {item.comments.length}  </GeneralText>
-              </View>
-              
-            </PostCard>
-          )}
+          renderItem={({ item }) => {
+            console.log("Post item:", item); // Debug log
+            return (
+              <PostCard>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigateToThread(item.threadID, item.threadName)
+                  }
+                >
+                  <ThreadName>{item.threadName}</ThreadName>
+                </TouchableOpacity>
+                <GeneralText style={IndexStyles.postContent}>
+                  {item.content}
+                </GeneralText>
+                <GeneralText style={IndexStyles.author}>
+                  Author: {item.author}
+                </GeneralText>
+                <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity onPress={() => likePost(item)}>
+                    {getLike(item)}
+                  </TouchableOpacity>
+                  <GeneralText> {item.likes.length} </GeneralText>
+                  <TouchableOpacity onPress={() => ViewPost(item)}>
+                    <Icon name="message1" size={25} />
+                  </TouchableOpacity>
+                  <GeneralText> {item.comments.length} </GeneralText>
+                </View>
+              </PostCard>
+            );
+          }}
         />
       )}
       <Button
         title="Create Post"
         onPress={() => console.log("Navigate to Create Post")}
       />
-      {user && 
-      <Button
-        title="Profile"
-        onPress={() => navigation.navigate("profile")}
-        style={{ marginTop: 8 }}
-      />
-    }
+      {user && (
+        <Button
+          title="Profile"
+          onPress={() => navigation.navigate("profile")}
+          style={{ marginTop: 8 }}
+        />
+      )}
       <Button
         title="Login"
         onPress={() => navigation.navigate("login")}

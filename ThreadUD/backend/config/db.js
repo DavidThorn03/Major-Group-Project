@@ -1,16 +1,34 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+import Post from "../models/Post.js"; // Ensure the Post model is properly imported
 
+// Function to connect to MongoDB
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb+srv://b00152842:kWDcbYMGg9IOfpEt@threadud.ga2og.mongodb.net/?retryWrites=true&w=majority&appName=ThreadUD", {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(
+      "mongodb+srv://b00152842:kWDcbYMGg9IOfpEt@threadud.ga2og.mongodb.net/?retryWrites=true&w=majority&appName=ThreadUD"
+    );
     console.log("MongoDB connected successfully");
   } catch (error) {
-    console.error("MongoDB connection error:", error);
-    process.exit(1);
+    console.error("MongoDB connection error:", error.message);
+    process.exit(1); // Exit process with failure
   }
 };
 
-module.exports = connectDB;
+// Function to fetch posts for a specific thread
+export const getPostsByThread = async (threadID) => {
+  try {
+    // Ensure threadID is correctly converted to ObjectId
+    const posts = await Post.find({
+      threadID: new mongoose.Types.ObjectId(threadID),
+    });
+
+    console.log(`Posts fetched for threadID ${threadID}:`, posts);
+    return posts;
+  } catch (error) {
+    console.error(`Error fetching posts for threadID ${threadID}:`, error);
+    return []; // Return empty array in case of error
+  }
+};
+
+// Export database connection function
+export default connectDB;
