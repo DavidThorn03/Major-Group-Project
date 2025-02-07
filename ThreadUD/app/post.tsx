@@ -16,7 +16,12 @@ import {Likes} from "./services/updateLikes";
 import {CommentLikes} from "./services/updateCommentLikes";
 import {getComments} from "./services/getComments";
 import {AddComment} from "./services/addComment";
+import {AddReply} from "./services/addReply";
+import {getSinglePost} from "./services/getSinglePost";
+import {RemoveComment} from "./services/removeComment";
+import {RemoveReply} from "./services/removeReply";
 import IndexStyles from "./styles/IndexStyles";
+import io from "socket.io-client";
 
 const PostPage = () => {
   const navigation = useNavigation();
@@ -28,6 +33,7 @@ const PostPage = () => {
   const [comments, setComments] = useState([]);
   const [text, onChangeText] = useState("");
   const [input, setInput] = useState(false)
+  const [socket, setSocket] = useState(null);
 
   const postLiked = <Icon name="heart" size={25} color="red" />;
   const postUnliked = <Icon name="hearto" size={25} color="red" />;
@@ -60,7 +66,9 @@ const PostPage = () => {
       try {
         const postData = await AsyncStorage.getItem("Post");
         if(postData) {
-          setPost(JSON.parse(postData));
+          const post = await getSinglePost( { id: postData._id } );
+          post.threadName = postData.threadName;
+          setPost(post);
           console.log("Post data:", postData);
           setPostsearched(true);
         }
@@ -71,7 +79,7 @@ const PostPage = () => {
       } catch (err) {
         console.error(err);
       }
-    };
+    }; 
 
     fetchPost();
   }, []);
@@ -98,6 +106,39 @@ const PostPage = () => {
 
     fetchComments();
   }, [postSearched]); 
+
+
+useEffect(() => {
+  if (postSearched && post?._id) {
+    console.log("Setting up socket connection for post:", post._id);
+
+    if (socket) {
+      console.log("Disconnecting previous socket before setting up a new one");
+      socket.disconnect();
+    }
+
+    const newSocket = io("http://192.168.0.11:3000/", {
+      query: { post: post._id },
+    });
+
+    newSocket.on("update comments", (updatedComments) => {
+      console.log("Received updated comments:", updatedComments);
+      setComments(updatedComments);
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      console.log("Disconnecting socket for post:", post._id);
+      newSocket.disconnect();
+    };
+  }
+}, [postSearched, post?._id]); 
+
+  
+  
+
+
   if (loading) {
     return (
       <Container>
@@ -114,32 +155,33 @@ const PostPage = () => {
     );
   }
 
-  const likePost = async (post) => {
+  const likePost = async () => {
     if (!user) {
       console.log("User not logged in");
       navigation.navigate("login");
       return;
     }
-    let updatedLikes;
+    let action;
   
     if (post.likes.includes(user.email)) {
+      action = -1;
       updatedLikes = post.likes.filter((email) => email !== user.email);
     } else {
+      action = 1;
       updatedLikes = [...post.likes, user.email];
     }
-    const updatedPost = { ...post, likes: updatedLikes };
   
-    setPost(updatedPost);
+    setPost({ ...post, likes: updatedLikes });
   
     try {
-      const filters = { post: post.postTitle, likes: updatedPost.likes };
+      const filters = { post: post.postTitle, like: user.email, action: action };
       await Likes(filters);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const addComment = async (post) => {
+  const addComment = async () => {
     if (!user) {
       console.log("User not logged in");
       navigation.navigate("login");
@@ -149,61 +191,51 @@ const PostPage = () => {
       console.log("No comment entered");
       return;
     }
-    let newComment = { content: text, author: user.email, likes: [], replyid: [] };
-    let updatedComments = [ ...comments, newComment ];
-    console.log("Updated comments: ", updatedComments);
-    setComments(updatedComments);
+    let newComment = { content: text, author: user.email };
   
     try {
       const commentFilters = { comment: newComment };
-      const postFilters = { post: post.postTitle, comments: post.comments };
+      const postFilters = { post: post._id, action: 1 };
       console.log("Adding comment ");
       const newID = await AddComment(commentFilters, postFilters); 
-      console.log("New comment ID: ", newID);
-      post.comments.push(newID);
-      setPost(post);
+      const updatedCommentsIDs = [...post.comments, newID];	
+      const updatedPost = { ...post, comments: updatedCommentsIDs };
+      setPost(updatedPost);
+
       console.log("Comment added");
       setInput(false);
+      onChangeText("");
     } catch (err) {
       console.error(err);
     }
   };
 
   const likeComment = async (comment) => {
-      if (!user) {
-        console.log("User not logged in");
-        navigation.navigate("login");
-        return;
-      }
-    
-      const updatedComments = comments.map((c) => {
-        if (c._id === comment._id) {
-          let updatedLikes;
-    
-          if (c.likes.includes(user.email)) {
-            updatedLikes = c.likes.filter((email) => email !== user.email);
-          } else {
-            updatedLikes = [...c.likes, user.email];
-          }
-    
-          return { ...c, likes: updatedLikes }; 
-        }
-        return c;
-      });
-    
-      setComments(updatedComments);
-       
-      try {
-        const updatedComment = updatedComments.find((c) => c._id === comment._id);
-        const filters = { comment: comment._id, likes: updatedComment.likes };
-        await CommentLikes(filters);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+    if (!user) {
+      console.log("User not logged in");
+      navigation.navigate("login");
+      return;
+    }
+    let action;
+  
+    if (comment.likes.includes(user.email)) {
+      action = -1;
+    } else {
+      action = 1;
+    }
+  
+  
+    try {
+      const filters = { comment: comment._id, like: user.email, action: action };
+      await CommentLikes(filters);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
 
-  const getPostLike = (post) => {
+
+  const getPostLike = () => {
     if(!user) {
       return postUnliked;
     }
@@ -231,17 +263,23 @@ const PostPage = () => {
     const replies = await getComments( { id: comment.replyid } );
     const updatedComments = comments.map((c) => {
       if (c._id === comment._id) {
-        let updatedLikes;
   
         c.replies = replies;
-      }
-      else if (c.replies) {
-        c.replies = null;
       }
       return c;
     });
     setComments(updatedComments);
     console.log("Updated comments: ", comments);
+  }
+
+  const hideReplies = (comment) => {
+    const updatedComments = comments.map((c) => {
+      if (c._id === comment._id) {
+        c.replies = null;
+      }
+      return c;
+    });
+    setComments(updatedComments);
   }
 
   const commentInput = () => {
@@ -258,11 +296,68 @@ const PostPage = () => {
       console.log("No comment entered");
       return;
     }
-    let newComment = { content: text, author: user.email, likes: [], replyid: [] };
-    
+  
+    try {
+      const reply = { content: text, author: user.email };
+      const filter = { comment: reply, _id: comment._id, action: 1 };
+      console.log("Adding comment "); 
+      const newID = await AddReply(filter); 
+      console.log("Comment added");
+      setInput(false);
+      onChangeText("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteComment = async (comment, parent) => {
+    if (!user) {
+      console.log("User not logged in");
+      navigation.navigate("login");
+      return;
+    }
+    else if (comment.author !== user.email) {
+      console.log("User not authorized to delete comment");
+      return;
+    } 
+    if(parent === null){
+      try {
+        const filter = { comment: comment._id, action: -1, post: post._id };
+        console.log("Deleting comment ");
+        await RemoveComment(filter); 
+        console.log("Comment deleted");
+      } catch (err) {
+        console.error(err);
+      }
+      const updatedCommentIDs = post.comments.filter((id) => id !== comment._id);
+      const updatedPost = { ...post, comments: updatedCommentIDs };
+      setPost(updatedPost);
+    }
+    else {
+      try {
+        const filter = { reply_id: comment._id, action: -1, _id: parent._id };
+        console.log("Deleting reply "); 
+        await RemoveReply(filter); 
+        console.log("Reply deleted");
+      } catch (err) {
+        console.error(err);
+      }
+    }
   }
 
-  const printComments = (comments) => {
+  const enterReply = (comment) => {
+    comment.replyInput = true;
+    const updatedComments = comments.map((c) => { 
+      if (c._id === comment._id) {
+  
+        c.replyInput = true;
+      }
+      return c;
+    });
+    setComments(updatedComments);
+  }
+
+  const printComments = (comments, comment) => {
     return (
       <FlatList
         data={comments}
@@ -273,10 +368,14 @@ const PostPage = () => {
             <View style={{flexDirection: "row"}}>
             <TouchableOpacity onPress={() => likeComment(item)}>{getCommentLike(item)}</TouchableOpacity>
             <GeneralText> {item.likes.length}   </GeneralText>
-            <TouchableOpacity onPress={() => reply(item)}><Icon name="message1" size={15}/></TouchableOpacity>
-            <GeneralText> {item.replyid.length}  </GeneralText>
+            <TouchableOpacity onPress={() => enterReply(item)}><Icon name="message1" size={15}/></TouchableOpacity>
+            <GeneralText> {item.replyid.length} </GeneralText>
+            {item.author === user.email && 
+              <TouchableOpacity onPress={() => deleteComment(item, comment)}>
+                <Icon name="delete" size={20} color="red"/>
+              </TouchableOpacity>}
             </View>
-            {input && 
+            {item.replyInput && 
             <View style={{flexDirection: "row"}}>
             <TextInput 
                 onChangeText={onChangeText}
@@ -292,7 +391,12 @@ const PostPage = () => {
             {(item.replyid.length > 0 && !item.replies) && 
             <Button title="View Replies" onPress={() => getReplies(item)} />
             }
-            {item.replies && printComments(item.replies)}
+            {item.replies && 
+              <View>
+              {printComments(item.replies, item)}
+              <Button title="Hide Replies" onPress={() => hideReplies(item)} />
+              </View>
+            }
           </PostCard>
         )}
         keyExtractor={(item) => item._id}
@@ -302,7 +406,8 @@ const PostPage = () => {
 
   return (
     <Container>
-      <ThreadName>{post.threadName}</ThreadName>
+      <GeneralText>{post.threadName}</GeneralText>
+      <ThreadName>{post.postTitle}</ThreadName>
       <GeneralText style={IndexStyles.postContent}>
         {post.content}
       </GeneralText>
@@ -330,7 +435,7 @@ const PostPage = () => {
         </TouchableOpacity>
         </View>
       }
-      {printComments(comments)}
+      {printComments(comments, null)}
       <Button title="Back" onPress={() => navigation.navigate("index")} /> 
     </Container>
   );

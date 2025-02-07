@@ -1,12 +1,11 @@
-import express from "express";
-import http from "http";
-import cors from "cors";
-import { Server } from "socket.io";
-import { handlePostChangeStream, router as postRoutes } from "./api/post.js";
-import commentRoutes from "./api/comment.js";
-import userRoutes from "./api/user.js";
-import threadRoutes from "./api/thread.js";
-import connectDB from "./config/db.js";
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const { handlePostChangeStream, router: postRoutes } = require("./api/post");
+const { handleCommentChangeStream, router: commentRoutes } = require("./api/comment");
+const userRoutes = require("./api/user");
+const threadRoutes = require("./api/thread.js");
+const connectDB = require("./config/db");
 
 const app = express();
 const server = http.createServer(app);
@@ -30,6 +29,7 @@ connectDB();
 
 // Start Real-Time Streams
 handlePostChangeStream(io);
+handleCommentChangeStream(io);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
