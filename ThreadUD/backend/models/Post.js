@@ -1,17 +1,22 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const postSchema = new mongoose.Schema({
-  threadID: {
-    type: mongoose.Schema.Types.ObjectId, // Ensures threadID is an ObjectId
-    ref: "Thread", // References the Thread collection
-    required: true,
+const postSchema = new mongoose.Schema(
+  {
+    threadID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Thread",
+      required: true,
+    },
+    threadName: { type: String, required: true },
+    postTitle: { type: String, required: true },
+    content: { type: String, required: true },
+    author: { type: String, required: true },
+    likes: { type: [String], default: [] },
+    comments: { type: [String], default: [] },
   },
-  postTitle: { type: String, required: true }, // Post title
-  content: { type: String, required: true }, // Post content
-  author: { type: String, required: true }, // Post author
-  likes: { type: Array, default: [] }, // Array of likes
-  comments: { type: Array, default: [] }, // Array of comments
-  createdAt: { type: Date, default: Date.now }, // Creation timestamp
-});
+  { timestamps: true }
+);
 
-module.exports = mongoose.models.Post || mongoose.model("Post", postSchema);
+const Post = mongoose.models.Post || mongoose.model("Post", postSchema, "Post");
+
+export default Post;

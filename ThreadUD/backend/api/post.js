@@ -1,32 +1,16 @@
-const express = require("express");
-const mongoose = require("mongoose");
+import express from "express";
+import mongoose from "mongoose";
+import Post from "../models/Post.js"; // Ensure proper model import
+
 const router = express.Router();
 const ObjectId = mongoose.Types.ObjectId;
 
-// Post Schema
-const postSchema = new mongoose.Schema({
-  _id: String,
-  threadID: String,
-  threadName: String,
-  postTitle: String,
-  content: String,
-  author: String,
-  likes: Array,
-  comments: Array,
-});
-
-const Post = mongoose.model("Post", postSchema, "Post");
-
-const getPostsWithThreadDetails = async () => { // think if this as the query you need to get the right info
+// Function to fetch posts with thread details
+const getPostsWithThreadDetails = async () => {
   return await Post.aggregate([
     {
-      $addFields: {
-        threadID: { $toObjectId: "$threadID" },
-      },
-    },
-    {
       $lookup: {
-        from: "Thread",
+        from: "Thread", // Ensure this matches your MongoDB collection name
         localField: "threadID",
         foreignField: "_id",
         as: "threadData",
@@ -34,38 +18,40 @@ const getPostsWithThreadDetails = async () => { // think if this as the query yo
     },
     {
       $project: {
+        threadID: 1,
         threadName: { $arrayElemAt: ["$threadData.threadName", 0] },
-        postTitle: "$postTitle",
-        author: "$author",
-        content: "$content",
-        likes: "$likes",
-        comments: "$comments",
+        postTitle: 1,
+        content: 1,
+        author: 1,
+        likes: 1,
+        comments: 1,
       },
     },
   ]);
 };
 
-router.get("/", async (req, res) => { // this is used when the page is first loaded to get the CURRENT post informtion
-  console.log("in api");
+// Get all posts
+router.get("/", async (req, res) => {
+  console.log("Fetching posts...");
   try {
     const posts = await getPostsWithThreadDetails();
     res.json(posts);
   } catch (error) {
+    console.error("Error fetching posts:", error);
     res.status(500).json({ message: "Error fetching posts", error });
   }
 });
 
+// Update likes on a post
 router.put("/likes", async (req, res) => {
-  console.log("Query Parameters:", req.body);
-
-  const post = req.body.post;
-  const likes = req.body.likes;
+  console.log("Updating likes:", req.body);
+  const { post, likes } = req.body;
 
   try {
     const updatedPost = await Post.findOneAndUpdate(
-      { postTitle: post }, 
-      { likes: likes }, 
-      { new: true }  
+      { postTitle: post },
+      { likes },
+      { new: true }
     );
 
     if (!updatedPost) {
@@ -75,24 +61,21 @@ router.put("/likes", async (req, res) => {
     console.log("Updated Post:", updatedPost);
     res.json(updatedPost);
   } catch (error) {
-    console.error("Error updating post:", error);
+    console.error("Error updating post likes:", error);
     res.status(500).json({ message: error.message });
   }
 });
 
+// Update comments on a post
 router.put("/comments", async (req, res) => {
-  console.log("Query Parameters:", req.body);
-
-  const post = req.body.post;
-  const comments = req.body.comments;
-  console.log("post", post);
-  console.log("comments", comments);
+  console.log("Updating comments:", req.body);
+  const { post, comments } = req.body;
 
   try {
     const updatedPost = await Post.findOneAndUpdate(
-      { postTitle: post }, 
-      { comments: comments }, 
-      { new: true }  
+      { postTitle: post },
+      { comments },
+      { new: true }
     );
 
     if (!updatedPost) {
@@ -101,21 +84,25 @@ router.put("/comments", async (req, res) => {
 
     console.log("Updated Post:", updatedPost);
     res.json(updatedPost);
-    return updatedPost._id;
   } catch (error) {
-    console.error("Error updating post:", error);
+    console.error("Error updating post comments:", error);
     res.status(500).json({ message: error.message });
   }
 });
 
-const handlePostChangeStream = (io) => { // and then this is use to get any new informtion that relates to the same query
+// Handle real-time post updates via change stream
+const handlePostChangeStream = (io) => {
   const changeStream = Post.watch();
 
   changeStream.on("change", async (next) => {
     try {
       console.log("Change detected in Post collection:", next);
 
-      if (next.operationType === "insert" || next.operationType === "update" || next.operationType === "delete") {
+      if (
+        next.operationType === "insert" ||
+        next.operationType === "update" ||
+        next.operationType === "delete"
+      ) {
         const updatedPosts = await getPostsWithThreadDetails();
         io.emit("update posts", updatedPosts);
         console.log("Emitted updated posts");
@@ -126,5 +113,4 @@ const handlePostChangeStream = (io) => { // and then this is use to get any new 
   });
 };
 
-
-module.exports = { Post, handlePostChangeStream, router };
+export { Post, handlePostChangeStream, router };

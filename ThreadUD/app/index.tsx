@@ -16,7 +16,6 @@ import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { Likes } from "./services/updateLikes";
 import io from "socket.io-client";
-import { API_URL } from "./constants/apiConfig";
 
 const IndexPage = () => {
   const navigation = useNavigation();
@@ -140,6 +139,11 @@ const IndexPage = () => {
     }
   };
 
+  const navigateToThread = (threadID, threadName) => {
+    console.log("Navigating to thread with:", { threadID, threadName });
+    navigation.navigate("thread", { threadID, threadName });
+  };
+
   const ViewPost = (post) => {
     AsyncStorage.setItem("Post", JSON.stringify(post));
     navigation.navigate("post");
@@ -156,27 +160,36 @@ const IndexPage = () => {
         <FlatList
           data={posts}
           keyExtractor={(item) => item._id}
-          renderItem={({ item }) => (
-            <PostCard>
-              <ThreadName>{item.threadName}</ThreadName>
-              <GeneralText style={IndexStyles.postContent}>
-                {item.content}
-              </GeneralText>
-              <GeneralText style={IndexStyles.author}>
-                Author: {item.author}
-              </GeneralText>
-              <View style={{ flexDirection: "row" }}>
-                <TouchableOpacity onPress={() => likePost(item)}>
-                  {getLike(item)}
+          renderItem={({ item }) => {
+            console.log("Post item:", item); // Debug log
+            return (
+              <PostCard>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigateToThread(item.threadID, item.threadName)
+                  }
+                >
+                  <ThreadName>{item.threadName}</ThreadName>
                 </TouchableOpacity>
-                <GeneralText> {item.likes.length} </GeneralText>
-                <TouchableOpacity onPress={() => ViewPost(item)}>
-                  <Icon name="message1" size={25} />
-                </TouchableOpacity>
-                <GeneralText> {item.comments.length} </GeneralText>
-              </View>
-            </PostCard>
-          )}
+                <GeneralText style={IndexStyles.postContent}>
+                  {item.content}
+                </GeneralText>
+                <GeneralText style={IndexStyles.author}>
+                  Author: {item.author}
+                </GeneralText>
+                <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity onPress={() => likePost(item)}>
+                    {getLike(item)}
+                  </TouchableOpacity>
+                  <GeneralText> {item.likes.length} </GeneralText>
+                  <TouchableOpacity onPress={() => ViewPost(item)}>
+                    <Icon name="message1" size={25} />
+                  </TouchableOpacity>
+                  <GeneralText> {item.comments.length} </GeneralText>
+                </View>
+              </PostCard>
+            );
+          }}
         />
       )}
       <Button
