@@ -1,115 +1,207 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, Button } from "react-native";
-import axios from "axios";
+import { FlatList, View } from "react-native";
+import {
+  Container,
+  Header,
+  PostCard,
+  ThreadName,
+  GeneralText,
+  Button,
+} from "./components/StyledWrappers";
+import IndexStyles from "./styles/IndexStyles";
+import { getPosts } from "./services/getPost";
 import { useNavigation } from "@react-navigation/native";
+import Icon from "react-native-vector-icons/AntDesign";
+import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
-import { set } from "mongoose";
+import { Likes } from "./services/updateLikes";
+import io from "socket.io-client";
+import { API_URL } from "./constants/apiConfig";
 
-
-const HomeScreen = () => {
-  const [posts, setPosts] = useState([]);
-  const isLiked = false;
-  const [user, setUser] = useState(null);
+const IndexPage = () => {
   const navigation = useNavigation();
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [user, setUser] = useState([]);
+  const [userSearched, setUserSearched] = useState(false);
+
+  const liked = <Icon name="heart" size={25} color="red" />;
+  const unliked = <Icon name="hearto" size={25} color="red" />;
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("User");
+        if (userData) {
+          setUser(userData);
+          console.log("User data:", userData);
+        } else {
+          console.log("No user data found");
+          setUser(null);
+        }
+        setUserSearched(true);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get("http://192.168.0.11:5000/api/posts");
-        setPosts(response.data)
-        console.log("Posts: ", response.data);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
+        if (userSearched) {
+          const postsData = await getPosts();
+          setPosts(postsData);
+          setLoading(false);
+        }
+      } catch (err) {
+        setError("Failed to load posts.");
+        console.error(err);
       }
     };
 
     fetchPosts();
-  }, []);
+  }, [userSearched]);
+
   useEffect(() => {
-    const fetchUserFromStorage = async () => {
-      const storedUser = await AsyncStorage.getItem("User");
-      if (storedUser) {
-        setUser(storedUser); 
-        console.log("User from storage: ", storedUser);
-      }
-    };
+    console.log("Setting up socket connection...");
+    const socket = io("http://192.168.1.17:3000/"); // same as route in api url but without the /api
 
-    fetchUserFromStorage();
+    socket.on("update posts", (updatedPosts) => {
+      console.log("Received updated posts:", updatedPosts); // Check if this is logged
+      setPosts(updatedPosts);
+    });
+
+    return () => {
+      socket.disconnect();
+      console.log("Socket disconnected");
+    };
   }, []);
 
-  const renderPost = ({ item }) => {
-    if(user != null){
-      //if(item.likes.includes(user._id)) isLiked = true;
-    }
+  if (loading) {
     return (
-    <View style={styles.postCard}>
-      <Text style={styles.threadName}>Thread: {item.threadName}</Text>
-      <Text style={styles.author}>Posted by: {item.author}</Text>
-      <Text style={styles.postContent}>{item.content}</Text>
-      <Text>Likes = {item.likes}</Text>
-    </View>
-  )};
-  if (posts.length === 0) {
-    return <Text>Loading posts...</Text>;
+      <Container>
+        <GeneralText>Loading posts...</GeneralText>
+      </Container>
+    );
   }
 
+  if (error) {
+    return (
+      <Container>
+        <GeneralText>{error}</GeneralText>
+      </Container>
+    );
+  }
+
+  const likePost = async (post) => {
+    if (!user) {
+      console.log("User not logged in");
+      navigation.navigate("login");
+      return;
+    }
+
+    const updatedPosts = posts.map((p) => {
+      if (p._id === post._id) {
+        let updatedLikes;
+
+        if (p.likes.includes(user.email)) {
+          updatedLikes = p.likes.filter((email) => email !== user.email);
+        } else {
+          updatedLikes = [...p.likes, user.email];
+        }
+
+        return { ...p, likes: updatedLikes };
+      }
+      return p;
+    });
+
+    setPosts(updatedPosts);
+
+    try {
+      const updatedPost = updatedPosts.find((p) => p._id === post._id);
+      const filters = { post: post.postTitle, likes: updatedPost.likes };
+      await Likes(filters);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const getLike = (post) => {
+    if (!user) {
+      return unliked;
+    } else if (post.likes.includes(user.email)) {
+      return liked;
+    } else {
+      return unliked;
+    }
+  };
+
+  const ViewPost = (post) => {
+    AsyncStorage.setItem("Post", JSON.stringify(post));
+    navigation.navigate("post");
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>ThreadUD - Home</Text>
-      <FlatList
-        data={posts}
-        keyExtractor={(item) => item._id}
-        renderItem={renderPost}
+    <Container>
+      <Header>Welcome to the ThreadUD</Header>
+      {posts.length === 0 ? (
+        <GeneralText>
+          No posts available. Start by creating a new post!
+        </GeneralText>
+      ) : (
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <PostCard>
+              <ThreadName>{item.threadName}</ThreadName>
+              <GeneralText style={IndexStyles.postContent}>
+                {item.content}
+              </GeneralText>
+              <GeneralText style={IndexStyles.author}>
+                Author: {item.author}
+              </GeneralText>
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity onPress={() => likePost(item)}>
+                  {getLike(item)}
+                </TouchableOpacity>
+                <GeneralText> {item.likes.length} </GeneralText>
+                <TouchableOpacity onPress={() => ViewPost(item)}>
+                  <Icon name="message1" size={25} />
+                </TouchableOpacity>
+                <GeneralText> {item.comments.length} </GeneralText>
+              </View>
+            </PostCard>
+          )}
+        />
+      )}
+      <Button
+        title="Create Post"
+        onPress={() => console.log("Navigate to Create Post")}
       />
-      <View style={styles.buttonContainer}>
-        <Button title="Log In" onPress={() => navigation.navigate("login")} />
-          <Button title="Sign Up" onPress={() => navigation.navigate("register")} />
-          <Button title="Profile" onPress={() => navigation.navigate("profile")} />
-      </View>
-    </View>
+      {user && (
+        <Button
+          title="Profile"
+          onPress={() => navigation.navigate("profile")}
+          style={{ marginTop: 8 }}
+        />
+      )}
+      <Button
+        title="Login"
+        onPress={() => navigation.navigate("login")}
+        style={{ marginTop: 16 }}
+      />
+      <Button
+        title="Sign Up"
+        onPress={() => navigation.navigate("register")}
+        style={{ marginTop: 8 }}
+      />
+    </Container>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#f9f9f9",
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  postCard: {
-    backgroundColor: "#68BBE3",
-    padding: 16,
-    marginVertical: 8,
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  threadName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  author: {
-    fontSize: 14,
-    color: "#555",
-    marginVertical: 4,
-  },
-  postContent: {
-    fontSize: 14,
-    color: "#333",
-  },
-  buttonContainer: {
-    marginTop: 16,
-    alignItems: "center",
-  },
-});
-
-export default HomeScreen;
+export default IndexPage;
