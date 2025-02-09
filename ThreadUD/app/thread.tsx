@@ -15,7 +15,7 @@ import * as AsyncStorage from "../util/AsyncStorage.js";
 dayjs.extend(relativeTime);
 
 const Thread = () => {
-  const { user, updateUser } = useUser(); // Use UserContext
+  const [user, setUser] = useState([]);
   const route = useRoute();
   const navigation = useNavigation();
   const { threadID, threadName } = route.params || {};
@@ -29,6 +29,26 @@ const Thread = () => {
   const unliked = (<Icon name="hearto" size={25} color="red" />) as JSX.Element;
 
   // Fetch posts for the thread
+  useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          const userData = await AsyncStorage.getItem("User");
+          if (userData) {
+            setUser(userData);
+            console.log("User data:", userData);
+          } else {
+            console.log("No user data found");
+            setUser(null);
+          }
+          setUserSearched(true);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+  
+      fetchUser();
+    }, []);
+
   useEffect(() => {
     if (!threadID) {
       console.error("Error: threadID is missing!");
@@ -85,8 +105,8 @@ const Thread = () => {
       console.log("User successfully joined the thread");
 
       const updatedUserData = await response.json();
-      updateUser(updatedUserData.user);
-      await AsyncStorage.setItem("User", JSON.stringify(updatedUserData.user));
+      setUser(updatedUserData.user);
+      await AsyncStorage.setItem("User",updatedUserData.user);
       setJoined(true);
     } catch (error) {
       console.error("Error making join thread request:", error);
@@ -124,7 +144,8 @@ const Thread = () => {
       console.log("User successfully left the thread");
 
       // Update both context and AsyncStorage with the new user data
-      updateUser(updatedUserData.user);
+      setUser(updatedUserData.user);
+      await AsyncStorage.setItem("User", updatedUserData.user);
       setJoined(false);
     } catch (error) {
       console.error("Error making leave thread request:", error);

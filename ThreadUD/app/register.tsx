@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import RegisterStyles from "./styles/RegisterStyles";
 import { registerStudent } from "./services/registerStudent";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Use the standard AsyncStorage
+import * as AsyncStorage from "../util/AsyncStorage.js";
 import { useNavigation } from "@react-navigation/native";
 
 const RegisterPage = () => {
@@ -35,7 +35,7 @@ const RegisterPage = () => {
 
       if (response && response.user) {
         Alert.alert("Success", "Account created successfully!");
-        await AsyncStorage.setItem("User", JSON.stringify(response.user));
+        await AsyncStorage.setItem("User", response.user);
         navigation.navigate("index");
       } else {
         Alert.alert("Error", "Registration failed. Please try again.");

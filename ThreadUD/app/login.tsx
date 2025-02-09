@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Button, TextInput, Alert } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as AsyncStorage from "../util/AsyncStorage.js";
 import { getUser } from "./services/getUser";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "./context/UserContext"; // Use useUser hook
@@ -30,10 +30,7 @@ const LoginScreen = () => {
         console.log("User logged in:", fetchedUser);
 
         // Store user in AsyncStorage
-        await AsyncStorage.setItem("User", JSON.stringify(fetchedUser));
-
-        // Update context (if using UserContext)
-        getUser(fetchedUser);
+        await AsyncStorage.setItem("User", fetchedUser);
 
         navigation.navigate("index");
       }
