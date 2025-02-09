@@ -9,6 +9,7 @@ import Icon from "react-native-vector-icons/AntDesign";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { API_URL } from "./constants/apiConfig";
+import { Likes } from "./services/updateLikes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 dayjs.extend(relativeTime);
@@ -85,6 +86,7 @@ const Thread = () => {
 
       const updatedUserData = await response.json();
       updateUser(updatedUserData.user);
+      await AsyncStorage.setItem("User", JSON.stringify(updatedUserData.user));
       setJoined(true);
     } catch (error) {
       console.error("Error making join thread request:", error);
@@ -130,39 +132,38 @@ const Thread = () => {
   };
 
   const likePost = async (post) => {
-    if (!user) {
-      console.log("User not logged in");
-      navigation.navigate("login");
-      return;
-    }
+        if (!user) {
+          console.log("User not logged in");
+          navigation.navigate("login");
+          return;
+        }
+        let action;
+      
+        if (post.likes.includes(user.email)) {
+          action = -1;
+        } else {
+          action = 1;
+        }
 
-    const updatedPosts = posts.map((p) => {
-      if (p._id === post._id) {
-        const updatedLikes = p.likes.includes(user.email)
-          ? p.likes.filter((email) => email !== user.email)
-          : [...p.likes, user.email];
-        return { ...p, likes: updatedLikes };
-      }
-      return p;
-    });
-
-    setPosts(updatedPosts);
-
-    try {
-      await fetch(`${API_URL}/post/likes`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          post: post.postTitle,
-          likes: updatedPosts.find((p) => p._id === post._id).likes,
-        }),
-      });
-    } catch (error) {
-      console.error("Error updating likes:", error);
-    }
-  };
+        const updatedPosts = posts.map((p) => {
+          if (p._id === post._id) {
+            const updatedLikes = p.likes.includes(user.email)
+              ? p.likes.filter((email) => email !== user.email)
+              : [...p.likes, user.email];
+            return { ...p, likes: updatedLikes };
+          }
+          return p;
+        });
+    
+        setPosts(updatedPosts);
+      
+        try {
+          const filters = { post: post.postTitle, like: user.email, action: action };
+          await Likes(filters);
+        } catch (err) {
+          console.error(err);
+        }
+      };
 
   const getLike = (post) => {
     if (!user) return unliked;

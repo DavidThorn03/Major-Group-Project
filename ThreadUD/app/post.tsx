@@ -65,8 +65,10 @@ const PostPage = () => {
     const fetchPost = async () => {
       try {
         const postData = await AsyncStorage.getItem("Post");
+        console.log("Post data:", postData);
         if(postData) {
-          const post = await getSinglePost( { id: postData._id } );
+          const post = await getSinglePost( { id: postData.id } );
+          console.log("Post data:", post);
           post.threadName = postData.threadName;
           setPost(post);
           console.log("Post data:", postData);
@@ -162,7 +164,8 @@ useEffect(() => {
       return;
     }
     let action;
-  
+    let updatedLikes;
+
     if (post.likes.includes(user.email)) {
       action = -1;
       updatedLikes = post.likes.filter((email) => email !== user.email);
@@ -170,9 +173,8 @@ useEffect(() => {
       action = 1;
       updatedLikes = [...post.likes, user.email];
     }
-  
+
     setPost({ ...post, likes: updatedLikes });
-  
     try {
       const filters = { post: post.postTitle, like: user.email, action: action };
       await Likes(filters);
@@ -415,7 +417,7 @@ useEffect(() => {
         Author: {post.author}
       </GeneralText>
       <View style={{flexDirection: "row"}}>
-        <TouchableOpacity onPress={() => likePost(post)}>{getPostLike(post)}</TouchableOpacity>
+        <TouchableOpacity onPress={() => likePost()}>{getPostLike()}</TouchableOpacity>
         <GeneralText>  {post.likes.length}  </GeneralText>
 
         <TouchableOpacity onPress={() => commentInput()}><Icon name="message1" size={25}/></TouchableOpacity>

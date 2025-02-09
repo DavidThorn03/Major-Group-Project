@@ -24,6 +24,8 @@ const IndexPage = () => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState([]);
   const [userSearched, setUserSearched] = useState(false);
+  const [socket, setSocket] = useState(null);
+  
 
   const liked = <Icon name="heart" size={25} color="red" />;
   const unliked = <Icon name="hearto" size={25} color="red" />;
@@ -66,17 +68,22 @@ const IndexPage = () => {
   }, [userSearched]);
 
   useEffect(() => {
-    console.log("Setting up socket connection...");
-    const socket = io("http://192.168.1.17:3000/"); // same as route in api url but without the /api
+    if (socket) {
+      console.log("Disconnecting previous socket before setting up a new one");
+      socket.disconnect();
+    }
 
-    socket.on("update posts", (updatedPosts) => {
-      console.log("Received updated posts:", updatedPosts); // Check if this is logged
-      setPosts(updatedPosts);
+    const newSocket = io("http://192.168.0.11:3000/");
+
+    newSocket.on("update posts", (updatePosts) => {
+      console.log("Received updated comments:", updatePosts);
+      setPosts(updatePosts);
     });
 
+    setSocket(newSocket);
+
     return () => {
-      socket.disconnect();
-      console.log("Socket disconnected");
+      newSocket.disconnect();
     };
   }, []);
 
@@ -134,7 +141,8 @@ const IndexPage = () => {
   };
 
   const ViewPost = (post) => {
-    AsyncStorage.setItem("Post",  {"_id": post._id, "threadName": post.threadName});
+    console.log(post._id, post.threadName);
+    AsyncStorage.setItem("Post",  {id: post._id, threadName: post.threadName});
     navigation.navigate("post");
   };
 

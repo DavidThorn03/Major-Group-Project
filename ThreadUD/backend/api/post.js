@@ -114,35 +114,6 @@ router.put("/comments", async (req, res) => {   // THIS WORKS FINE, OTHERS ARE P
 });
 
 
-router.get("/single", async (req, res) => { // this is used when the page is first loaded to get the CURRENT post informtion
-  console.log("in api");
-  const id = req.query.id;
-  try {
-    const posts = await getSinglePost(id);
-    res.json(posts);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching posts", error });
-  }
-});
-
-const getSinglePost = async (id) => {
-  console.log("Fetching post with id:", id);
-
-  try {
-    const post = await Post.findOne({ _id: id }).exec(); 
-    if (!post) {
-      throw new Error("Post not found");
-    }
-    console.log("Fetched post:", post);
-    return post;
-  } catch (error) {
-    console.error("Error fetching post:", error);
-    throw error; 
-  }
-};
-
-
-
 // Handle real-time post updates via change stream
 const handlePostChangeStream = (io) => {
   const changeStream = Post.watch();
@@ -166,4 +137,4 @@ const handlePostChangeStream = (io) => {
   });
 };
 
-module.exports = { Post, handlePostChangeStream, router, getSinglePost };
+export { handlePostChangeStream, router };

@@ -1,21 +1,9 @@
 import express from "express";
 import mongoose from "mongoose";
+import Post from "../models/Post.js";
+import Comment from "../models/Comment.js";
 
 const router = express.Router();
-const mongoose = require("mongoose");
-const { Post, getSinglePost } = require("./post");
-
-const commentSchema = new mongoose.Schema(
-  {
-    author: { type: String, required: true },
-    content: { type: String, required: true },
-    replyid: { type: Array, required: true },
-    likes: { type: Array, required: true },
-  },
-  { versionKey: false }
-);
-
-const Comment = mongoose.model("Comment", commentSchema, "Comment");
 
 router.post("/add", async (req, res) => { // THIS WORKS
     let author = req.body.comment.author;
@@ -129,6 +117,37 @@ router.put("/likes", async (req, res) => {
   }
 });
 
+router.get("/single", async (req, res) => { // this is used when the page is first loaded to get the CURRENT post informtion
+  console.log("in api");
+  const id = req.query.id;
+  try {
+    const posts = await getSinglePost(id);
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching posts", error });
+  }
+});
+
+const getSinglePost = async (id) => {
+  console.log("Fetching post with id:", id);
+  if(id == null) {
+    return null;
+  }
+
+  try {
+    const post = await Post.findOne({ _id: id }).exec(); 
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    console.log("Fetched post:", post);
+    return post;
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    throw error; 
+  }
+};
+
+
 router.put("/reply", async (req, res) => {
   console.log("Query Parameters:", req.body);
 
@@ -216,4 +235,4 @@ router.put("/reply", async (req, res) => {
   };
   
 
-  module.exports = { Comment, handleCommentChangeStream, router };
+  export { handleCommentChangeStream, router };
