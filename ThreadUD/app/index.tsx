@@ -141,7 +141,6 @@ const IndexPage = () => {
   };
 
   const ViewPost = (post) => {
-    console.log(post._id, post.threadName);
     AsyncStorage.setItem("Post",  {id: post._id, threadName: post.threadName});
     navigation.navigate("post");
   };

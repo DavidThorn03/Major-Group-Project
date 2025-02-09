@@ -21,6 +21,7 @@ export default function RootLayout() {
         <Stack.Screen name="register" />
         <Stack.Screen name="profile" />
         <Stack.Screen name="post" />
+        <Stack.Screen name="search" />
       </Stack>
     </UserProvider>
   );

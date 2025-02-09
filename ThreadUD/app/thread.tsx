@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { API_URL } from "./constants/apiConfig";
 import { Likes } from "./services/updateLikes";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as AsyncStorage from "../util/AsyncStorage.js";
 
 dayjs.extend(relativeTime);
 
@@ -170,8 +170,9 @@ const Thread = () => {
     return post.likes.includes(user.email) ? liked : unliked;
   };
 
-  const navigateToPost = (postId) => {
-    navigation.navigate("post", { postId });
+  const navigateToPost = (post) => {
+    AsyncStorage.setItem("Post",  {id: post._id, threadName: threadName});
+    navigation.navigate("post");
   };
 
   return (
@@ -215,7 +216,7 @@ const Thread = () => {
                   {getLike(item)}
                 </TouchableOpacity>
                 <Text style={ThreadStyles.likeCount}>{item.likes.length}</Text>
-                <TouchableOpacity onPress={() => navigateToPost(item._id)}>
+                <TouchableOpacity onPress={() => navigateToPost(item)}>
                   <Icon name="message1" size={25} />
                 </TouchableOpacity>
                 <Text style={ThreadStyles.commentCount}>
