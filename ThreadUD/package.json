@@ -37,18 +37,17 @@
     "express": "^4.21.1",
     "mongodb": "^6.12.0",
     "mongoose": "^8.8.1",
-    "nativewind": "^4.1.23",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-native": "^0.76.6",
     "react-native-gesture-handler": "~2.20.2",
-    "react-native-reanimated": "~3.16.1",
-    "react-native-safe-area-context": "^4.12.0",
     "react-native-screens": "~4.4.0",
     "react-native-web": "~0.19.13",
     "realm": "^20.0.0",
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "react-native-reanimated": "~3.16.1",
+    "react-native-safe-area-context": "4.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
@@ -63,7 +62,6 @@
     "metro-react-native-babel-preset": "^0.77.0",
     "postcss": "^8.5.1",
     "react-test-renderer": "18.3.1",
-    "tailwindcss": "^3.4.17",
     "tailwindcss-react-native": "^1.7.10",
     "typescript": "~5.6.3"
   },
