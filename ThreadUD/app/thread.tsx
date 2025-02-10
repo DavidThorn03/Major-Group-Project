@@ -24,6 +24,7 @@ const Thread = () => {
 
   const [posts, setPosts] = useState([]);
   const [joined, setJoined] = useState(false);
+  const [userSearched, setUserSearched] = useState(false);
 
   const liked = (<Icon name="heart" size={25} color="red" />) as JSX.Element;
   const unliked = (<Icon name="hearto" size={25} color="red" />) as JSX.Element;
@@ -224,7 +225,7 @@ const Thread = () => {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={ThreadStyles.postCard}
-            onPress={() => navigateToPost(item._id)}
+            onPress={() => navigateToPost(item)}
           >
             <View>
               <Text style={ThreadStyles.author}>{item.author}</Text>
