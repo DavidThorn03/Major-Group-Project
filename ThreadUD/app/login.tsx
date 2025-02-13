@@ -4,8 +4,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUser } from "./services/getUser";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "./context/UserContext"; // Use useUser hook
-import GeneralStyles from "./styles/GeneralStyles";
-import LoginStyles from "./styles/LoginStyles";
+import {
+  Container,
+  Header,
+  Input,
+  ButtonContainer,
+} from "./components/LoginStyles"; // Updated import
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -43,30 +47,28 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={GeneralStyles.container}>
-      <Text style={GeneralStyles.header}>Log in</Text>
-      <TextInput
-        style={LoginStyles.input}
+    <Container>
+      <Header>Log in</Header>
+      <Input
         placeholder="Email"
         onChangeText={(Email) => setEmail(Email.toLowerCase())}
       />
-      <TextInput
-        style={LoginStyles.input}
+      <Input
         placeholder="Password"
         onChangeText={(Password) => setPassword(Password)}
         secureTextEntry={true}
       />
-      <View style={LoginStyles.buttonContainer}>
+      <ButtonContainer>
         <Button title="Log in" onPress={handleLogin} />
-      </View>
-      <View style={LoginStyles.buttonContainer}>
-        <Text style={GeneralStyles.text}>Don't have an account?</Text>
+      </ButtonContainer>
+      <ButtonContainer>
+        <Text>Don't have an account?</Text>
         <Button
           title="Register new user"
           onPress={() => navigation.navigate("register")}
         />
-      </View>
-    </View>
+      </ButtonContainer>
+    </Container>
   );
 };
 

@@ -1,21 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, View, Text, TouchableOpacity } from "react-native";
 import {
   Container,
   Header,
   PostCard,
   ThreadName,
+  Timestamp,
   GeneralText,
   Button,
-} from "./components/StyledWrappers";
-import IndexStyles from "./styles/IndexStyles";
+  PostContent,
+  Author,
+} from "./components/IndexStyles";
 import { getPosts } from "./services/getPost";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
-import { TouchableOpacity } from "react-native";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { Likes } from "./services/updateLikes";
 import io from "socket.io-client";
+import BottomNavBar from "./components/BottomNavBar";
+import NavBar from "./components/NavBar";
+
+dayjs.extend(relativeTime);
 
 const IndexPage = () => {
   const navigation = useNavigation();
@@ -26,7 +33,7 @@ const IndexPage = () => {
   const [userSearched, setUserSearched] = useState(false);
 
   const liked = <Icon name="heart" size={25} color="red" />;
-  const unliked = <Icon name="hearto" size={25} color="red" />;
+  const unliked = <Icon name="hearto" size={25} color="white" />;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -67,7 +74,7 @@ const IndexPage = () => {
 
   useEffect(() => {
     console.log("Setting up socket connection...");
-    const socket = io("http://192.168.1.17:3000/"); // same as route in api url but without the /api
+    const socket = io("http://192.168.1.14:3000/"); // same as route in api url but without the /api
 
     socket.on("update posts", (updatedPosts) => {
       console.log("Received updated posts:", updatedPosts); // Check if this is logged
@@ -151,7 +158,7 @@ const IndexPage = () => {
 
   return (
     <Container>
-      <Header>Welcome to the ThreadUD</Header>
+      <NavBar />
       {posts.length === 0 ? (
         <GeneralText>
           No posts available. Start by creating a new post!
@@ -161,7 +168,7 @@ const IndexPage = () => {
           data={posts}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => {
-            console.log("Post item:", item); // Debug log
+            console.log("Post item:", item);
             return (
               <PostCard>
                 <TouchableOpacity
@@ -171,19 +178,17 @@ const IndexPage = () => {
                 >
                   <ThreadName>{item.threadName}</ThreadName>
                 </TouchableOpacity>
-                <GeneralText style={IndexStyles.postContent}>
-                  {item.content}
-                </GeneralText>
-                <GeneralText style={IndexStyles.author}>
-                  Author: {item.author}
-                </GeneralText>
+                <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
+                <PostContent>{item.content}</PostContent>
+                <Author>Author: {item.author}</Author>
                 <View style={{ flexDirection: "row" }}>
                   <TouchableOpacity onPress={() => likePost(item)}>
                     {getLike(item)}
                   </TouchableOpacity>
                   <GeneralText> {item.likes.length} </GeneralText>
+                  <View style={{ paddingHorizontal: 5 }} />
                   <TouchableOpacity onPress={() => ViewPost(item)}>
-                    <Icon name="message1" size={25} />
+                    <Icon name="message1" size={25} color="white" />
                   </TouchableOpacity>
                   <GeneralText> {item.comments.length} </GeneralText>
                 </View>
@@ -192,27 +197,7 @@ const IndexPage = () => {
           }}
         />
       )}
-      <Button
-        title="Create Post"
-        onPress={() => console.log("Navigate to Create Post")}
-      />
-      {user && (
-        <Button
-          title="Profile"
-          onPress={() => navigation.navigate("profile")}
-          style={{ marginTop: 8 }}
-        />
-      )}
-      <Button
-        title="Login"
-        onPress={() => navigation.navigate("login")}
-        style={{ marginTop: 16 }}
-      />
-      <Button
-        title="Sign Up"
-        onPress={() => navigation.navigate("register")}
-        style={{ marginTop: 8 }}
-      />
+      <BottomNavBar />
     </Container>
   );
 };

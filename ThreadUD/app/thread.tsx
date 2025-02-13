@@ -4,7 +4,15 @@ import { getPostsByThread } from "./services/getThreadPosts";
 import { getUser } from "./services/getUser";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useUser } from "./context/UserContext"; // Import useUser
-import ThreadStyles from "./styles/ThreadStyles";
+import {
+  Container,
+  Header,
+  PostCard,
+  Author,
+  Timestamp,
+  Content,
+  ButtonContainer,
+} from "./components/ThreadStyles"; // Updated import
 import Icon from "react-native-vector-icons/AntDesign";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -174,58 +182,32 @@ const Thread = () => {
   };
 
   return (
-    <View style={ThreadStyles.container}>
-      <View style={ThreadStyles.header}>
-        <Text style={ThreadStyles.headerText}>{threadName}</Text>
-
-        {joined ? (
-          <TouchableOpacity
-            style={ThreadStyles.joinedButton}
-            onPress={handleLeaveThread}
-          >
-            <Text style={ThreadStyles.joinedButtonText}>Joined</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={ThreadStyles.joinButton}
-            onPress={handleJoinThread}
-          >
-            <Text style={ThreadStyles.joinButtonText}>Join Thread</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
+    <Container>
+      <Header>{threadName}</Header>
       <FlatList
         data={posts}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={ThreadStyles.postCard}
-            onPress={() => navigateToPost(item._id)}
-          >
-            <View>
-              <Text style={ThreadStyles.author}>{item.author}</Text>
-              <Text style={ThreadStyles.timestamp}>
-                {dayjs(item.createdAt).fromNow()}
-              </Text>
-              <Text style={ThreadStyles.content}>{item.content}</Text>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <TouchableOpacity onPress={() => navigateToPost(item._id)}>
+            <PostCard>
+              <Author>{item.author}</Author>
+              <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
+              <Content>{item.content}</Content>
+              <ButtonContainer>
                 <TouchableOpacity onPress={() => likePost(item)}>
                   {getLike(item)}
                 </TouchableOpacity>
-                <Text style={ThreadStyles.likeCount}>{item.likes.length}</Text>
+                <Text>{item.likes.length}</Text>
                 <TouchableOpacity onPress={() => navigateToPost(item._id)}>
                   <Icon name="message1" size={25} />
                 </TouchableOpacity>
-                <Text style={ThreadStyles.commentCount}>
-                  {item.comments.length}
-                </Text>
-              </View>
-            </View>
+                <Text>{item.comments.length}</Text>
+              </ButtonContainer>
+            </PostCard>
           </TouchableOpacity>
         )}
       />
-    </View>
+    </Container>
   );
 };
 
