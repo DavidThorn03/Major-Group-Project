@@ -73,7 +73,7 @@ const IndexPage = () => {
       socket.disconnect();
     }
 
-    const newSocket = io("http://192.168.94.80:3000/");
+    const newSocket = io("http://192.168.0.11:3000/");
 
     newSocket.on("update posts", (updatePosts) => {
       console.log("Received updated comments:", updatePosts);
@@ -207,6 +207,11 @@ const IndexPage = () => {
       <Button
         title="Sign Up"
         onPress={() => navigation.navigate("register")}
+        style={{ marginTop: 8 }}
+      />
+      <Button
+        title="Search"
+        onPress={() => navigation.navigate("search")}
         style={{ marginTop: 8 }}
       />
     </Container>
