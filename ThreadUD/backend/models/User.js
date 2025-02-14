@@ -13,21 +13,6 @@ const userSchema = new mongoose.Schema(
       ref: "Thread",
       default: [],
     },
-    posts: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "Post",
-      default: [],
-    },
-    comments: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "Comment",
-      default: [],
-    },
-    followedThreads: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "Thread",
-      default: [],
-    },
   },
   {
     collection: "User", // Explicitly define collection name to avoid pluralization issues

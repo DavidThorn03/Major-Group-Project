@@ -119,7 +119,7 @@ useEffect(() => {
       socket.disconnect();
     }
 
-    const newSocket = io("http://192.168.94.80:3000/", {
+    const newSocket = io("http://192.168.0.11:3000/", {
       query: { post: post._id },
     });
 
