@@ -9,7 +9,7 @@ const BottomNavBar = () => {
   const getIconStyle = (targetRoute) => ({
     width: 24,
     height: 24,
-    tintColor: route.name === targetRoute ? "yellow" : "black",
+    tintColor: route.name === targetRoute ? "yellow" : "white",
   });
 
   const getButtonStyle = (targetRoute) => ({
@@ -52,12 +52,12 @@ const BottomNavBar = () => {
         />
       </TouchableOpacity>
       <TouchableOpacity
-        style={getButtonStyle("post")}
-        onPress={() => navigation.navigate("post")}
+        style={getButtonStyle("makePost")}
+        onPress={() => navigation.navigate("makePost")}
       >
         <Image
           source={require("../../assets/icons/makePost.png")}
-          style={getIconStyle("post")}
+          style={getIconStyle("makePost")}
         />
       </TouchableOpacity>
       <TouchableOpacity

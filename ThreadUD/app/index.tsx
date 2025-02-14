@@ -74,7 +74,7 @@ const IndexPage = () => {
 
   useEffect(() => {
     console.log("Setting up socket connection...");
-    const socket = io("http://192.168.1.17:3000/"); // same as route in api url but without the /api
+    const socket = io("http://192.168.203.125:3000/"); // same as route in api url but without the /api
 
     socket.on("update posts", (updatedPosts) => {
       console.log("Received updated posts:", updatedPosts); // Check if this is logged
