@@ -61,7 +61,7 @@ const SearchPage = () => {
 
       fetchData();
     } else {
-      setThreads([]); // Clear results when text is too short
+      setThreads([]); 
       setError("Enter thread to be searched.");
     }
   }, [text]);
@@ -72,6 +72,8 @@ const SearchPage = () => {
       <Container>
       <TouchableOpacity onPress={() => navigateToThread(thread._id, thread.threadName)}>
         <ThreadName>{thread.threadName}</ThreadName>
+        <GeneralText>Year: {thread.year}</GeneralText>
+        <GeneralText>Course: {thread.course}</GeneralText>
       </TouchableOpacity>
     </Container>
     );
