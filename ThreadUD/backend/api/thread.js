@@ -30,6 +30,26 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Get a specific thread by ID
+router.get("/:threadID", async (req, res) => {
+  const { threadID } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(threadID)) {
+    return res.status(400).json({ message: "Invalid threadID format" });
+  }
+
+  try {
+    const thread = await Thread.findById(threadID);
+    if (!thread) {
+      return res.status(404).json({ message: "Thread not found" });
+    }
+    res.status(200).json(thread);
+  } catch (error) {
+    console.error("Error fetching thread:", error);
+    res.status(500).json({ message: "Error fetching thread", error });
+  }
+});
+
 // Create a new post in a thread
 router.post("/:threadID/posts", async (req, res) => {
   const { postTitle, content, author } = req.body;
@@ -126,7 +146,29 @@ router.get("/search", async (req, res) => {
 
   try {
     const threads = await Thread.find({
-      threadName: { $regex: name, $options: "i" } 
+      threadName: { $regex: name, $options: "i" },
+    });
+    res.status(200).json(threads);
+  } catch (error) {
+    console.error("Error fetching threads:", error);
+    res.status(500).json({ message: "Error fetching threads", error });
+  }
+});
+
+// Get multiple threads by IDs
+router.post("/multiple", async (req, res) => {
+  const { threadIDs } = req.body;
+
+  if (
+    !Array.isArray(threadIDs) ||
+    threadIDs.some((id) => !mongoose.Types.ObjectId.isValid(id))
+  ) {
+    return res.status(400).json({ message: "Invalid threadIDs format" });
+  }
+
+  try {
+    const threads = await Thread.find({
+      _id: { $in: threadIDs },
     });
     res.status(200).json(threads);
   } catch (error) {

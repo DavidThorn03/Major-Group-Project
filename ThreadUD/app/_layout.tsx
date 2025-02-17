@@ -1,11 +1,13 @@
 import { Stack } from "expo-router";
 import { UserProvider } from "./context/UserContext"; // Import UserProvider
+import "../global.css";
 
 export default function RootLayout() {
   return (
     <UserProvider>
       <Stack
         screenOptions={{
+          headerShown: false,
           headerStyle: {
             backgroundColor: "#f4511e",
           },
@@ -21,6 +23,7 @@ export default function RootLayout() {
         <Stack.Screen name="register" />
         <Stack.Screen name="profile" />
         <Stack.Screen name="post" />
+        <Stack.Screen name="makePost" />
         <Stack.Screen name="search" />
         <Stack.Screen name="forgotPassword" />
         <Stack.Screen name="resetPassword" />
