@@ -31,7 +31,7 @@ const ForgotPassword = () => {
 
     try {
       const filter = { email: text.toLowerCase(), code: code };
-      const result = await forgotPassword(filter);
+      const result = forgotPassword(filter);
       console.log("Email sent to:", text.toLowerCase());
     } catch (error) {
       console.error("Error sending email:", error);
