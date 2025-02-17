@@ -54,7 +54,6 @@ const ForgotPassword = () => {
   return (
     
     <Container>
-        <GeneralText>In progress</GeneralText>
     {!email &&
     <Container>
         <GeneralText>Enter your email to reset your password</GeneralText>

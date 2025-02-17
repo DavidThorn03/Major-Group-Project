@@ -91,7 +91,7 @@ const SearchPage = () => {
         <TextInput 
             onChangeText={onChangeText}
             value={text}
-            placeholder="Add a comment"
+            placeholder="Search for a thread"
             autoFocus={true}
             />
       </View>

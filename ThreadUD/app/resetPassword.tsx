@@ -30,7 +30,7 @@ const ResetPassord = () => {
 
   return (
     <Container>
-        <GeneralText>In progress</GeneralText>
+        <GeneralText>Enter your new password</GeneralText>
     <View style={{flexDirection: "row"}}>
         <TextInput 
             onChangeText={setText}
