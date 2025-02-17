@@ -28,7 +28,6 @@ import { AddReply } from "./services/addReply";
 import { getSinglePost } from "./services/getSinglePost";
 import { RemoveComment } from "./services/removeComment";
 import { RemoveReply } from "./services/removeReply";
-import IndexStyles from "./styles/IndexStyles";
 import io from "socket.io-client";
 
 const PostPage = () => {
@@ -52,15 +51,21 @@ const PostPage = () => {
     const fetchUser = async () => {
       try {
         const userData = await AsyncStorage.getItem("User");
+        console.log("Raw user data:", userData);
         if (userData) {
-          setUser(JSON.parse(userData));
-          console.log("User data:", userData);
+          try {
+            const parsedUserData = JSON.parse(userData);
+            setUser(parsedUserData);
+            console.log("Parsed user data:", parsedUserData);
+          } catch (parseError) {
+            console.error("Error parsing user data:", parseError);
+          }
         } else {
           console.log("No user data found");
           setUser(null);
         }
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching user data:", err);
       }
     };
 
@@ -71,20 +76,23 @@ const PostPage = () => {
     const fetchPost = async () => {
       try {
         const postData = await AsyncStorage.getItem("Post");
-        console.log("Post data:", postData);
+        console.log("Raw post data:", postData);
         if (postData) {
-          const post = await getSinglePost({ id: postData.id });
-          console.log("Post data:", post);
-          post.threadName = postData.threadName;
-          setPost(post);
-          console.log("Post data:", postData);
-          setPostsearched(true);
+          try {
+            const parsedPostData = JSON.parse(postData);
+            const post = await getSinglePost({ id: parsedPostData.id });
+            post.threadName = parsedPostData.threadName;
+            setPost(post);
+            setPostsearched(true);
+          } catch (parseError) {
+            console.error("Error parsing post data:", parseError);
+          }
         } else {
           console.log("No post data found");
           setPost(null);
         }
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching post data:", err);
       }
     };
 
@@ -233,7 +241,7 @@ const PostPage = () => {
         like: user.email,
         action: action,
       };
-      CommentLikes(filters);
+      await CommentLikes(filters);
     } catch (err) {
       console.error(err);
     }
@@ -243,23 +251,10 @@ const PostPage = () => {
     if (!user) {
       return postUnliked;
     }
-    let action;
-
-    if (comment.likes.includes(user.email)) {
-      action = -1;
+    if (post.likes.includes(user.email)) {
+      return postLiked;
     } else {
-      action = 1;
-    }
-
-    try {
-      const filters = {
-        comment: comment._id,
-        like: user.email,
-        action: action,
-      };
-      CommentLikes(filters);
-    } catch (err) {
-      console.error(err);
+      return postUnliked;
     }
   };
 
@@ -365,7 +360,7 @@ const PostPage = () => {
     setComments(updatedComments);
   };
 
-  const printComments = (comments, comment) => {
+  const printComments = (comments) => {
     return (
       <FlatList
         data={comments}
@@ -383,7 +378,7 @@ const PostPage = () => {
               </TouchableOpacity>
               <GeneralText> {item.replyid.length} </GeneralText>
               {item.author === user.email && (
-                <TouchableOpacity onPress={() => deleteComment(item, comment)}>
+                <TouchableOpacity onPress={() => deleteComment(item, null)}>
                   <Icon name="delete" size={20} color="red" />
                 </TouchableOpacity>
               )}
@@ -399,35 +394,6 @@ const PostPage = () => {
                 <TouchableOpacity onPress={() => reply(item)}>
                   <Icon name="plus" size={25} />
                 </TouchableOpacity>
-                <GeneralText> {item.likes.length} </GeneralText>
-                <TouchableOpacity onPress={() => enterReply(item)}>
-                  <Icon name="message1" size={15} />
-                </TouchableOpacity>
-                <GeneralText> {item.replyid.length} </GeneralText>
-                {item.author === user.email && (
-                  <TouchableOpacity
-                    onPress={() => deleteComment(item, comment)}
-                  >
-                    <Icon name="delete" size={20} color="red" />
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-            {item.replyid.length > 0 && !item.replies && (
-              <Button title="View Replies" onPress={() => getReplies(item)} />
-            )}
-            {item.replies && <View>{printComments(item.replies, item)}</View>}
-            {item.replyInput && (
-              <View style={{ flexDirection: "row" }}>
-                <CommentInput
-                  onChangeText={onChangeText}
-                  value={text}
-                  placeholder="Reply to comment"
-                  autoFocus={true}
-                />
-                <TouchableOpacity onPress={() => reply(item)}>
-                  <Icon name="plus" size={25} />
-                </TouchableOpacity>
               </View>
             )}
             {item.replyid.length > 0 && !item.replies && (
@@ -435,7 +401,7 @@ const PostPage = () => {
             )}
             {item.replies && (
               <View>
-                {printComments(item.replies, item)}
+                {printComments(item.replies)}
                 <Button
                   title="Hide Replies"
                   onPress={() => hideReplies(item)}
@@ -453,44 +419,20 @@ const PostPage = () => {
     <Container>
       <GeneralText>{post.threadName}</GeneralText>
       <ThreadName>{post.postTitle}</ThreadName>
-      <GeneralText style={IndexStyles.postContent}>{post.content}</GeneralText>
-      <GeneralText style={IndexStyles.author}>
-        Author: {post.author}
-      </GeneralText>
+      <PostContent>{post.content}</PostContent>
+      <Author>Author: {post.author}</Author>
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity onPress={() => likePost()}>
           {getPostLike()}
         </TouchableOpacity>
-        <GeneralText> {post.likes.length} </GeneralText>
+        <GeneralText> {post.likes ? post.likes.length : 0} </GeneralText>
 
         <TouchableOpacity onPress={() => commentInput()}>
           <Icon name="message1" size={25} />
         </TouchableOpacity>
-        <GeneralText> {post.comments.length} </GeneralText>
+        <GeneralText> {post.comments ? post.comments.length : 0} </GeneralText>
       </View>
-      <Header>Comments</Header>
-      {input && (
-        <View style={{ flexDirection: "row" }}>
-          <TextInput
-            onChangeText={onChangeText}
-            value={text}
-            placeholder="Add a comment"
-            autoFocus={true}
-          />
-          <TouchableOpacity onPress={() => addComment(post)}>
-            <Icon name="plus" size={25} />
-          </TouchableOpacity>
-          <GeneralText> {post.likes ? post.likes.length : 0} </GeneralText>
-
-          <TouchableOpacity onPress={() => commentInput()}>
-            <Icon name="message1" size={25} />
-          </TouchableOpacity>
-          <GeneralText>
-            {" "}
-            {post.comments ? post.comments.length : 0}{" "}
-          </GeneralText>
-        </View>
-      )}
+      <GeneralText>Comments</GeneralText>
       {input && (
         <View style={{ flexDirection: "row" }}>
           <CommentInput
@@ -499,12 +441,12 @@ const PostPage = () => {
             placeholder="Add a comment"
             autoFocus={true}
           />
-          <TouchableOpacity onPress={() => addComment()}>
+          <TouchableOpacity onPress={() => addComment(post)}>
             <Icon name="plus" size={25} />
           </TouchableOpacity>
         </View>
       )}
-      {printComments(comments, null)}
+      {printComments(comments)}
       <Button title="Back" onPress={() => navigation.navigate("index")} />
     </Container>
   );

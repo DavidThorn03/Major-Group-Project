@@ -30,7 +30,6 @@ const IndexPage = () => {
   const [user, setUser] = useState([]);
   const [userSearched, setUserSearched] = useState(false);
   const [socket, setSocket] = useState(null);
-  
 
   const liked = <Icon name="heart" size={25} color="red" />;
   const unliked = <Icon name="hearto" size={25} color="white" />;
@@ -109,26 +108,30 @@ const IndexPage = () => {
   }
 
   const likePost = async (post) => {
-      if (!user) {
-        console.log("User not logged in");
-        navigation.navigate("login");
-        return;
-      }
-      let action;
-    
-      if (post.likes.includes(user.email)) {
-        action = -1;
-      } else {
-        action = 1;
-      }
-    
-      try {
-        const filters = { post: post.postTitle, like: user.email, action: action };
-        await Likes(filters);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+    if (!user) {
+      console.log("User not logged in");
+      navigation.navigate("login");
+      return;
+    }
+    let action;
+
+    if (post.likes.includes(user.email)) {
+      action = -1;
+    } else {
+      action = 1;
+    }
+
+    try {
+      const filters = {
+        post: post.postTitle,
+        like: user.email,
+        action: action,
+      };
+      await Likes(filters);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const getLike = (post) => {
     if (!user) {
@@ -146,7 +149,10 @@ const IndexPage = () => {
   };
 
   const ViewPost = (post) => {
-    AsyncStorage.setItem("Post",  {id: post._id, threadName: post.threadName});
+    AsyncStorage.setItem(
+      "Post",
+      JSON.stringify({ id: post._id, threadName: post.threadName })
+    );
     navigation.navigate("post");
   };
 

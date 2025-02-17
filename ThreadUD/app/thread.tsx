@@ -22,6 +22,7 @@ import { API_URL } from "./constants/apiConfig";
 import { Likes } from "./services/updateLikes";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import BottomNavBar from "./components/BottomNavBar";
+import axios from "axios";
 
 dayjs.extend(relativeTime);
 
@@ -34,7 +35,7 @@ const Thread = () => {
   console.log("Thread parameters:", { threadID, threadName });
 
   const [posts, setPosts] = useState([]);
-  const [joined, setJoined] = useState(false);
+  const [isMember, setIsMember] = useState(false);
   const [userSearched, setUserSearched] = useState(false);
 
   const liked = (<Icon name="heart" size={25} color="red" />) as JSX.Element;
@@ -48,20 +49,23 @@ const Thread = () => {
       try {
         const userData = await AsyncStorage.getItem("User");
         if (userData) {
-          setUser(userData);
-          console.log("User data:", userData);
+          const parsedUserData = JSON.parse(userData);
+          setUser(parsedUserData);
+          console.log("User data:", parsedUserData);
+          // Check if the user is a member of the thread
+          setIsMember(parsedUserData.threads?.includes(threadID));
+          setUserSearched(true);
         } else {
           console.log("No user data found");
           setUser(null);
         }
-        setUserSearched(true);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching user data:", err);
       }
     };
 
     fetchUser();
-  }, []);
+  }, [threadID]);
 
   useEffect(() => {
     if (!threadID) {
@@ -76,43 +80,26 @@ const Thread = () => {
     fetchPosts();
   }, [threadID]);
 
-  // Check if user already joined the thread
-  useEffect(() => {
-    if (user && user.threads?.includes(threadID)) {
-      setJoined(true);
-    }
-  }, [user, threadID]);
-
-  const handleJoinLeaveThread = async () => {
+  const handleJoinLeave = async () => {
     if (!user) {
       console.log("User not logged in");
       navigation.navigate("login");
       return;
     }
 
-    const action = joined ? "leaveThread" : "joinThread";
-    const successMessage = joined ? "left" : "joined";
-
     try {
-      const response = await fetch(`${API_URL}/user/${user._id}/${action}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ threadId: threadID }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error(`Error ${successMessage} thread:`, errorData);
-        return;
+      const url = `${API_URL}/user/${user._id}/threads/${threadID}`;
+      if (isMember) {
+        // Logic to leave the thread
+        await axios.post(`${url}/leave`);
+        setIsMember(false);
+      } else {
+        // Logic to join the thread
+        await axios.post(`${url}/join`);
+        setIsMember(true);
       }
-
-      const updatedUserData = await response.json();
-      updateUser(updatedUserData.user);
-      setJoined(!joined);
-    } catch (error) {
-      console.error(`Error making ${successMessage} thread request:`, error);
+    } catch (err) {
+      console.error("Error updating membership status:", err);
     }
   };
 
@@ -168,7 +155,7 @@ const Thread = () => {
     <Container>
       <Header>
         <HeaderText>{threadName}</HeaderText>
-        <JoinButton onPress={handleJoinLeaveThread} joined={joined} />
+        <JoinButton onPress={handleJoinLeave} joined={isMember} />
       </Header>
       <FlatList
         data={posts}
