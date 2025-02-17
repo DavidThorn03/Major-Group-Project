@@ -19,15 +19,13 @@ import Icon from "react-native-vector-icons/AntDesign";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { API_URL } from "./constants/apiConfig";
-import { Likes } from "./services/updateLikes";
-import * as AsyncStorage from "../util/AsyncStorage.js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "./components/BottomNavBar";
-import axios from "axios";
 
 dayjs.extend(relativeTime);
 
 const Thread = () => {
-  const [user, setUser] = useState([]);
+  const { user, updateUser } = useUser(); // Use UserContext
   const route = useRoute();
   const navigation = useNavigation();
   const { threadID, threadName } = route.params || {};
@@ -35,8 +33,7 @@ const Thread = () => {
   console.log("Thread parameters:", { threadID, threadName });
 
   const [posts, setPosts] = useState([]);
-  const [isMember, setIsMember] = useState(false);
-  const [userSearched, setUserSearched] = useState(false);
+  const [joined, setJoined] = useState(false);
 
   const liked = (<Icon name="heart" size={25} color="red" />) as JSX.Element;
   const unliked = (
@@ -44,29 +41,6 @@ const Thread = () => {
   ) as JSX.Element;
 
   // Fetch posts for the thread
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userData = await AsyncStorage.getItem("User");
-        if (userData) {
-          const parsedUserData = JSON.parse(userData);
-          setUser(parsedUserData);
-          console.log("User data:", parsedUserData);
-          // Check if the user is a member of the thread
-          setIsMember(parsedUserData.threads?.includes(threadID));
-          setUserSearched(true);
-        } else {
-          console.log("No user data found");
-          setUser(null);
-        }
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-      }
-    };
-
-    fetchUser();
-  }, [threadID]);
-
   useEffect(() => {
     if (!threadID) {
       console.error("Error: threadID is missing!");
@@ -80,26 +54,43 @@ const Thread = () => {
     fetchPosts();
   }, [threadID]);
 
-  const handleJoinLeave = async () => {
+  // Check if user already joined the thread
+  useEffect(() => {
+    if (user && user.threads?.includes(threadID)) {
+      setJoined(true);
+    }
+  }, [user, threadID]);
+
+  const handleJoinLeaveThread = async () => {
     if (!user) {
       console.log("User not logged in");
       navigation.navigate("login");
       return;
     }
 
+    const action = joined ? "leaveThread" : "joinThread";
+    const successMessage = joined ? "left" : "joined";
+
     try {
-      const url = `${API_URL}/user/${user._id}/threads/${threadID}`;
-      if (isMember) {
-        // Logic to leave the thread
-        await axios.post(`${url}/leave`);
-        setIsMember(false);
-      } else {
-        // Logic to join the thread
-        await axios.post(`${url}/join`);
-        setIsMember(true);
+      const response = await fetch(`${API_URL}/user/${user._id}/${action}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ threadId: threadID }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error(`Error ${successMessage} thread:`, errorData);
+        return;
       }
-    } catch (err) {
-      console.error("Error updating membership status:", err);
+
+      const updatedUserData = await response.json();
+      updateUser(updatedUserData.user);
+      setJoined(!joined);
+    } catch (error) {
+      console.error(`Error making ${successMessage} thread request:`, error);
     }
   };
 
@@ -108,13 +99,6 @@ const Thread = () => {
       console.log("User not logged in");
       navigation.navigate("login");
       return;
-    }
-    let action;
-
-    if (post.likes.includes(user.email)) {
-      action = -1;
-    } else {
-      action = 1;
     }
 
     const updatedPosts = posts.map((p) => {
@@ -130,14 +114,18 @@ const Thread = () => {
     setPosts(updatedPosts);
 
     try {
-      const filters = {
-        post: post.postTitle,
-        like: user.email,
-        action: action,
-      };
-      await Likes(filters);
-    } catch (err) {
-      console.error(err);
+      await fetch(`${API_URL}/post/likes`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          post: post.postTitle,
+          likes: updatedPosts.find((p) => p._id === post._id).likes,
+        }),
+      });
+    } catch (error) {
+      console.error("Error updating likes:", error);
     }
   };
 
@@ -146,16 +134,15 @@ const Thread = () => {
     return post.likes.includes(user.email) ? liked : unliked;
   };
 
-  const navigateToPost = (post) => {
-    AsyncStorage.setItem("Post", { id: post._id, threadName: threadName });
-    navigation.navigate("post");
+  const navigateToPost = (postId) => {
+    navigation.navigate("post", { postId });
   };
 
   return (
     <Container>
       <Header>
         <HeaderText>{threadName}</HeaderText>
-        <JoinButton onPress={handleJoinLeave} joined={isMember} />
+        <JoinButton onPress={handleJoinLeaveThread} joined={joined} />
       </Header>
       <FlatList
         data={posts}
