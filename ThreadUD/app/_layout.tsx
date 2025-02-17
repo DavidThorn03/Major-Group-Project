@@ -22,6 +22,8 @@ export default function RootLayout() {
         <Stack.Screen name="profile" />
         <Stack.Screen name="post" />
         <Stack.Screen name="search" />
+        <Stack.Screen name="forgotPassword" />
+        <Stack.Screen name="resetPassword" />
       </Stack>
     </UserProvider>
   );
