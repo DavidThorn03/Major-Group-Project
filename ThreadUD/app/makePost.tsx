@@ -25,7 +25,15 @@ const MakePostPage = () => {
         const userData = await AsyncStorage.getItem("User");
         if (userData) {
           const user = JSON.parse(userData);
-          setThreads(user.threads || []);
+          console.log("User threads raw data:", user.threads);
+
+          const threadsData = user.threads.map((thread) => ({
+            threadID: thread.threadID || thread._id,
+            threadName: thread.threadName || thread.name,
+          }));
+
+          console.log("Mapped threads data:", threadsData);
+          setThreads(threadsData);
         }
       } catch (error) {
         console.error("Error fetching threads:", error);
@@ -43,6 +51,10 @@ const MakePostPage = () => {
 
     try {
       const userData = await AsyncStorage.getItem("User");
+      if (!userData) {
+        console.error("User data not found in AsyncStorage");
+        return;
+      }
       const user = JSON.parse(userData);
 
       const response = await axios.post(
@@ -72,10 +84,16 @@ const MakePostPage = () => {
       <CloseButton onPress={() => navigation.goBack()} />
       <StyledPicker
         selectedValue={selectedThread}
-        onValueChange={setSelectedThread}
+        onValueChange={(itemValue) => setSelectedThread(itemValue)}
       >
-        {threads.map((thread) => (
-          <Picker.Item key={thread} label={thread} value={thread} />
+        {threads.map((thread, index) => (
+          <Picker.Item
+            key={
+              thread.threadID ? thread.threadID.toString() : `thread-${index}`
+            }
+            label={thread.threadName ? thread.threadName : "Unnamed Thread"}
+            value={thread.threadID}
+          />
         ))}
       </StyledPicker>
       <StyledTextInput onChangeText={setBody} value={body} />
