@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import User from "../models/User.js"; // Import the User model
+import nodemailer from "nodemailer";
 
 const router = express.Router();
 
@@ -123,5 +124,69 @@ router.put("/:userId/leaveThread", async (req, res) => {
     res.status(500).json({ message: "Error leaving thread", error });
   }
 });
+
+router.put("/password", async (req, res) => {
+  console.log("req.body", req.body);
+  const { email, password } = req.body;
+  const saltRounds = 10;
+  const hash = bcrypt.hashSync(password, saltRounds);
+
+  // Validate required fields
+  if (!email || !password) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { email: email },
+      { password: hash },
+      { new: true } 
+    );
+    
+    if (!updatedUser) {	
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while registering the user." });
+  }
+});
+
+router.get("/forgotPassword", async (req, res) => {
+
+    const user = req.query.email;
+    const code = req.query.code;
+    
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'davythornton@gmail.com',
+        pass: 'enter password here'
+      }
+    });
+    
+    var mailOptions = {
+      from: '"ThreadUD" <davythornton@gmail.com>',
+      to: user,
+      subject: 'Password Reset',
+      text: 'To reset your password, please enter the following code: ' + code
+    };
+    
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+  
+    return Response.json({message: 'Email sent'})
+  
+});
+  
 
 export default router;

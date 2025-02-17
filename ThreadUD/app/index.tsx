@@ -73,7 +73,7 @@ const IndexPage = () => {
       socket.disconnect();
     }
 
-    const newSocket = io("http://192.168.0.11:3000/");
+    const newSocket = io("http://192.168.94.80:3000/");
 
     newSocket.on("update posts", (updatePosts) => {
       console.log("Received updated comments:", updatePosts);

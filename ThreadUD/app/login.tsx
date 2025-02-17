@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { View, Text, Button, TextInput, Alert } from "react-native";
+import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { getUser } from "./services/getUser";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "./context/UserContext"; // Use useUser hook
 import GeneralStyles from "./styles/GeneralStyles";
 import LoginStyles from "./styles/LoginStyles";
+import { GeneralText } from "./components/StyledWrappers.js";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -63,6 +65,11 @@ const LoginScreen = () => {
           onPress={() => navigation.navigate("register")}
         />
       </View>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("forgotPassword")}
+        style={LoginStyles.forgotPassword}
+      ><GeneralText>Forgot Password?</GeneralText>
+      </TouchableOpacity>
     </View>
   );
 };
