@@ -18,16 +18,19 @@ export const CloseButton = ({ onPress }) => (
 export const StyledPicker = ({ selectedValue, onValueChange, children }) => (
   <View
     style={{
-      backgroundColor: "white",
       marginVertical: 56,
       marginLeft: 10,
       width: "75%",
+      borderWidth: 1,
+      borderColor: "#fff",
+      borderRadius: 4,
     }}
   >
     <Picker
       selectedValue={selectedValue}
       onValueChange={onValueChange}
-      style={{ color: "white" }}
+      style={{ color: "#fff" }} // Picker text color
+      dropdownIconColor="#fff" // Dropdown arrow color
     >
       {children}
     </Picker>

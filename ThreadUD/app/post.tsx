@@ -19,15 +19,15 @@ import {
 } from "./components/PostStyles";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
-import * as AsyncStorage from "../util/AsyncStorage.js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Likes } from "./services/updateLikes";
 import { CommentLikes } from "./services/updateCommentLikes";
 import { getComments } from "./services/getComments";
 import { AddComment } from "./services/addComment";
 import { AddReply } from "./services/addReply";
-import { getSinglePost } from "./services/getSinglePost";
+import { getSinglePost } from "./services/getSinglePost.js";
 import { RemoveComment } from "./services/removeComment";
-import { RemoveReply } from "./services/removeReply";
+import { RemoveReply } from "./services/removeReply.js";
 import io from "socket.io-client";
 
 const PostPage = () => {
@@ -51,21 +51,15 @@ const PostPage = () => {
     const fetchUser = async () => {
       try {
         const userData = await AsyncStorage.getItem("User");
-        console.log("Raw user data:", userData);
         if (userData) {
-          try {
-            const parsedUserData = JSON.parse(userData);
-            setUser(parsedUserData);
-            console.log("Parsed user data:", parsedUserData);
-          } catch (parseError) {
-            console.error("Error parsing user data:", parseError);
-          }
+          setUser(JSON.parse(userData));
+          console.log("User data:", userData);
         } else {
           console.log("No user data found");
           setUser(null);
         }
       } catch (err) {
-        console.error("Error fetching user data:", err);
+        console.error(err);
       }
     };
 
@@ -76,23 +70,17 @@ const PostPage = () => {
     const fetchPost = async () => {
       try {
         const postData = await AsyncStorage.getItem("Post");
-        console.log("Raw post data:", postData);
         if (postData) {
-          try {
-            const parsedPostData = JSON.parse(postData);
-            const post = await getSinglePost({ id: parsedPostData.id });
-            post.threadName = parsedPostData.threadName;
-            setPost(post);
-            setPostsearched(true);
-          } catch (parseError) {
-            console.error("Error parsing post data:", parseError);
-          }
+          const post = await getSinglePost({ id: JSON.parse(postData)._id });
+          post.threadName = JSON.parse(postData).threadName;
+          setPost(post);
+          setPostsearched(true);
         } else {
           console.log("No post data found");
           setPost(null);
         }
       } catch (err) {
-        console.error("Error fetching post data:", err);
+        console.error(err);
       }
     };
 
@@ -123,12 +111,7 @@ const PostPage = () => {
 
   useEffect(() => {
     if (postSearched && post?._id) {
-      console.log("Setting up socket connection for post:", post._id);
-
       if (socket) {
-        console.log(
-          "Disconnecting previous socket before setting up a new one"
-        );
         socket.disconnect();
       }
 
@@ -137,14 +120,12 @@ const PostPage = () => {
       });
 
       newSocket.on("update comments", (updatedComments) => {
-        console.log("Received updated comments:", updatedComments);
         setComments(updatedComments);
       });
 
       setSocket(newSocket);
 
       return () => {
-        console.log("Disconnecting socket for post:", post._id);
         newSocket.disconnect();
       };
     }
@@ -207,13 +188,11 @@ const PostPage = () => {
     try {
       const commentFilters = { comment: newComment };
       const postFilters = { post: post._id, action: 1 };
-      console.log("Adding comment ");
       const newID = await AddComment(commentFilters, postFilters);
       const updatedCommentsIDs = [...post.comments, newID];
       const updatedPost = { ...post, comments: updatedCommentsIDs };
       setPost(updatedPost);
 
-      console.log("Comment added");
       setInput(false);
       onChangeText("");
     } catch (err) {
@@ -223,7 +202,6 @@ const PostPage = () => {
 
   const likeComment = async (comment) => {
     if (!user) {
-      console.log("User not logged in");
       navigation.navigate("login");
       return;
     }
@@ -250,8 +228,7 @@ const PostPage = () => {
   const getPostLike = () => {
     if (!user) {
       return postUnliked;
-    }
-    if (post.likes.includes(user.email)) {
+    } else if (post.likes.includes(user.email)) {
       return postLiked;
     } else {
       return postUnliked;
@@ -304,9 +281,7 @@ const PostPage = () => {
     try {
       const reply = { content: text, author: user.email };
       const filter = { comment: reply, _id: comment._id, action: 1 };
-      console.log("Adding comment ");
       const newID = await AddReply(filter);
-      console.log("Comment added");
       setInput(false);
       onChangeText("");
     } catch (err) {
@@ -316,19 +291,15 @@ const PostPage = () => {
 
   const deleteComment = async (comment, parent) => {
     if (!user) {
-      console.log("User not logged in");
       navigation.navigate("login");
       return;
     } else if (comment.author !== user.email) {
-      console.log("User not authorized to delete comment");
       return;
     }
     if (parent === null) {
       try {
         const filter = { comment: comment._id, action: -1, post: post._id };
-        console.log("Deleting comment ");
         await RemoveComment(filter);
-        console.log("Comment deleted");
       } catch (err) {
         console.error(err);
       }
@@ -340,9 +311,7 @@ const PostPage = () => {
     } else {
       try {
         const filter = { reply_id: comment._id, action: -1, _id: parent._id };
-        console.log("Deleting reply ");
         await RemoveReply(filter);
-        console.log("Reply deleted");
       } catch (err) {
         console.error(err);
       }
@@ -360,7 +329,7 @@ const PostPage = () => {
     setComments(updatedComments);
   };
 
-  const printComments = (comments) => {
+  const printComments = (comments, comment) => {
     return (
       <FlatList
         data={comments}
@@ -378,14 +347,14 @@ const PostPage = () => {
               </TouchableOpacity>
               <GeneralText> {item.replyid.length} </GeneralText>
               {item.author === user.email && (
-                <TouchableOpacity onPress={() => deleteComment(item, null)}>
+                <TouchableOpacity onPress={() => deleteComment(item, comment)}>
                   <Icon name="delete" size={20} color="red" />
                 </TouchableOpacity>
               )}
             </View>
             {item.replyInput && (
               <View style={{ flexDirection: "row" }}>
-                <TextInput
+                <CommentInput
                   onChangeText={onChangeText}
                   value={text}
                   placeholder="Reply to comment"
@@ -401,7 +370,7 @@ const PostPage = () => {
             )}
             {item.replies && (
               <View>
-                {printComments(item.replies)}
+                {printComments(item.replies, item)}
                 <Button
                   title="Hide Replies"
                   onPress={() => hideReplies(item)}
@@ -419,8 +388,8 @@ const PostPage = () => {
     <Container>
       <GeneralText>{post.threadName}</GeneralText>
       <ThreadName>{post.postTitle}</ThreadName>
-      <PostContent>{post.content}</PostContent>
-      <Author>Author: {post.author}</Author>
+      <GeneralText>{post.content}</GeneralText>
+      <GeneralText>Author: {post.author}</GeneralText>
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity onPress={() => likePost()}>
           {getPostLike()}
@@ -441,12 +410,12 @@ const PostPage = () => {
             placeholder="Add a comment"
             autoFocus={true}
           />
-          <TouchableOpacity onPress={() => addComment(post)}>
+          <TouchableOpacity onPress={() => addComment()}>
             <Icon name="plus" size={25} />
           </TouchableOpacity>
         </View>
       )}
-      {printComments(comments)}
+      {printComments(comments, null)}
       <Button title="Back" onPress={() => navigation.navigate("index")} />
     </Container>
   );

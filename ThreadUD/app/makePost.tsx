@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Alert } from "react-native";
+import { Alert, View, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -25,15 +25,18 @@ const MakePostPage = () => {
         const userData = await AsyncStorage.getItem("User");
         if (userData) {
           const user = JSON.parse(userData);
-          console.log("User threads raw data:", user.threads);
 
-          const threadsData = user.threads.map((thread) => ({
-            threadID: thread.threadID || thread._id,
-            threadName: thread.threadName || thread.name,
-          }));
-
-          console.log("Mapped threads data:", threadsData);
-          setThreads(threadsData);
+          // user.threads should be an array of thread IDs
+          if (Array.isArray(user.threads) && user.threads.length > 0) {
+            const response = await axios.post(`${API_URL}/thread/multiple`, {
+              threadIDs: user.threads,
+            });
+            const validThreads = response.data.map((thread: any) => ({
+              threadID: thread._id,
+              threadName: thread.threadName,
+            }));
+            setThreads(validThreads);
+          }
         }
       } catch (error) {
         console.error("Error fetching threads:", error);
@@ -57,10 +60,11 @@ const MakePostPage = () => {
       }
       const user = JSON.parse(userData);
 
+      // Make the POST request to create a new post
       const response = await axios.post(
         `${API_URL}/thread/${selectedThread}/posts`,
         {
-          postTitle: "New Post",
+          postTitle: "New Post", // you might want to make this dynamic
           content: body,
           author: user.email,
         }
@@ -68,6 +72,7 @@ const MakePostPage = () => {
 
       if (response.status === 201) {
         const newPost = response.data;
+        // Optionally store the newly created post or navigate
         await AsyncStorage.setItem("Post", JSON.stringify(newPost));
         navigation.navigate("post");
       } else {
@@ -82,21 +87,28 @@ const MakePostPage = () => {
   return (
     <Container>
       <CloseButton onPress={() => navigation.goBack()} />
+
+      {/* Drop-down (Picker) */}
       <StyledPicker
         selectedValue={selectedThread}
         onValueChange={(itemValue) => setSelectedThread(itemValue)}
       >
-        {threads.map((thread, index) => (
+        <Picker.Item label="Select a thread..." value="" />
+        {threads.map((thread) => (
           <Picker.Item
-            key={
-              thread.threadID ? thread.threadID.toString() : `thread-${index}`
-            }
-            label={thread.threadName ? thread.threadName : "Unnamed Thread"}
+            key={thread.threadID}
+            label={thread.threadName || "Unnamed Thread"}
             value={thread.threadID}
           />
         ))}
       </StyledPicker>
-      <StyledTextInput onChangeText={setBody} value={body} />
+
+      <StyledTextInput
+        onChangeText={setBody}
+        value={body}
+        placeholder="Enter post content"
+      />
+
       <PostButton onPress={handlePost} />
     </Container>
   );
