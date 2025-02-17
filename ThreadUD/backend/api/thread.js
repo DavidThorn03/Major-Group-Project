@@ -119,4 +119,20 @@ router.put("/comments", async (req, res) => {
   }
 });
 
+router.get("/search", async (req, res) => {
+  console.log("Query Parameters:", req.query);
+
+  const name = req.query.name;
+
+  try {
+    const threads = await Thread.find({
+      threadName: { $regex: name, $options: "i" } 
+    });
+    res.status(200).json(threads);
+  } catch (error) {
+    console.error("Error fetching threads:", error);
+    res.status(500).json({ message: "Error fetching threads", error });
+  }
+});
+
 export default router;

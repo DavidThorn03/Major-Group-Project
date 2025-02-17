@@ -29,6 +29,8 @@ const IndexPage = () => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState([]);
   const [userSearched, setUserSearched] = useState(false);
+  const [socket, setSocket] = useState(null);
+  
 
   const liked = <Icon name="heart" size={25} color="red" />;
   const unliked = <Icon name="hearto" size={25} color="white" />;
@@ -71,17 +73,22 @@ const IndexPage = () => {
   }, [userSearched]);
 
   useEffect(() => {
-    console.log("Setting up socket connection...");
-    const socket = io("http://192.168.1.17:3000/");
+    if (socket) {
+      console.log("Disconnecting previous socket before setting up a new one");
+      socket.disconnect();
+    }
 
-    socket.on("update posts", (updatedPosts) => {
-      console.log("Received updated posts:", updatedPosts);
-      setPosts(updatedPosts);
+    const newSocket = io("http://192.168.1.17:3000/");
+
+    newSocket.on("update posts", (updatePosts) => {
+      console.log("Received updated comments:", updatePosts);
+      setPosts(updatePosts);
     });
 
+    setSocket(newSocket);
+
     return () => {
-      socket.disconnect();
-      console.log("Socket disconnected");
+      newSocket.disconnect();
     };
   }, []);
 
@@ -102,37 +109,26 @@ const IndexPage = () => {
   }
 
   const likePost = async (post) => {
-    if (!user) {
-      console.log("User not logged in");
-      navigation.navigate("login");
-      return;
-    }
-
-    const updatedPosts = posts.map((p) => {
-      if (p._id === post._id) {
-        let updatedLikes;
-
-        if (p.likes.includes(user.email)) {
-          updatedLikes = p.likes.filter((email) => email !== user.email);
-        } else {
-          updatedLikes = [...p.likes, user.email];
-        }
-
-        return { ...p, likes: updatedLikes };
+      if (!user) {
+        console.log("User not logged in");
+        navigation.navigate("login");
+        return;
       }
-      return p;
-    });
-
-    setPosts(updatedPosts);
-
-    try {
-      const updatedPost = updatedPosts.find((p) => p._id === post._id);
-      const filters = { post: post.postTitle, likes: updatedPost.likes };
-      await Likes(filters);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+      let action;
+    
+      if (post.likes.includes(user.email)) {
+        action = -1;
+      } else {
+        action = 1;
+      }
+    
+      try {
+        const filters = { post: post.postTitle, like: user.email, action: action };
+        await Likes(filters);
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
   const getLike = (post) => {
     if (!user) {
@@ -150,13 +146,8 @@ const IndexPage = () => {
   };
 
   const ViewPost = (post) => {
-    try {
-      console.log("Navigating to post with data:", post);
-      AsyncStorage.setItem("Post", JSON.stringify(post));
-      navigation.navigate("post", { postId: post._id });
-    } catch (err) {
-      console.error("Error navigating to post:", err);
-    }
+    AsyncStorage.setItem("Post",  {id: post._id, threadName: post.threadName});
+    navigation.navigate("post");
   };
 
   return (
