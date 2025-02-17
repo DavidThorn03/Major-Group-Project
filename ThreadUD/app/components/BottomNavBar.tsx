@@ -26,7 +26,7 @@ const BottomNavBar = () => {
         left: 0,
         right: 0,
         height: 64,
-        backgroundColor: "#314275",
+        backgroundColor: "#1a2b61",
         flexDirection: "row",
         justifyContent: "space-around",
         alignItems: "center",

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
 import { getPostsByThread } from "./services/getThreadPosts";
 import { getUser } from "./services/getUser";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -7,6 +7,8 @@ import { useUser } from "./context/UserContext"; // Import useUser
 import {
   Container,
   Header,
+  HeaderText,
+  JoinButton,
   PostCard,
   Author,
   Timestamp,
@@ -18,6 +20,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { API_URL } from "./constants/apiConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import BottomNavBar from "./components/BottomNavBar";
 
 dayjs.extend(relativeTime);
 
@@ -33,7 +36,9 @@ const Thread = () => {
   const [joined, setJoined] = useState(false);
 
   const liked = (<Icon name="heart" size={25} color="red" />) as JSX.Element;
-  const unliked = (<Icon name="hearto" size={25} color="red" />) as JSX.Element;
+  const unliked = (
+    <Icon name="hearto" size={25} color="white" />
+  ) as JSX.Element;
 
   // Fetch posts for the thread
   useEffect(() => {
@@ -56,26 +61,18 @@ const Thread = () => {
     }
   }, [user, threadID]);
 
-  // Handle joining the thread
-  const handleJoinThread = async () => {
+  const handleJoinLeaveThread = async () => {
     if (!user) {
       console.log("User not logged in");
       navigation.navigate("login");
       return;
     }
 
-    if (user.threads?.includes(threadID)) {
-      console.log("User already joined the thread");
-      return;
-    }
+    const action = joined ? "leaveThread" : "joinThread";
+    const successMessage = joined ? "left" : "joined";
 
     try {
-      console.log("Joining thread...", {
-        userId: user._id,
-        threadId: threadID,
-      });
-
-      const response = await fetch(`${API_URL}/user/${user._id}/joinThread`, {
+      const response = await fetch(`${API_URL}/user/${user._id}/${action}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -85,55 +82,15 @@ const Thread = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Error joining thread:", errorData);
-        return;
-      }
-
-      console.log("User successfully joined the thread");
-
-      const updatedUserData = await response.json();
-      updateUser(updatedUserData.user);
-      setJoined(true);
-    } catch (error) {
-      console.error("Error making join thread request:", error);
-    }
-  };
-
-  const handleLeaveThread = async () => {
-    if (!user) {
-      console.log("User not logged in");
-      navigation.navigate("login");
-      return;
-    }
-
-    try {
-      console.log("Leaving thread...", {
-        userId: user._id,
-        threadId: threadID,
-      });
-
-      const response = await fetch(`${API_URL}/user/${user._id}/leaveThread`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ threadId: threadID }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error leaving thread:", errorData);
+        console.error(`Error ${successMessage} thread:`, errorData);
         return;
       }
 
       const updatedUserData = await response.json();
-      console.log("User successfully left the thread");
-
-      // Update both context and AsyncStorage with the new user data
       updateUser(updatedUserData.user);
-      setJoined(false);
+      setJoined(!joined);
     } catch (error) {
-      console.error("Error making leave thread request:", error);
+      console.error(`Error making ${successMessage} thread request:`, error);
     }
   };
 
@@ -183,7 +140,10 @@ const Thread = () => {
 
   return (
     <Container>
-      <Header>{threadName}</Header>
+      <Header>
+        <HeaderText>{threadName}</HeaderText>
+        <JoinButton onPress={handleJoinLeaveThread} joined={joined} />
+      </Header>
       <FlatList
         data={posts}
         keyExtractor={(item) => item._id}
@@ -197,16 +157,24 @@ const Thread = () => {
                 <TouchableOpacity onPress={() => likePost(item)}>
                   {getLike(item)}
                 </TouchableOpacity>
-                <Text>{item.likes.length}</Text>
-                <TouchableOpacity onPress={() => navigateToPost(item._id)}>
-                  <Icon name="message1" size={25} />
+                <Text style={{ color: "white", marginLeft: 5 }}>
+                  {item.likes.length}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => navigateToPost(item._id)}
+                  style={{ marginLeft: 15 }}
+                >
+                  <Icon name="message1" size={25} color="white" />
                 </TouchableOpacity>
-                <Text>{item.comments.length}</Text>
+                <Text style={{ color: "white", marginLeft: 5 }}>
+                  {item.comments.length}
+                </Text>
               </ButtonContainer>
             </PostCard>
           </TouchableOpacity>
         )}
       />
+      <BottomNavBar />
     </Container>
   );
 };

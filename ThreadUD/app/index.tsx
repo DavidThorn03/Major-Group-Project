@@ -2,12 +2,10 @@ import React, { useEffect, useState } from "react";
 import { FlatList, View, Text, TouchableOpacity } from "react-native";
 import {
   Container,
-  Header,
   PostCard,
   ThreadName,
   Timestamp,
   GeneralText,
-  Button,
   PostContent,
   Author,
 } from "./components/IndexStyles";
@@ -74,10 +72,10 @@ const IndexPage = () => {
 
   useEffect(() => {
     console.log("Setting up socket connection...");
-    const socket = io("http://192.168.203.125:3000/"); // same as route in api url but without the /api
+    const socket = io("http://192.168.1.17:3000/");
 
     socket.on("update posts", (updatedPosts) => {
-      console.log("Received updated posts:", updatedPosts); // Check if this is logged
+      console.log("Received updated posts:", updatedPosts);
       setPosts(updatedPosts);
     });
 
@@ -152,8 +150,13 @@ const IndexPage = () => {
   };
 
   const ViewPost = (post) => {
-    AsyncStorage.setItem("Post", JSON.stringify(post));
-    navigation.navigate("post");
+    try {
+      console.log("Navigating to post with data:", post);
+      AsyncStorage.setItem("Post", JSON.stringify(post));
+      navigation.navigate("post", { postId: post._id });
+    } catch (err) {
+      console.error("Error navigating to post:", err);
+    }
   };
 
   return (
@@ -178,20 +181,22 @@ const IndexPage = () => {
                 >
                   <ThreadName>{item.threadName}</ThreadName>
                 </TouchableOpacity>
-                <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
-                <PostContent>{item.content}</PostContent>
-                <Author>Author: {item.author}</Author>
-                <View style={{ flexDirection: "row" }}>
-                  <TouchableOpacity onPress={() => likePost(item)}>
-                    {getLike(item)}
-                  </TouchableOpacity>
-                  <GeneralText> {item.likes.length} </GeneralText>
-                  <View style={{ paddingHorizontal: 5 }} />
-                  <TouchableOpacity onPress={() => ViewPost(item)}>
-                    <Icon name="message1" size={25} color="white" />
-                  </TouchableOpacity>
-                  <GeneralText> {item.comments.length} </GeneralText>
-                </View>
+                <TouchableOpacity onPress={() => ViewPost(item)}>
+                  <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
+                  <PostContent>{item.content}</PostContent>
+                  <Author>Author: {item.author}</Author>
+                  <View style={{ flexDirection: "row" }}>
+                    <TouchableOpacity onPress={() => likePost(item)}>
+                      {getLike(item)}
+                    </TouchableOpacity>
+                    <GeneralText> {item.likes.length} </GeneralText>
+                    <View style={{ paddingHorizontal: 5 }} />
+                    <TouchableOpacity onPress={() => ViewPost(item)}>
+                      <Icon name="message1" size={25} color="white" />
+                    </TouchableOpacity>
+                    <GeneralText> {item.comments.length} </GeneralText>
+                  </View>
+                </TouchableOpacity>
               </PostCard>
             );
           }}

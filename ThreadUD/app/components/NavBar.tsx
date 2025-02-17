@@ -7,7 +7,7 @@ const NavBar: React.FC = () => {
   return (
     <View
       style={{
-        backgroundColor: "#314275",
+        backgroundColor: "#1a2b61",
         position: "absolute",
         top: 0,
         left: 0,
@@ -40,6 +40,7 @@ const NavBar: React.FC = () => {
               width: 24,
               height: 24,
               marginTop: -37,
+              tintColor: "white",
             }}
             resizeMode="contain"
           />

@@ -7,7 +7,7 @@ export const Container = ({ children }) => (
       flex: 1,
       padding: 10,
       paddingTop: 64,
-      backgroundColor: "#23364a",
+      backgroundColor: "#3a4b5c",
     }}
   >
     {children}

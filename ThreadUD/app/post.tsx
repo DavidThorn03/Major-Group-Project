@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, View, TextInput } from "react-native";
+import {
+  FlatList,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+} from "react-native";
 import {
   Container,
-  Header,
   PostCard,
   ThreadName,
+  Timestamp,
   GeneralText,
+  PostContent,
+  Author,
   Button,
-} from "./components/IndexStyles";
+  CommentInput,
+} from "./components/PostStyles";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
-import { TouchableOpacity } from "react-native";
-import * as AsyncStorage from "../util/AsyncStorage.js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Likes } from "./services/updateLikes";
 import { CommentLikes } from "./services/updateCommentLikes";
 import { getComments } from "./services/getComments";
@@ -19,10 +27,10 @@ import { AddComment } from "./services/addComment";
 
 const PostPage = () => {
   const navigation = useNavigation();
-  const [post, setPost] = useState([]);
+  const [post, setPost] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState([]);
+  const [user, setUser] = useState({});
   const [postSearched, setPostsearched] = useState(false);
   const [comments, setComments] = useState([]);
   const [text, onChangeText] = useState("");
@@ -38,7 +46,7 @@ const PostPage = () => {
       try {
         const userData = await AsyncStorage.getItem("User");
         if (userData) {
-          setUser(userData);
+          setUser(JSON.parse(userData));
           console.log("User data:", userData);
         } else {
           console.log("No user data found");
@@ -94,6 +102,7 @@ const PostPage = () => {
 
     fetchComments();
   }, [postSearched]);
+
   if (loading) {
     return (
       <Container>
@@ -279,11 +288,10 @@ const PostPage = () => {
             </View>
             {input && (
               <View style={{ flexDirection: "row" }}>
-                <TextInput
+                <CommentInput
                   onChangeText={onChangeText}
                   value={text}
                   placeholder="Reply to comment"
-                  autoFocus={true}
                 />
                 <TouchableOpacity onPress={() => reply(item)}>
                   <Icon name="plus" size={25} />
@@ -304,10 +312,8 @@ const PostPage = () => {
   return (
     <Container>
       <ThreadName>{post.threadName}</ThreadName>
-      <GeneralText style={IndexStyles.postContent}>{post.content}</GeneralText>
-      <GeneralText style={IndexStyles.author}>
-        Author: {post.author}
-      </GeneralText>
+      <PostContent>{post.content}</PostContent>
+      <Author>Author: {post.author}</Author>
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity onPress={() => likePost(post)}>
           {getPostLike(post)}
@@ -319,14 +325,13 @@ const PostPage = () => {
         </TouchableOpacity>
         <GeneralText> {post.comments.length} </GeneralText>
       </View>
-      <Header>Comments</Header>
+      <GeneralText>Comments</GeneralText>
       {input && (
         <View style={{ flexDirection: "row" }}>
-          <TextInput
+          <CommentInput
             onChangeText={onChangeText}
             value={text}
             placeholder="Add a comment"
-            autoFocus={true}
           />
           <TouchableOpacity onPress={() => addComment(post)}>
             <Icon name="plus" size={25} />
