@@ -35,7 +35,7 @@ const NavBar: React.FC = () => {
         </TouchableOpacity>
         <TouchableOpacity style={{ padding: 8 }}>
           <Image
-            source={require("../../assets/icons/notification.png")}
+            source={require("../../assets/icons/login.png")}
             style={{
               width: 24,
               height: 24,
