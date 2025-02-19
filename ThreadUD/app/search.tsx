@@ -15,14 +15,16 @@ import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { TextInput } from "react-native";
 import { searchThreads } from "./services/searchThreads";
+import { getThreads } from "./services/getThreads";
 
 const SearchPage = () => {
   const navigation = useNavigation();
   const [threads, setThreads] = useState([]);
-  const [text, onChangeText] = React.useState("");
+  const [text, onChangeText] = useState("");
   const [error, setError] = useState(null);
   const [user, setUser] = useState([]);
   const [searched, setSearched] = useState(false);
+  const [userSearched, setUserSearched] = useState(false);
   
   useEffect(() => {
     const fetchUser = async () => {
@@ -38,6 +40,7 @@ const SearchPage = () => {
       } catch (err) {
         console.error(err);
       }
+      setUserSearched(true);
     };
 
     fetchUser();
@@ -60,14 +63,30 @@ const SearchPage = () => {
       };
 
       fetchData();
-    } else {
+    } 
+    else if(user) {
+      const fetchData = async () => {
+        try {
+          const response = await getThreads({ ids: user.threads });
+          if (response.length == 0) {
+            setError("No threads found.");
+          } else {
+            setError(null);
+          }
+          setThreads(response);
+        } catch (error) {
+          console.error("Error fetching search results:", error);
+        }
+      };
+      fetchData();
+    }
+    else {
       setThreads([]); 
       setError("Enter thread to be searched.");
     }
-  }, [text]);
+  }, [text, userSearched]);
 
   const displayThread = (thread) => {
-
     return (
       <Container>
       <TouchableOpacity onPress={() => navigateToThread(thread._id, thread.threadName)}>
