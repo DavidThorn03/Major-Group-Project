@@ -14,15 +14,15 @@ import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { TextInput } from "react-native";
 import { searchThreads } from "./services/searchThreads";
+import { getThreads } from "./services/getThreads";
 
 const SearchPage = () => {
   const navigation = useNavigation();
   const [threads, setThreads] = useState([]);
-  const [text, onChangeText] = React.useState("");
+  const [text, onChangeText] = useState("");
   const [error, setError] = useState(null);
   const [user, setUser] = useState([]);
-  const [searched, setSearched] = useState(false);
-
+  const [userSearched, setUserSearched] = useState(false);
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -37,6 +37,7 @@ const SearchPage = () => {
       } catch (err) {
         console.error(err);
       }
+      setUserSearched(true);
     };
 
     fetchUser();
@@ -47,23 +48,43 @@ const SearchPage = () => {
       const fetchData = async () => {
         try {
           const response = await searchThreads({ name: text });
-          if (response.length === 0) {
+          if (!response || response.length === 0) { 
             setError("No threads found.");
+            setThreads([]);
           } else {
             setError(null);
+            setThreads(response);
           }
-          setThreads(response);
         } catch (error) {
           console.error("Error fetching search results:", error);
         }
       };
-
+  
       fetchData();
-    } else {
+    } 
+    else if(user && user.threads && user.threads.length > 0) {  
+      const fetchData = async () => {
+        try {
+          const response = await getThreads({ ids: user.threads });
+          if (!response || response.length === 0) {
+            setError("No threads found.");
+            setThreads([]);
+          } else {
+            setError(null);
+            setThreads(response);
+          }
+        } catch (error) {
+          console.error("Error fetching search results:", error);
+        }
+      };
+      fetchData();
+    }
+    else {
       setThreads([]);
       setError("Enter thread to be searched.");
     }
-  }, [text]);
+  }, [text, userSearched]);
+  
 
   const displayThread = (thread) => {
     return (
