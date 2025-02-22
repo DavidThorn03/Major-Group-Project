@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
-import RegisterStyles from "./styles/RegisterStyles";
+import { Alert } from "react-native";
+import { Container, Header, Input, Button } from "./components/RegisterStyles";
 import { registerStudent } from "./services/registerStudent";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { useNavigation } from "@react-navigation/native";
@@ -50,40 +50,23 @@ const RegisterPage = () => {
   };
 
   return (
-    <View style={RegisterStyles.container}>
-      <Text style={RegisterStyles.header}>Create an Account</Text>
-      <TextInput
-        style={RegisterStyles.input}
-        placeholder="Name"
-        onChangeText={setName}
-      />
-      <TextInput
-        style={RegisterStyles.input}
+    <Container>
+      <Header>Create an Account</Header>
+      <Input placeholder="Name" onChangeText={setName} />
+      <Input
         placeholder="Email"
         keyboardType="email-address"
         onChangeText={(email) => setEmail(email.toLowerCase())}
       />
-      <TextInput
-        style={RegisterStyles.input}
+      <Input
         placeholder="Password"
         secureTextEntry
         onChangeText={setPassword}
       />
-      <TextInput
-        style={RegisterStyles.input}
-        placeholder="Year"
-        keyboardType="numeric"
-        onChangeText={setYear}
-      />
-      <TextInput
-        style={RegisterStyles.input}
-        placeholder="Course"
-        onChangeText={setCourse}
-      />
-      <TouchableOpacity style={RegisterStyles.button} onPress={handleRegister}>
-        <Text style={RegisterStyles.buttonText}>Continue</Text>
-      </TouchableOpacity>
-    </View>
+      <Input placeholder="Year" keyboardType="numeric" onChangeText={setYear} />
+      <Input placeholder="Course" onChangeText={setCourse} />
+      <Button onPress={handleRegister} title="Continue" />
+    </Container>
   );
 };
 

@@ -1,0 +1,117 @@
+import React, { useState, useEffect } from "react";
+import { Alert, View, Text } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { API_URL } from "./constants/apiConfig";
+import {
+  Container,
+  CloseButton,
+  StyledPicker,
+  StyledTextInput,
+  PostButton,
+} from "./components/MakePostStyles";
+import { Picker } from "@react-native-picker/picker";
+
+const MakePostPage = () => {
+  const navigation = useNavigation();
+  const [body, setBody] = useState("");
+  const [selectedThread, setSelectedThread] = useState("");
+  const [threads, setThreads] = useState([]);
+
+  useEffect(() => {
+    const fetchThreads = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("User");
+        if (userData) {
+          const user = JSON.parse(userData);
+
+          // user.threads should be an array of thread IDs
+          if (Array.isArray(user.threads) && user.threads.length > 0) {
+            const response = await axios.post(`${API_URL}/thread/multiple`, {
+              threadIDs: user.threads,
+            });
+            const validThreads = response.data.map((thread: any) => ({
+              threadID: thread._id,
+              threadName: thread.threadName,
+            }));
+            setThreads(validThreads);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching threads:", error);
+      }
+    };
+
+    fetchThreads();
+  }, []);
+
+  const handlePost = async () => {
+    if (!selectedThread || !body) {
+      Alert.alert("Error", "Please select a thread and enter some text.");
+      return;
+    }
+
+    try {
+      const userData = await AsyncStorage.getItem("User");
+      if (!userData) {
+        console.error("User data not found in AsyncStorage");
+        return;
+      }
+      const user = JSON.parse(userData);
+
+      // Make the POST request to create a new post
+      const response = await axios.post(
+        `${API_URL}/thread/${selectedThread}/posts`,
+        {
+          postTitle: "New Post", // you might want to make this dynamic
+          content: body,
+          author: user.email,
+        }
+      );
+
+      if (response.status === 201) {
+        const newPost = response.data;
+        // Optionally store the newly created post or navigate
+        await AsyncStorage.setItem("Post", JSON.stringify(newPost));
+        navigation.navigate("post");
+      } else {
+        Alert.alert("Error", "Failed to create post.");
+      }
+    } catch (error) {
+      console.error("Error creating post:", error);
+      Alert.alert("Error", "An error occurred while creating the post.");
+    }
+  };
+
+  return (
+    <Container>
+      <CloseButton onPress={() => navigation.goBack()} />
+
+      {/* Drop-down (Picker) */}
+      <StyledPicker
+        selectedValue={selectedThread}
+        onValueChange={(itemValue) => setSelectedThread(itemValue)}
+      >
+        <Picker.Item label="Select a thread..." value="" />
+        {threads.map((thread) => (
+          <Picker.Item
+            key={thread.threadID}
+            label={thread.threadName || "Unnamed Thread"}
+            value={thread.threadID}
+          />
+        ))}
+      </StyledPicker>
+
+      <StyledTextInput
+        onChangeText={setBody}
+        value={body}
+        placeholder="Enter post content"
+      />
+
+      <PostButton onPress={handlePost} />
+    </Container>
+  );
+};
+
+export default MakePostPage;

@@ -7,8 +7,7 @@ import {
   ThreadName,
   GeneralText,
   Button,
-} from "./components/StyledWrappers";
-import IndexStyles from "./styles/IndexStyles";
+} from "./components/IndexStyles";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
 import { TouchableOpacity } from "react-native";
@@ -24,7 +23,6 @@ const SearchPage = () => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState([]);
   const [userSearched, setUserSearched] = useState(false);
-  
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -46,7 +44,7 @@ const SearchPage = () => {
   }, []);
 
   useEffect(() => {
-    if (text.length > 2) { 
+    if (text.length > 2) {
       const fetchData = async () => {
         try {
           const response = await searchThreads({ name: text });
@@ -82,7 +80,7 @@ const SearchPage = () => {
       fetchData();
     }
     else {
-      setThreads([]); 
+      setThreads([]);
       setError("Enter thread to be searched.");
     }
   }, [text, userSearched]);
@@ -91,14 +89,16 @@ const SearchPage = () => {
   const displayThread = (thread) => {
     return (
       <Container>
-      <TouchableOpacity onPress={() => navigateToThread(thread._id, thread.threadName)}>
-        <ThreadName>{thread.threadName}</ThreadName>
-        <GeneralText>Year: {thread.year}</GeneralText>
-        <GeneralText>Course: {thread.course}</GeneralText>
-      </TouchableOpacity>
-    </Container>
+        <TouchableOpacity
+          onPress={() => navigateToThread(thread._id, thread.threadName)}
+        >
+          <ThreadName>{thread.threadName}</ThreadName>
+          <GeneralText>Year: {thread.year}</GeneralText>
+          <GeneralText>Course: {thread.course}</GeneralText>
+        </TouchableOpacity>
+      </Container>
     );
-  }
+  };
 
   const navigateToThread = (threadID, threadName) => {
     console.log("Navigating to thread with:", { threadID, threadName });
@@ -108,28 +108,25 @@ const SearchPage = () => {
   return (
     <Container>
       <Header>Welcome to the ThreadUD</Header>
-      <View style={{flexDirection: "row"}}>
-        <TextInput 
-            onChangeText={onChangeText}
-            value={text}
-            placeholder="Add a comment"
-            autoFocus={true}
-            />
+      <View style={{ flexDirection: "row" }}>
+        <TextInput
+          onChangeText={onChangeText}
+          value={text}
+          placeholder="Add a comment"
+          autoFocus={true}
+        />
       </View>
       {error && <GeneralText>{error}</GeneralText>}
       {!threads && searched && <GeneralText>No threads found.</GeneralText>}
-      {threads.length > 0 &&
-      <FlatList
-              data={threads}
-              renderItem={({ item }) => (
-                <Container>	
-                {displayThread(item)}
-                </Container>
-              )}
-              keyExtractor={(item) => item._id}
-            />
-      }
-
+      {threads.length > 0 && (
+        <FlatList
+          data={threads}
+          renderItem={({ item }) => (
+            <Container>{displayThread(item)}</Container>
+          )}
+          keyExtractor={(item) => item._id}
+        />
+      )}
     </Container>
   );
 };
