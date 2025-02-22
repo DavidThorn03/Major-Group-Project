@@ -23,7 +23,6 @@ const SearchPage = () => {
   const [text, onChangeText] = useState("");
   const [error, setError] = useState(null);
   const [user, setUser] = useState([]);
-  const [searched, setSearched] = useState(false);
   const [userSearched, setUserSearched] = useState(false);
   
   useEffect(() => {
@@ -51,29 +50,31 @@ const SearchPage = () => {
       const fetchData = async () => {
         try {
           const response = await searchThreads({ name: text });
-          if (response.length === 0) {
+          if (!response || response.length === 0) { 
             setError("No threads found.");
+            setThreads([]);
           } else {
             setError(null);
+            setThreads(response);
           }
-          setThreads(response);
         } catch (error) {
           console.error("Error fetching search results:", error);
         }
       };
-
+  
       fetchData();
     } 
-    else if(user) {
+    else if(user && user.threads && user.threads.length > 0) {  
       const fetchData = async () => {
         try {
           const response = await getThreads({ ids: user.threads });
-          if (response.length == 0) {
+          if (!response || response.length === 0) {
             setError("No threads found.");
+            setThreads([]);
           } else {
             setError(null);
+            setThreads(response);
           }
-          setThreads(response);
         } catch (error) {
           console.error("Error fetching search results:", error);
         }
@@ -85,6 +86,7 @@ const SearchPage = () => {
       setError("Enter thread to be searched.");
     }
   }, [text, userSearched]);
+  
 
   const displayThread = (thread) => {
     return (
