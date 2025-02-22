@@ -19,7 +19,7 @@ import {
 } from "./components/PostStyles";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as AsyncStorage from "../util/AsyncStorage.js";
 import { Likes } from "./services/updateLikes";
 import { CommentLikes } from "./services/updateCommentLikes";
 import { getComments } from "./services/getComments";
@@ -71,8 +71,8 @@ const PostPage = () => {
       try {
         const postData = await AsyncStorage.getItem("Post");
         if (postData) {
-          const post = await getSinglePost({ id: JSON.parse(postData)._id });
-          post.threadName = JSON.parse(postData).threadName;
+          const post = await getSinglePost({ id: postData._id });
+          post.threadName = postData.threadName;
           setPost(post);
           setPostsearched(true);
         } else {

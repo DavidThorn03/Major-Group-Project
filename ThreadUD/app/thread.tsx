@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
 import { getPostsByThread } from "./services/getThreadPosts";
-import { getUser } from "./services/getUser";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useUser } from "./context/UserContext"; // Import useUser
 import {
@@ -19,7 +18,7 @@ import Icon from "react-native-vector-icons/AntDesign";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { API_URL } from "./constants/apiConfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as AsyncStorage from "../util/AsyncStorage.js";
 import BottomNavBar from "./components/BottomNavBar";
 
 dayjs.extend(relativeTime);
