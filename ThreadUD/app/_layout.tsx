@@ -27,6 +27,8 @@ export default function RootLayout() {
         <Stack.Screen name="search" />
         <Stack.Screen name="forgotPassword" />
         <Stack.Screen name="resetPassword" />
+        <Stack.Screen name="updateProfile" />
+        <Stack.Screen name="changePassword" />
       </Stack>
     </UserProvider>
   );

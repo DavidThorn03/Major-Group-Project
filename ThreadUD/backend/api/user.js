@@ -2,6 +2,9 @@ import express from "express";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import User from "../models/User.js"; // Import the User model
+import Comment from "../models/Comment.js";
+import Post from "../models/Post.js";
+import Thread from "../models/Thread.js";
 import nodemailer from "nodemailer";
 
 const router = express.Router();
@@ -187,6 +190,138 @@ router.get("/forgotPassword", async (req, res) => {
     return Response.json({message: 'Email sent'})
   
 });
+
+router.put("/update", async (req, res) => {
+  console.log("req.body", req.body);
+  const email = req.body.email;
+  const update = req.body.update;
+
+  if (!email) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { email: email },
+      { userName: update.userName, year: update.year, course: update.course },
+      { new: true } 
+    );
+    if (!updatedUser) {	
+      return res.status(404).json({ message: "User not found" });
+    }
+    console.log("updatedUser", updatedUser);
+
+    return res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while registering the user." });
+  }
+});
+
+router.get("/posts", async (req, res) => {
+  const author = req.query.author;
+
+  try {
+    const posts = await Post.aggregate([
+      {
+        $match: { author: author }, 
+      },
+      {
+        $lookup: {
+          from: "Thread", 
+          localField: "threadID",
+          foreignField: "_id",
+          as: "threadData",
+        },
+      },
+      {
+        $project: {
+          threadID: 1,
+          threadName: { $arrayElemAt: ["$threadData.threadName", 0] },
+          postTitle: 1,
+          content: 1,
+          author: 1,
+          likes: 1,
+          comments: 1,
+        },
+      },
+    ]);
+    if (!posts) {
+      return res.status(404).json({ message: "Posts not found." });
+    }
+    
+    return res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the posts." });
+  }
+});
+
+router.get("/checkPassword", async (req, res) => {
+  const userPassword = req.query.password;
+  const enteredPassword = req.query.enteredPassword;
+
+  try {
+    const hashResult = bcrypt.compareSync(enteredPassword, userPassword);
+    console.log("hashResult", hashResult);
+
+    return res.json({ result: hashResult });
+  } catch (error) {
+    console.error("Error checking password:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while checking the password." });
+
+  }
+});
+
+router.get("/threads", async (req, res) => {
+  console.log("Query Parameters:", req.query);
+  let { threadIDs } = req.query; 
+  
+  if (!threadIDs) {
+    return res.status(404).json({ message: "threadIDs parameter is required" });
+  }
+
+  if (!Array.isArray(threadIDs)) {
+    threadIDs = threadIDs.split(","); 
+  }
+
+  if (threadIDs.some((id) => !mongoose.Types.ObjectId.isValid(id))) {
+    return res.status(402).json({ message: "Invalid threadIDs format" });
+  }
+
+  try {
+    const threads = await Thread.find({ _id: "67292eba16505c7370748e83" });
+    res.status(200).json(threads);
+  } catch (error) {
+    console.error("Error fetching threads:", error);
+    res.status(500).json({ message: "Error fetching threads", error });
+  }
+});
+
+
+router.get("/search", async (req, res) => {
+  console.log("Query Parameters:", req);
+
+  const name = req.query.name;
+
+  try {
+    const threads = await Thread.find({
+      threadName: { $regex: name, $options: "i" },
+    });
+    res.status(200).json(threads);
+  } catch (error) {
+    console.error("Error fetching threads:", error);
+    res.status(500).json({ message: "Error fetching threads", error });
+  }
+});
+
+
   
 
 export default router;

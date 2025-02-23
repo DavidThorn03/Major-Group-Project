@@ -77,7 +77,7 @@ const IndexPage = () => {
       socket.disconnect();
     }
 
-    const newSocket = io("http://192.168.1.17:3000/");
+    const newSocket = io("http://192.168.0.11:3000/");
 
     newSocket.on("update posts", (updatePosts) => {
       console.log("Received updated comments:", updatePosts);
@@ -148,12 +148,8 @@ const IndexPage = () => {
     navigation.navigate("thread", { threadID, threadName });
   };
 
-  const ViewPost = (post) => {
-    AsyncStorage.setItem(
-      "Post",
-      JSON.stringify({ id: post._id, threadName: post.threadName })
-    );
-    navigation.navigate("post");
+  const ViewPost = (postID, threadName) => {
+      navigation.navigate("post", { postID, threadName });
   };
 
   return (
@@ -178,7 +174,7 @@ const IndexPage = () => {
                 >
                   <ThreadName>{item.threadName}</ThreadName>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => ViewPost(item)}>
+                <TouchableOpacity onPress={() => ViewPost(item._id, item.threadName)}>
                   <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
                   <PostContent>{item.content}</PostContent>
                   <Author>Author: {item.author}</Author>
@@ -188,7 +184,7 @@ const IndexPage = () => {
                     </TouchableOpacity>
                     <GeneralText> {item.likes.length} </GeneralText>
                     <View style={{ paddingHorizontal: 5 }} />
-                    <TouchableOpacity onPress={() => ViewPost(item)}>
+                    <TouchableOpacity onPress={() => ViewPost(item._id, item.threadName)}>
                       <Icon name="message1" size={25} color="white" />
                     </TouchableOpacity>
                     <GeneralText> {item.comments.length} </GeneralText>
