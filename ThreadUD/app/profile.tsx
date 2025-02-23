@@ -23,6 +23,7 @@ import {
   Author,
 } from "./components/IndexStyles";
 import { Likes } from "./services/updateLikes";
+import { getThreads } from "./services/getThreads";
 
 
 const ProfileScreen = () => {
@@ -30,7 +31,6 @@ const ProfileScreen = () => {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [threads, setThreads] = useState([]);
-  const [error, setError] = useState(null);
   const [postsActive, setPostsActive] = useState(true);
 
   const liked = <Icon name="heart" size={25} color="red" />;
@@ -40,6 +40,7 @@ const ProfileScreen = () => {
   useEffect(() => {
     const fetchUserFromStorage = async () => {
       const storedUser = await AsyncStorage.getItem("User");
+      console.log("Stored user:", storedUser);
       if (storedUser) {
         setUser(storedUser);
         console.log("User from storage: ", storedUser);
@@ -73,22 +74,28 @@ const ProfileScreen = () => {
     }, [user]);
 
     useEffect(() => {
-      const fetchPosts = async () => {
-        try {
-          if (user) {
-            var postData = await getUserPosts({ author: user.email });
-            if (!Array.isArray(postData)) {
-              postData = [postData];
+      const fetchThreads = async () => {
+        if(user && user.threads && user.threads.length > 0) {
+          const fetchData = async () => {
+            try {
+              const response = await getThreads({ threadIDs: user.threads });
+              if (!response || response.length === 0) {
+                setThreads([]);
+              } else {
+                setThreads(response);
+              }
+            } catch (error) {
+              console.error("Error fetching search results:", error);
             }
-            setPosts(postData);
-            console.log("Posts:", postData);
-          }
-        } catch (err) {
-          console.error(err);
+          };
+          fetchData();
+        }
+        else {
+          setThreads([]);
         }
       };
   
-      fetchPosts();
+      fetchThreads();
     }, [user]);
 
   const navigateToThread = (threadID, threadName) => {
@@ -97,11 +104,7 @@ const ProfileScreen = () => {
     };
   
     const ViewPost = (post) => {
-      AsyncStorage.setItem(
-        "Post",
-        JSON.stringify({ id: post._id, threadName: post.threadName })
-      );
-      navigation.navigate("post");
+      navigation.navigate("post", { postID: post._id, threadName: post.threadName });
     };
 
     const likePost = async (post) => {
@@ -189,6 +192,32 @@ const ProfileScreen = () => {
     />
   );
 };
+const displayThread = () => {
+  if (threads.length === 0) {
+    return <GeneralText>You arent following any threads!</GeneralText>;
+  }
+  
+  return (
+    <FlatList
+      data={threads}
+      keyExtractor={(item) => item._id}
+      renderItem={({ item }) => {
+        console.log("Thread item:", item);
+        return (
+          <Container>
+            <TouchableOpacity
+              onPress={() => navigateToThread(item._id, item.threadName)}
+            >
+              <ThreadName>{item.threadName}</ThreadName>
+              <GeneralText>Year: {item.year}</GeneralText>
+              <GeneralText>Course: {item.course}</GeneralText>
+            </TouchableOpacity>
+          </Container>
+        );
+      }}
+    />
+  );
+};
 
 
   const logOut = async () => {
@@ -220,7 +249,11 @@ const ProfileScreen = () => {
           {displayPosts()}
         </View>
         }
-        {!postsActive && <Text>Threads</Text>}
+      {!postsActive && 
+      <View>
+        {displayThread()}
+      </View>
+      }
       </View>
       <BottomNavBar />
     </Container>

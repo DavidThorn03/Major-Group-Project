@@ -65,7 +65,8 @@ const SearchPage = () => {
     else if(user && user.threads && user.threads.length > 0) {  
       const fetchData = async () => {
         try {
-          const response = await getThreads({ ids: user.threads });
+          const filter = { threadIDs: user.threads };
+          const response = await getThreads(filter);
           if (!response || response.length === 0) {
             setError("No threads found.");
             setThreads([]);

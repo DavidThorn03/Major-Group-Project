@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import User from "../models/User.js"; // Import the User model
 import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
+import Thread from "../models/Thread.js";
 import nodemailer from "nodemailer";
 
 const router = express.Router();
@@ -278,6 +279,47 @@ router.get("/checkPassword", async (req, res) => {
   }
 });
 
+router.get("/threads", async (req, res) => {
+  console.log("Query Parameters:", req.query);
+  let { threadIDs } = req.query; 
+  
+  if (!threadIDs) {
+    return res.status(404).json({ message: "threadIDs parameter is required" });
+  }
+
+  if (!Array.isArray(threadIDs)) {
+    threadIDs = threadIDs.split(","); 
+  }
+
+  if (threadIDs.some((id) => !mongoose.Types.ObjectId.isValid(id))) {
+    return res.status(402).json({ message: "Invalid threadIDs format" });
+  }
+
+  try {
+    const threads = await Thread.find({ _id: "67292eba16505c7370748e83" });
+    res.status(200).json(threads);
+  } catch (error) {
+    console.error("Error fetching threads:", error);
+    res.status(500).json({ message: "Error fetching threads", error });
+  }
+});
+
+
+router.get("/search", async (req, res) => {
+  console.log("Query Parameters:", req);
+
+  const name = req.query.name;
+
+  try {
+    const threads = await Thread.find({
+      threadName: { $regex: name, $options: "i" },
+    });
+    res.status(200).json(threads);
+  } catch (error) {
+    console.error("Error fetching threads:", error);
+    res.status(500).json({ message: "Error fetching threads", error });
+  }
+});
 
 
   

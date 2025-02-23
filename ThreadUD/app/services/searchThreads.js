@@ -7,7 +7,7 @@ export const searchThreads = async (filters = {}) => {
   try {
     const queryParams = new URLSearchParams(filters).toString();
     console.log("Query Parameters:", queryParams);
-    const response = await axios.get(`${API_URL}/thread/search?${queryParams}`);
+    const response = await axios.get(`${API_URL}/user/search?${queryParams}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching comments:", error);

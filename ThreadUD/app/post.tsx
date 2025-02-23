@@ -17,7 +17,7 @@ import {
   Button,
   CommentInput,
 } from "./components/PostStyles";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { Likes } from "./services/updateLikes";
@@ -41,6 +41,8 @@ const PostPage = () => {
   const [text, onChangeText] = useState("");
   const [input, setInput] = useState(false);
   const [socket, setSocket] = useState(null);
+  const route = useRoute();
+  const { postID, threadName } = route.params || {};	
 
   const postLiked = <Icon name="heart" size={25} color="red" />;
   const postUnliked = <Icon name="hearto" size={25} color="red" />;
@@ -52,7 +54,7 @@ const PostPage = () => {
       try {
         const userData = await AsyncStorage.getItem("User");
         if (userData) {
-          setUser(JSON.parse(userData));
+          setUser(userData);
           console.log("User data:", userData);
         } else {
           console.log("No user data found");
@@ -68,17 +70,14 @@ const PostPage = () => {
 
   useEffect(() => {
     const fetchPost = async () => {
+      
+      console.log("Fetching post with ID:", postID);
       try {
-        const postData = await AsyncStorage.getItem("Post");
-        if (postData) {
-          const post = await getSinglePost({ id: postData._id });
-          post.threadName = postData.threadName;
+          const post = await getSinglePost({ id: postID });
+          post.threadName = threadName;
           setPost(post);
           setPostsearched(true);
-        } else {
-          console.log("No post data found");
-          setPost(null);
-        }
+        
       } catch (err) {
         console.error(err);
       }
@@ -115,7 +114,7 @@ const PostPage = () => {
         socket.disconnect();
       }
 
-      const newSocket = io("http://192.168.1.17:3000/", {
+      const newSocket = io("http://192.168.0.11:3000/", {
         query: { post: post._id },
       });
 
@@ -186,7 +185,7 @@ const PostPage = () => {
     let newComment = { content: text, author: user.email };
 
     try {
-      const commentFilters = { comment: newComment };
+      const commentFilters = { comment: newComment, author: user.email };
       const postFilters = { post: post._id, action: 1 };
       const newID = await AddComment(commentFilters, postFilters);
       const updatedCommentsIDs = [...post.comments, newID];

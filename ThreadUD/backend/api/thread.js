@@ -139,21 +139,6 @@ router.put("/comments", async (req, res) => {
   }
 });
 
-router.get("/search", async (req, res) => {
-  console.log("Query Parameters:", req.query);
-
-  const name = req.query.name;
-
-  try {
-    const threads = await Thread.find({
-      threadName: { $regex: name, $options: "i" },
-    });
-    res.status(200).json(threads);
-  } catch (error) {
-    console.error("Error fetching threads:", error);
-    res.status(500).json({ message: "Error fetching threads", error });
-  }
-});
 
 // Get multiple threads by IDs
 router.post("/multiple", async (req, res) => {
@@ -174,24 +159,6 @@ router.post("/multiple", async (req, res) => {
   } catch (error) {
     console.error("Error fetching threads:", error);
     res.status(500).json({ message: "Error fetching threads", error });
-  }
-});
-
-router.get("/get", async (req, res) => {
-  console.log("Query Parameters:", req.query);
-
-  const { ids } = req.query;
-
-  try {
-    const threads = await Thread.find({ _id: { $in: ids } }).exec();
-    if (!threads || threads.length === 0) {
-      return status(404).json({ message: "No threads found for the provided IDs" });
-    }
-    console.log("threads", threads);
-    res.status(200).json(threads);
-  } catch (error) {
-    console.error("Error fetching threads:", error);
-    res.status(500).json({ message: "An error occurred while fetching the threads." });
   }
 });
 

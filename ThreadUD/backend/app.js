@@ -23,7 +23,7 @@ app.use(express.json());
 app.use("/api/post", postRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/comment", commentRoutes);
-app.use("/api/thread", threadRoutes); // Added thread routes
+app.use("/api/thread", threadRoutes);
 
 // Database Connection
 connectDB();

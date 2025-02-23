@@ -133,8 +133,8 @@ const Thread = () => {
     return post.likes.includes(user.email) ? liked : unliked;
   };
 
-  const navigateToPost = (postId) => {
-    navigation.navigate("post", { postId });
+  const navigateToPost = (postID) => {
+    navigation.navigate("post", { postID, threadName });
   };
 
   return (
