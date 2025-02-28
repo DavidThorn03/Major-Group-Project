@@ -5,7 +5,8 @@ const threadSchema = new mongoose.Schema({
   year: { type: Number, required: true, min: 1, max: 5, index: true },
   course: { type: String, required: true, minlength: 3, maxlength: 100 },
   createdAt: { type: Date, default: Date.now },
-});
+}, { versionKey: false }
+);
 
 threadSchema.virtual("formattedDate").get(function () {
   return this.createdAt.toLocaleDateString("en-US");

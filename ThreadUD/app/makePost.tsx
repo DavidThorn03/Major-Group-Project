@@ -73,8 +73,7 @@ const MakePostPage = () => {
       if (response.status === 201) {
         const newPost = response.data;
         // Optionally store the newly created post or navigate
-        await AsyncStorage.setItem("Post", JSON.stringify(newPost));
-        navigation.navigate("post");
+        navigation.navigate("post", {postID: newPost._id, threadName: newPost.threadName});
       } else {
         Alert.alert("Error", "Failed to create post.");
       }

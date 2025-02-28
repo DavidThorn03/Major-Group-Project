@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import Thread from "../models/Thread.js";
 import Post from "../models/Post.js";
+import perspectiveAPI from "./perspective.js";
 
 const router = express.Router();
 
@@ -54,6 +55,8 @@ router.get("/:threadID", async (req, res) => {
 router.post("/:threadID/posts", async (req, res) => {
   const { postTitle, content, author } = req.body;
   const { threadID } = req.params;
+  
+  const flagged = await perspectiveAPI(postTitle + content);
 
   try {
     const thread = await Thread.findById(threadID);
@@ -67,6 +70,7 @@ router.post("/:threadID/posts", async (req, res) => {
       postTitle,
       content,
       author,
+      flagged,
     });
     await post.save();
     res.status(201).json(post);

@@ -2,18 +2,22 @@ import express from "express";
 import mongoose from "mongoose";
 import Post from "../models/Post.js";
 import Comment from "../models/Comment.js";
+import perspectiveAPI from "./perspective.js";
 
 const router = express.Router();
 
 router.post("/add", async (req, res) => { // THIS WORKS
     let author = req.body.comment.author;
     let content = req.body.comment.content;
+
+    const flagged = await perspectiveAPI(content);
+    console.log("Perspective API result:", flagged);
   
     console.log("author", author);
     console.log("content", content);
 
     try {
-      const comment = await Comment.create({author: author, content: content, replies: [], likes: []});
+      const comment = await Comment.create({author: author, content: content, replies: [], likes: [], flagged: flagged});
       return res.json(comment._id);
     }
     catch (error) {
