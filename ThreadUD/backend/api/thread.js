@@ -95,6 +95,7 @@ router.get("/:threadID/posts", async (req, res) => {
   try {
     const posts = await Post.find({
       threadID: new mongoose.Types.ObjectId(threadID),
+      flagged: false,
     });
     res.status(200).json(posts);
   } catch (error) {

@@ -8,6 +8,9 @@ const router = express.Router();
 const getPostsWithThreadDetails = async () => {
   return await Post.aggregate([
     {
+      $match: { flagged: false }, // ✅ Exclude flagged posts
+    },
+    {
       $lookup: {
         from: "Thread", // Ensure this matches your MongoDB collection name
         localField: "threadID",

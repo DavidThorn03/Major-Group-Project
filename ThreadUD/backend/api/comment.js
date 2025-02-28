@@ -42,7 +42,7 @@ router.post("/add", async (req, res) => { // THIS WORKS
     console.log("ids", ids);
   
     try {
-      const comments = await Comment.find({ _id: { $in: ids } }).exec();
+      const comments = await Comment.find({ _id: { $in: ids }, flagged: false }).exec();
       if (!comments || comments.length === 0) {
         return status(404).json({ message: "No comments found for the provided IDs" });
       }
