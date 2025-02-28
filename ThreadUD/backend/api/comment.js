@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Post from "../models/Post.js";
 import Comment from "../models/Comment.js";
 import perspectiveAPI from "./perspective.js";
+import { Filter } from "bad-words";
 
 const router = express.Router();
 
@@ -11,13 +12,15 @@ router.post("/add", async (req, res) => { // THIS WORKS
     let content = req.body.comment.content;
 
     const flagged = await perspectiveAPI(content);
-    console.log("Perspective API result:", flagged);
-  
+
+    const filter = new Filter();
+    const filteredContent = filter.clean(content);
+
     console.log("author", author);
     console.log("content", content);
 
     try {
-      const comment = await Comment.create({author: author, content: content, replies: [], likes: [], flagged: flagged});
+      const comment = await Comment.create({author: author, content: filteredContent, replies: [], likes: [], flagged: flagged});
       return res.json(comment._id);
     }
     catch (error) {
