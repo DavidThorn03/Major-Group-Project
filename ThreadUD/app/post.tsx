@@ -29,6 +29,8 @@ import { getSinglePost } from "./services/getSinglePost.js";
 import { RemoveComment } from "./services/removeComment";
 import { RemoveReply } from "./services/removeReply.js";
 import io from "socket.io-client";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 const PostPage = () => {
   const navigation = useNavigation();
@@ -165,7 +167,7 @@ const PostPage = () => {
     setPost({ ...post, likes: updatedLikes });
     try {
       const filters = {
-        post: post.postTitle,
+        post: post._id,
         like: user.email,
         action: action,
       };
@@ -328,6 +330,10 @@ const PostPage = () => {
     setComments(updatedComments);
   };
 
+  const navigateToThread = () => {
+    navigation.navigate("thread", { threadID: post.threadID, threadName: post.threadName });
+  };
+
   const printComments = (comments, comment) => {
     return (
       <FlatList
@@ -385,8 +391,10 @@ const PostPage = () => {
 
   return (
     <Container>
+      <TouchableOpacity onPress={() => navigateToThread()}>
       <GeneralText>{post.threadName}</GeneralText>
-      <ThreadName>{post.postTitle}</ThreadName>
+      </TouchableOpacity>
+      <Timestamp>{dayjs(post.createdAt).fromNow()}</Timestamp>
       <GeneralText>{post.content}</GeneralText>
       <GeneralText>Author: {post.author}</GeneralText>
       <View style={{ flexDirection: "row" }}>

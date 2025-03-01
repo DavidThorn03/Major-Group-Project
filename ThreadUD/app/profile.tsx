@@ -135,7 +135,7 @@ const ProfileScreen = () => {
     
         try {
           const filters = {
-            post: post.postTitle,
+            post: post._id,
             like: user.email,
             action: action,
           };

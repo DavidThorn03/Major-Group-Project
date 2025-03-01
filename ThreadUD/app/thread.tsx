@@ -20,11 +20,12 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { API_URL } from "./constants/apiConfig";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import BottomNavBar from "./components/BottomNavBar";
+import { Likes } from "./services/updateLikes";
 
 dayjs.extend(relativeTime);
 
 const Thread = () => {
-  const { user, updateUser } = useUser(); // Use UserContext
+  const [user, setUser] = useState(null);
   const route = useRoute();
   const navigation = useNavigation();
   const { threadID, threadName } = route.params || {};
@@ -38,6 +39,25 @@ const Thread = () => {
   const unliked = (
     <Icon name="hearto" size={25} color="white" />
   ) as JSX.Element;
+
+  useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          const userData = await AsyncStorage.getItem("User");
+          if (userData) {
+            setUser(userData);
+            console.log("User data:", userData);
+          } else {
+            console.log("No user data found");
+            setUser(null);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      };
+  
+      fetchUser();
+    }, []);
 
   // Fetch posts for the thread
   useEffect(() => {
@@ -86,7 +106,7 @@ const Thread = () => {
       }
 
       const updatedUserData = await response.json();
-      updateUser(updatedUserData.user);
+      setUser(updatedUserData.user);
       setJoined(!joined);
     } catch (error) {
       console.error(`Error making ${successMessage} thread request:`, error);
@@ -94,39 +114,42 @@ const Thread = () => {
   };
 
   const likePost = async (post) => {
-    if (!user) {
-      console.log("User not logged in");
-      navigation.navigate("login");
-      return;
-    }
-
-    const updatedPosts = posts.map((p) => {
-      if (p._id === post._id) {
-        const updatedLikes = p.likes.includes(user.email)
-          ? p.likes.filter((email) => email !== user.email)
-          : [...p.likes, user.email];
-        return { ...p, likes: updatedLikes };
-      }
-      return p;
-    });
-
-    setPosts(updatedPosts);
-
-    try {
-      await fetch(`${API_URL}/post/likes`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          post: post.postTitle,
-          likes: updatedPosts.find((p) => p._id === post._id).likes,
-        }),
-      });
-    } catch (error) {
-      console.error("Error updating likes:", error);
-    }
-  };
+          if (!user) {
+            console.log("User not logged in");
+            navigation.navigate("login");
+            return;
+          }
+          let action;
+  
+          const updatedPosts = posts.map((p) => {
+            if (p._id === post._id) {
+              const updatedLikes = p.likes.includes(user.email)
+                ? p.likes.filter((email) => email !== user.email)
+                : [...p.likes, user.email];
+              return { ...p, likes: updatedLikes };
+            }
+            return p;
+          });
+      
+          setPosts(updatedPosts);
+      
+          if (post.likes.includes(user.email)) {
+            action = -1;
+          } else {
+            action = 1;
+          }
+      
+          try {
+            const filters = {
+              post: post._id,
+              like: user.email,
+              action: action,
+            };
+            await Likes(filters);
+          } catch (err) {
+            console.error(err);
+          }
+        };
 
   const getLike = (post) => {
     if (!user) return unliked;

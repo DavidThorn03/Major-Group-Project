@@ -6,30 +6,7 @@ const router = express.Router();
 
 // Function to fetch posts with thread details
 const getPostsWithThreadDetails = async () => {
-  return await Post.aggregate([
-    {
-      $match: { flagged: false }, // ✅ Exclude flagged posts
-    },
-    {
-      $lookup: {
-        from: "Thread", // Ensure this matches your MongoDB collection name
-        localField: "threadID",
-        foreignField: "_id",
-        as: "threadData",
-      },
-    },
-    {
-      $project: {
-        threadID: 1,
-        threadName: { $arrayElemAt: ["$threadData.threadName", 0] },
-        postTitle: 1,
-        content: 1,
-        author: 1,
-        likes: 1,
-        comments: 1,
-      },
-    },
-  ]);
+  return await Post.find().exec();
 };
 
 // Get all posts
@@ -63,7 +40,7 @@ router.put("/likes", async (req, res) => {
     }
 
     const updatedPost = await Post.findOneAndUpdate(
-      { postTitle: post }, 
+      { _id: post }, 
       updatedQuery, 
       { new: true }  
     );

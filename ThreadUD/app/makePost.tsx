@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Alert, View, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as AsyncStorage from "../util/AsyncStorage.js";
 import axios from "axios";
 import { API_URL } from "./constants/apiConfig";
 import {
@@ -22,9 +22,8 @@ const MakePostPage = () => {
   useEffect(() => {
     const fetchThreads = async () => {
       try {
-        const userData = await AsyncStorage.getItem("User");
-        if (userData) {
-          const user = JSON.parse(userData);
+        const user = await AsyncStorage.getItem("User");
+        if (user) {
 
           // user.threads should be an array of thread IDs
           if (Array.isArray(user.threads) && user.threads.length > 0) {
@@ -53,18 +52,16 @@ const MakePostPage = () => {
     }
 
     try {
-      const userData = await AsyncStorage.getItem("User");
-      if (!userData) {
+      const user = await AsyncStorage.getItem("User");
+      if (!user) {
         console.error("User data not found in AsyncStorage");
         return;
       }
-      const user = JSON.parse(userData);
 
       // Make the POST request to create a new post
       const response = await axios.post(
         `${API_URL}/thread/${selectedThread}/posts`,
         {
-          postTitle: "New Post", // you might want to make this dynamic
           content: body,
           author: user.email,
         }

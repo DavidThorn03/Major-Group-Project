@@ -296,7 +296,7 @@ router.get("/threads", async (req, res) => {
   }
 
   try {
-    const threads = await Thread.find({ _id: "67292eba16505c7370748e83" });
+    const threads = await Thread.find({ _id: { $in: threadIDs } });
     res.status(200).json(threads);
   } catch (error) {
     console.error("Error fetching threads:", error);

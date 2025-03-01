@@ -8,7 +8,6 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     threadName: { type: String, required: true },
-    postTitle: { type: String, required: true },
     content: { type: String, required: true },
     author: { type: String, required: true },
     likes: { type: [String], default: [] },
