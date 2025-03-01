@@ -2,18 +2,25 @@ import express from "express";
 import mongoose from "mongoose";
 import Post from "../models/Post.js";
 import Comment from "../models/Comment.js";
+import perspectiveAPI from "./perspective.js";
+import { Filter } from "bad-words";
 
 const router = express.Router();
 
 router.post("/add", async (req, res) => { // THIS WORKS
     let author = req.body.comment.author;
     let content = req.body.comment.content;
-  
+
+    const flagged = await perspectiveAPI(content);
+
+    const filter = new Filter();
+    const filteredContent = filter.clean(content);
+
     console.log("author", author);
     console.log("content", content);
 
     try {
-      const comment = await Comment.create({author: author, content: content, replies: [], likes: []});
+      const comment = await Comment.create({author: author, content: filteredContent, replies: [], likes: [], flagged: flagged});
       return res.json(comment._id);
     }
     catch (error) {
@@ -35,7 +42,7 @@ router.post("/add", async (req, res) => { // THIS WORKS
     console.log("ids", ids);
   
     try {
-      const comments = await Comment.find({ _id: { $in: ids } }).exec();
+      const comments = await Comment.find({ _id: { $in: ids }, flagged: false }).exec();
       if (!comments || comments.length === 0) {
         return status(404).json({ message: "No comments found for the provided IDs" });
       }

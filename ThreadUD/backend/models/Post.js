@@ -13,8 +13,10 @@ const postSchema = new mongoose.Schema(
     author: { type: String, required: true },
     likes: { type: [String], default: [] },
     comments: { type: [String], default: [] },
+    flagged: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
+
 );
 
 const Post = mongoose.models.Post || mongoose.model("Post", postSchema, "Post");

@@ -2,6 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import Thread from "../models/Thread.js";
 import Post from "../models/Post.js";
+import perspectiveAPI from "./perspective.js";
+import { Filter } from "bad-words";
 
 const router = express.Router();
 
@@ -54,6 +56,11 @@ router.get("/:threadID", async (req, res) => {
 router.post("/:threadID/posts", async (req, res) => {
   const { postTitle, content, author } = req.body;
   const { threadID } = req.params;
+  
+  const flagged = await perspectiveAPI(postTitle + content);
+
+  const filter = new Filter();
+  const filteredContent = filter.clean(content);
 
   try {
     const thread = await Thread.findById(threadID);
@@ -65,8 +72,9 @@ router.post("/:threadID/posts", async (req, res) => {
       threadID: new mongoose.Types.ObjectId(threadID),
       threadName: thread.threadName,
       postTitle,
-      content,
+      content: filteredContent,
       author,
+      flagged,
     });
     await post.save();
     res.status(201).json(post);
@@ -87,6 +95,7 @@ router.get("/:threadID/posts", async (req, res) => {
   try {
     const posts = await Post.find({
       threadID: new mongoose.Types.ObjectId(threadID),
+      flagged: false,
     });
     res.status(200).json(posts);
   } catch (error) {
