@@ -61,12 +61,12 @@ const BottomNavBar = () => {
         />
       </TouchableOpacity>
       <TouchableOpacity
-        style={getButtonStyle("thread")}
-        onPress={() => navigation.navigate("thread")}
+        style={getButtonStyle("makeThread")}
+        onPress={() => navigation.navigate("makeThread")}
       >
         <Image
           source={require("../../assets/icons/makeThread.png")}
-          style={getIconStyle("thread")}
+          style={getIconStyle("makeThread")}
         />
       </TouchableOpacity>
       <TouchableOpacity
