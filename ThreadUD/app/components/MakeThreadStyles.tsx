@@ -28,7 +28,7 @@ export const Input = (props) => (
   <TextInput
     {...props}
     style={{
-      height: 40,
+      height: 48,
       borderWidth: 1,
       borderColor: "#d1d5db",
       marginBottom: 16,

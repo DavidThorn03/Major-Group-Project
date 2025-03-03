@@ -44,7 +44,7 @@ const PostPage = () => {
   const [input, setInput] = useState(false);
   const [socket, setSocket] = useState(null);
   const route = useRoute();
-  const { postID, threadName } = route.params || {};	
+  const { postID, threadName } = route.params || {};
 
   const postLiked = <Icon name="heart" size={25} color="red" />;
   const postUnliked = <Icon name="hearto" size={25} color="red" />;
@@ -72,14 +72,12 @@ const PostPage = () => {
 
   useEffect(() => {
     const fetchPost = async () => {
-      
       console.log("Fetching post with ID:", postID);
       try {
-          const post = await getSinglePost({ id: postID });
-          post.threadName = threadName;
-          setPost(post);
-          setPostsearched(true);
-        
+        const post = await getSinglePost({ id: postID });
+        post.threadName = threadName;
+        setPost(post);
+        setPostsearched(true);
       } catch (err) {
         console.error(err);
       }
@@ -116,7 +114,7 @@ const PostPage = () => {
         socket.disconnect();
       }
 
-      const newSocket = io("http://192.168.0.11:3000/", {
+      const newSocket = io("http://192.168.1.17:3000/", {
         query: { post: post._id },
       });
 
@@ -331,7 +329,10 @@ const PostPage = () => {
   };
 
   const navigateToThread = () => {
-    navigation.navigate("thread", { threadID: post.threadID, threadName: post.threadName });
+    navigation.navigate("thread", {
+      threadID: post.threadID,
+      threadName: post.threadName,
+    });
   };
 
   const printComments = (comments, comment) => {
@@ -392,7 +393,7 @@ const PostPage = () => {
   return (
     <Container>
       <TouchableOpacity onPress={() => navigateToThread()}>
-      <GeneralText>{post.threadName}</GeneralText>
+        <GeneralText>{post.threadName}</GeneralText>
       </TouchableOpacity>
       <Timestamp>{dayjs(post.createdAt).fromNow()}</Timestamp>
       <GeneralText>{post.content}</GeneralText>

@@ -8,6 +8,7 @@ import {
   GeneralText,
   PostContent,
   Author,
+  ListFooterSpace,
 } from "./components/IndexStyles";
 import { getPosts } from "./services/getPost";
 import { useNavigation } from "@react-navigation/native";
@@ -77,7 +78,7 @@ const IndexPage = () => {
       socket.disconnect();
     }
 
-    const newSocket = io("http://192.168.0.11:3000/");
+    const newSocket = io("http://192.168.1.17:3000/");
 
     newSocket.on("update posts", (updatePosts) => {
       console.log("Received updated comments:", updatePosts);
@@ -149,7 +150,7 @@ const IndexPage = () => {
   };
 
   const ViewPost = (postID, threadName) => {
-      navigation.navigate("post", { postID, threadName });
+    navigation.navigate("post", { postID, threadName });
   };
 
   return (
@@ -174,7 +175,9 @@ const IndexPage = () => {
                 >
                   <ThreadName>{item.threadName}</ThreadName>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => ViewPost(item._id, item.threadName)}>
+                <TouchableOpacity
+                  onPress={() => ViewPost(item._id, item.threadName)}
+                >
                   <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
                   <PostContent>{item.content}</PostContent>
                   <Author>Author: {item.author}</Author>
@@ -184,7 +187,9 @@ const IndexPage = () => {
                     </TouchableOpacity>
                     <GeneralText> {item.likes.length} </GeneralText>
                     <View style={{ paddingHorizontal: 5 }} />
-                    <TouchableOpacity onPress={() => ViewPost(item._id, item.threadName)}>
+                    <TouchableOpacity
+                      onPress={() => ViewPost(item._id, item.threadName)}
+                    >
                       <Icon name="message1" size={25} color="white" />
                     </TouchableOpacity>
                     <GeneralText> {item.comments.length} </GeneralText>
@@ -193,6 +198,7 @@ const IndexPage = () => {
               </PostCard>
             );
           }}
+          ListFooterComponent={<ListFooterSpace />}
         />
       )}
       <BottomNavBar />
