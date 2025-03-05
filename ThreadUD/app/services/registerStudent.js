@@ -1,11 +1,11 @@
-import { API_URL } from "../constants/apiConfig";
+import IP from "../../config/IPAddress";
 
 export const registerStudent = async (studentData) => {
   try {
-    console.log("API URL:", `${API_URL}/api/user/register`);
+    console.log("API URL:", `${IP}/api/user/register`);
     console.log("Data being sent to backend:", studentData);
 
-    const response = await fetch(`${API_URL}/user/register`, {
+    const response = await fetch(`${IP}/user/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

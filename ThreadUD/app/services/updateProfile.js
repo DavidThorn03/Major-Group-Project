@@ -1,10 +1,10 @@
 import axios from "axios";
-import { API_URL } from "../constants/apiConfig";
+import IP from "../../config/IPAddress";
 
 export const updateProfile = async (filters = {}) => {
   console.log("filters", filters);
   try {
-    const response = await axios.put(`${API_URL}/user/update`, filters);
+    const response = await axios.put(`${IP}/user/update`, filters);
     return response.data;
   } catch (error) {
     console.error("Error fetching user:", error);

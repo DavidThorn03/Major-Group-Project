@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import { API_URL } from "./constants/apiConfig";
+import IP from "../config/IPAddress.js";
 import {
   Container,
   Header,
@@ -27,7 +27,7 @@ const MakeThreadPage = () => {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/thread`, {
+      const response = await axios.post(`${IP}/thread`, {
         threadName,
         year: parseInt(year, 10),
         course,

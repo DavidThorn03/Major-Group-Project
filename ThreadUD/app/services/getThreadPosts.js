@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_URL } from "../constants/apiConfig";
+import IP from "../../config/IPAddress";
 
 export const getPostsByThread = async (threadID) => {
   if (!threadID) {
@@ -8,7 +8,7 @@ export const getPostsByThread = async (threadID) => {
   }
 
   try {
-    const response = await axios.get(`${API_URL}/thread/${threadID}/posts`);
+    const response = await axios.get(`${IP}/thread/${threadID}/posts`);
     console.log("API Response for posts by thread:", response.data);
     return response.data;
   } catch (error) {

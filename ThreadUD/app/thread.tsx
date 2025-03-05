@@ -17,7 +17,7 @@ import {
 import Icon from "react-native-vector-icons/AntDesign";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { API_URL } from "./constants/apiConfig";
+import IP from "../config/IPAddress.js";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import BottomNavBar from "./components/BottomNavBar";
 import { Likes } from "./services/updateLikes";
@@ -91,7 +91,7 @@ const Thread = () => {
     const successMessage = joined ? "left" : "joined";
 
     try {
-      const response = await fetch(`${API_URL}/user/${user._id}/${action}`, {
+      const response = await fetch(`${IP}/user/${user._id}/${action}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

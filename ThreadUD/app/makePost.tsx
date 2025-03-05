@@ -3,7 +3,7 @@ import { Alert, View, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import axios from "axios";
-import { API_URL } from "./constants/apiConfig";
+import IP from "../config/IPAddress.js";
 import {
   Container,
   CloseButton,
@@ -27,7 +27,7 @@ const MakePostPage = () => {
 
           // user.threads should be an array of thread IDs
           if (Array.isArray(user.threads) && user.threads.length > 0) {
-            const response = await axios.post(`${API_URL}/thread/multiple`, {
+            const response = await axios.post(`${IP}/thread/multiple`, {
               threadIDs: user.threads,
             });
             const validThreads = response.data.map((thread: any) => ({

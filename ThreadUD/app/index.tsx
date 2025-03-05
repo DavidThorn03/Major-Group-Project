@@ -19,6 +19,7 @@ import { Likes } from "./services/updateLikes";
 import io from "socket.io-client";
 import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
+import IP from "../config/IPAddress.js";
 
 dayjs.extend(relativeTime);
 
@@ -36,6 +37,7 @@ const IndexPage = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      console.log("IP" + IP);
       try {
         const userData = await AsyncStorage.getItem("User");
         if (userData) {
@@ -77,7 +79,7 @@ const IndexPage = () => {
       socket.disconnect();
     }
 
-    const newSocket = io("http://192.168.0.11:3000/");
+    const newSocket = io(IP);
 
     newSocket.on("update posts", (updatePosts) => {
       console.log("Received updated comments:", updatePosts);

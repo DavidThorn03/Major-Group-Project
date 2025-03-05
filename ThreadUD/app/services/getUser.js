@@ -1,11 +1,11 @@
 import axios from "axios";
-import { API_URL } from "../constants/apiConfig";
+import IP from "../../config/IPAddress";
 
 export const getUser = async (filters = {}) => {
   console.log("filters", filters);
   try {
     const queryParams = new URLSearchParams(filters).toString();
-    const response = await axios.get(`${API_URL}/user?${queryParams}`);
+    const response = await axios.get(`${IP}/user?${queryParams}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching user:", error);
