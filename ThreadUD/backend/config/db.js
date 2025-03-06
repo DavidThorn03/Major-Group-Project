@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 import Post from "../models/Post.js"; // Ensure the Post model is properly imported
+import connectString from "../../config/DataBase.js";
 
 // Function to connect to MongoDB
 const connectDB = async () => {
   try {
     await mongoose.connect(
-      "mongodb+srv://b00152842:kWDcbYMGg9IOfpEt@threadud.ga2og.mongodb.net/?retryWrites=true&w=majority&appName=ThreadUD"
+      connectString
     );
     console.log("MongoDB connected successfully");
   } catch (error) {
