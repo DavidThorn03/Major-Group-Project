@@ -108,6 +108,7 @@ const Thread = () => {
 
       const updatedUserData = await response.json();
       setUser(updatedUserData.user);
+      await AsyncStorage.setItem("User", updatedUserData.user);
       setJoined(!joined);
     } catch (error) {
       console.error(`Error making ${successMessage} thread request:`, error);

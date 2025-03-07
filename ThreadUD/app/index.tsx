@@ -38,7 +38,6 @@ const IndexPage = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      console.log("IP" + IP);
       try {
         const userData = await AsyncStorage.getItem("User");
         if (userData) {
@@ -114,6 +113,7 @@ const IndexPage = () => {
   const likePost = async (post) => {
     if (!user) {
       console.log("User not logged in");
+      socket.disconnect();
       navigation.navigate("login");
       return;
     }
@@ -149,10 +149,12 @@ const IndexPage = () => {
 
   const navigateToThread = (threadID, threadName) => {
     console.log("Navigating to thread with:", { threadID, threadName });
+    socket.disconnect();
     navigation.navigate("thread", { threadID, threadName });
   };
 
   const ViewPost = (postID, threadName) => {
+    socket.disconnect();
     navigation.navigate("post", { postID, threadName });
   };
 

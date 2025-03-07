@@ -3,7 +3,6 @@ import { Text, Alert } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { getUser } from "./services/getUser";
 import { useNavigation } from "@react-navigation/native";
-import { useUser } from "./context/UserContext"; // Global user context
 import {
   Container,
   Header,
@@ -16,7 +15,6 @@ import {
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const { updateUser } = useUser(); // Update global user context
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
 
@@ -45,8 +43,6 @@ const LoginScreen = () => {
       Alert.alert("Success", "Logged in successfully!");
       console.log("User logged in:", fetchedUser);
 
-      // Update the global user context
-      updateUser(fetchedUser);
 
       // Store user in AsyncStorage (your util automatically stringifies)
       await AsyncStorage.setItem("User", fetchedUser);

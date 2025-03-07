@@ -60,7 +60,7 @@ const MakePostPage = () => {
 
       // Make the POST request to create a new post
       const response = await axios.post(
-        `${API_URL}/thread/${selectedThread}/posts`,
+        `${IP}/thread/${selectedThread}/posts`,
         {
           content: body,
           author: user.email,

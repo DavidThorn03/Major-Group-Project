@@ -1,5 +1,5 @@
 import axios from "axios";
-import IP from "../../config/IPAddress";
+import IP from "../../config/IPAddress.js";
 
 export const AddComment = async (commentFilter = {}, postFilter = {}) => {// works
   console.log("Comment", commentFilter);

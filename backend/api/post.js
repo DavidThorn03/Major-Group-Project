@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Function to fetch posts with thread details
 const getPostsWithThreadDetails = async () => {
-  return await Post.find().exec();
+  return await Post.find({flagged: false}).exec();
 };
 
 // Get all posts

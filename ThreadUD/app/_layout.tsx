@@ -1,10 +1,9 @@
 import { Stack } from "expo-router";
-import { UserProvider } from "./context/UserContext"; // Import UserProvider
+
 import "../global.css";
 
 export default function RootLayout() {
   return (
-    <UserProvider>
       <Stack
         screenOptions={{
           headerShown: false,
@@ -31,6 +30,5 @@ export default function RootLayout() {
         <Stack.Screen name="updateProfile" />
         <Stack.Screen name="changePassword" />
       </Stack>
-    </UserProvider>
   );
 }

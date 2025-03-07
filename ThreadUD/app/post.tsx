@@ -149,6 +149,7 @@ const PostPage = () => {
 
   const likePost = async () => {
     if (!user) {
+      socket.disconnect();
       navigation.navigate("login");
       return;
     }
@@ -178,6 +179,7 @@ const PostPage = () => {
 
   const addComment = async () => {
     if (!user) {
+      socket.disconnect();
       navigation.navigate("login");
       return;
     } else if (text === "") {
@@ -202,6 +204,7 @@ const PostPage = () => {
 
   const likeComment = async (comment) => {
     if (!user) {
+      socket.disconnect();
       navigation.navigate("login");
       return;
     }
@@ -272,6 +275,7 @@ const PostPage = () => {
 
   const reply = async (comment) => {
     if (!user) {
+      socket.disconnect();
       navigation.navigate("login");
       return;
     } else if (text === "") {
@@ -291,6 +295,7 @@ const PostPage = () => {
 
   const deleteComment = async (comment, parent) => {
     if (!user) {
+      socket.disconnect();
       navigation.navigate("login");
       return;
     } else if (comment.author !== user.email) {
@@ -330,6 +335,7 @@ const PostPage = () => {
   };
 
   const navigateToThread = () => {
+    socket.disconnect();
     navigation.navigate("thread", {
       threadID: post.threadID,
       threadName: post.threadName,
@@ -425,7 +431,6 @@ const PostPage = () => {
         </View>
       )}
       {printComments(comments, null)}
-      <Button title="Back" onPress={() => navigation.navigate("index")} />
     </Container>
   );
 };
