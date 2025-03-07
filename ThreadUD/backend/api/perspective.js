@@ -1,4 +1,4 @@
-import { KEY } from "../constants/API-Key.js";
+import KEY from "../../config/APIKey.js";
 import { google } from "googleapis";
 
 const DISCOVERY_URL = "https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1";

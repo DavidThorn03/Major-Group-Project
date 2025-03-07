@@ -6,6 +6,7 @@ import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
 import Thread from "../models/Thread.js";
 import nodemailer from "nodemailer";
+import emailPass from "../../config/Emailpass.js";
 
 const router = express.Router();
 
@@ -168,7 +169,7 @@ router.get("/forgotPassword", async (req, res) => {
       service: 'gmail',
       auth: {
         user: 'threadud123@gmail.com',
-        pass: 'ecdr ulry dwin czor'
+        pass: emailPass
       }
     });
     

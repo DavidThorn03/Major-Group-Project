@@ -20,10 +20,10 @@ const io = new Server(server, {
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use("/api/post", postRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/comment", commentRoutes);
-app.use("/api/thread", threadRoutes);
+app.use("/post", postRoutes);
+app.use("/user", userRoutes);
+app.use("/comment", commentRoutes);
+app.use("/thread", threadRoutes);
 
 // Database Connection
 connectDB();

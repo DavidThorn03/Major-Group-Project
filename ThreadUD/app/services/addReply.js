@@ -1,11 +1,11 @@
 import axios from "axios";
-import { API_URL } from "../constants/apiConfig";
+import IP from "../../config/IPAddress";
 
 export const AddReply = async (filter = {}) => {//works
   console.log("Comment", filter);
 
   try {
-    const response = await axios.post(`${API_URL}/comment/add`, filter);
+    const response = await axios.post(`${IP}/comment/add`, filter);
 
     filter.reply_id = response.data;
 

@@ -31,6 +31,7 @@ import { RemoveReply } from "./services/removeReply.js";
 import io from "socket.io-client";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import IP from "../config/IPAddress.js";
 
 const PostPage = () => {
   const navigation = useNavigation();
@@ -113,8 +114,8 @@ const PostPage = () => {
       if (socket) {
         socket.disconnect();
       }
+      const newSocket = io(IP, {
 
-      const newSocket = io("http://192.168.1.17:3000/", {
         query: { post: post._id },
       });
 

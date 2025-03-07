@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_URL } from "../constants/apiConfig";
+import IP from "../../config/IPAddress";
 
 export const RemoveReply = async (filter) => {
   console.log("Comment", filter);
@@ -8,11 +8,11 @@ export const RemoveReply = async (filter) => {
   try {
     comment = {_id: filter.reply_id};
     console.log("Comment", filter.comment);
-    const response = await axios.delete(`${API_URL}/comment/remove`, {
+    const response = await axios.delete(`${IP}/comment/remove`, {
       data: { comment: comment },
     });
 
-    const postresponse = await axios.put(`${API_URL}/comment/reply`, filter);// this works
+    const postresponse = await axios.put(`${IP}/comment/reply`, filter);// this works
 
     return postresponse.data;
   } catch (error) {
