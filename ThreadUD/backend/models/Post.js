@@ -14,8 +14,7 @@ const postSchema = new mongoose.Schema(
     comments: { type: [String], default: [] },
     flagged: { type: Boolean, default: false },
   },
-  { timestamps: true, versionKey: false }
-
+  { timestamps: { createdAt: true, updatedAt: false }, versionKey: false }
 );
 
 const Post = mongoose.models.Post || mongoose.model("Post", postSchema, "Post");

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
 import { getPostsByThread } from "./services/getThreadPosts";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { useUser } from "./context/UserContext"; // Import useUser
+import { useUser } from "./context/UserContext";
 import {
   Container,
   Header,
@@ -13,7 +13,8 @@ import {
   Timestamp,
   Content,
   ButtonContainer,
-} from "./components/ThreadStyles"; // Updated import
+  ListFooterSpace,
+} from "./components/ThreadStyles";
 import Icon from "react-native-vector-icons/AntDesign";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -41,23 +42,23 @@ const Thread = () => {
   ) as JSX.Element;
 
   useEffect(() => {
-      const fetchUser = async () => {
-        try {
-          const userData = await AsyncStorage.getItem("User");
-          if (userData) {
-            setUser(userData);
-            console.log("User data:", userData);
-          } else {
-            console.log("No user data found");
-            setUser(null);
-          }
-        } catch (err) {
-          console.error(err);
+    const fetchUser = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("User");
+        if (userData) {
+          setUser(userData);
+          console.log("User data:", userData);
+        } else {
+          console.log("No user data found");
+          setUser(null);
         }
-      };
-  
-      fetchUser();
-    }, []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   // Fetch posts for the thread
   useEffect(() => {
@@ -114,42 +115,42 @@ const Thread = () => {
   };
 
   const likePost = async (post) => {
-          if (!user) {
-            console.log("User not logged in");
-            navigation.navigate("login");
-            return;
-          }
-          let action;
-  
-          const updatedPosts = posts.map((p) => {
-            if (p._id === post._id) {
-              const updatedLikes = p.likes.includes(user.email)
-                ? p.likes.filter((email) => email !== user.email)
-                : [...p.likes, user.email];
-              return { ...p, likes: updatedLikes };
-            }
-            return p;
-          });
-      
-          setPosts(updatedPosts);
-      
-          if (post.likes.includes(user.email)) {
-            action = -1;
-          } else {
-            action = 1;
-          }
-      
-          try {
-            const filters = {
-              post: post._id,
-              like: user.email,
-              action: action,
-            };
-            await Likes(filters);
-          } catch (err) {
-            console.error(err);
-          }
-        };
+    if (!user) {
+      console.log("User not logged in");
+      navigation.navigate("login");
+      return;
+    }
+    let action;
+
+    const updatedPosts = posts.map((p) => {
+      if (p._id === post._id) {
+        const updatedLikes = p.likes.includes(user.email)
+          ? p.likes.filter((email) => email !== user.email)
+          : [...p.likes, user.email];
+        return { ...p, likes: updatedLikes };
+      }
+      return p;
+    });
+
+    setPosts(updatedPosts);
+
+    if (post.likes.includes(user.email)) {
+      action = -1;
+    } else {
+      action = 1;
+    }
+
+    try {
+      const filters = {
+        post: post._id,
+        like: user.email,
+        action: action,
+      };
+      await Likes(filters);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const getLike = (post) => {
     if (!user) return unliked;
@@ -195,6 +196,7 @@ const Thread = () => {
             </PostCard>
           </TouchableOpacity>
         )}
+        ListFooterComponent={<ListFooterSpace />}
       />
       <BottomNavBar />
     </Container>

@@ -1,9 +1,50 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Image, TouchableOpacity, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import * as AsyncStorage from "../../util/AsyncStorage.js";
 
 const NavBar: React.FC = () => {
   const navigation = useNavigation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check if user is logged in
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("User");
+        setIsLoggedIn(!!userData);
+      } catch (error) {
+        console.error("Error checking login status:", error);
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkLoginStatus();
+
+    // Set up listener for when the component is focused again
+    const unsubscribe = navigation.addListener("focus", checkLoginStatus);
+    return unsubscribe;
+  }, [navigation]);
+
+  // Handle login/logout button press
+  const handleAuthAction = async () => {
+    if (isLoggedIn) {
+      // Logout user
+      try {
+        await AsyncStorage.removeItem("User");
+        setIsLoggedIn(false);
+        console.log("User logged out successfully");
+        // Optionally navigate to index or home page
+        navigation.navigate("index");
+      } catch (error) {
+        console.error("Error logging out:", error);
+      }
+    } else {
+      // Navigate to login page
+      navigation.navigate("login");
+    }
+  };
+
   return (
     <View
       style={{
@@ -33,16 +74,19 @@ const NavBar: React.FC = () => {
             resizeMode="contain"
           />
         </TouchableOpacity>
-        <TouchableOpacity style={{ padding: 8 }}>
+        <TouchableOpacity onPress={handleAuthAction}>
           <Image
-            source={require("../../assets/icons/login.png")}
+            source={
+              isLoggedIn
+                ? require("../../assets/icons/logout.png")
+                : require("../../assets/icons/login.png")
+            }
             style={{
               width: 24,
               height: 24,
               marginTop: -37,
               tintColor: "white",
             }}
-            resizeMode="contain"
           />
         </TouchableOpacity>
       </View>

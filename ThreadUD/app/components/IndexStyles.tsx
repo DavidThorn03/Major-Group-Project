@@ -68,3 +68,5 @@ export const Button = ({ onPress, title, style }) => (
     <Text className="text-white font-bold">{title}</Text>
   </TouchableOpacity>
 );
+
+export const ListFooterSpace = () => <View style={{ height: 63.5 }} />;

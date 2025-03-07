@@ -1,10 +1,32 @@
 import React from "react";
 import { View, TouchableOpacity, Image } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import * as AsyncStorage from "../../util/AsyncStorage.js";
 
 const BottomNavBar = () => {
   const navigation = useNavigation();
   const route = useRoute();
+
+  // Function to check if user is logged in before navigating
+  const navigateWithAuthCheck = async (route) => {
+    if (route === "makeThread" || route === "makePost") {
+      try {
+        const userData = await AsyncStorage.getItem("User");
+        if (!userData) {
+          console.log("User not logged in, redirecting to login page");
+          navigation.navigate("login");
+          return;
+        }
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+        navigation.navigate("login");
+        return;
+      }
+    }
+
+    // If not a protected route or user is logged in, proceed with navigation
+    navigation.navigate(route);
+  };
 
   const getIconStyle = (targetRoute) => ({
     width: 24,
@@ -53,7 +75,7 @@ const BottomNavBar = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={getButtonStyle("makePost")}
-        onPress={() => navigation.navigate("makePost")}
+        onPress={() => navigateWithAuthCheck("makePost")}
       >
         <Image
           source={require("../../assets/icons/makePost.png")}
@@ -62,7 +84,7 @@ const BottomNavBar = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={getButtonStyle("makeThread")}
-        onPress={() => navigation.navigate("makeThread")}
+        onPress={() => navigateWithAuthCheck("makeThread")}
       >
         <Image
           source={require("../../assets/icons/makeThread.png")}
