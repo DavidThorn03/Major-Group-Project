@@ -9,7 +9,7 @@ export const AddReply = async (filter = {}) => {//works
 
     filter.reply_id = response.data;
 
-    const postresponse = await axios.put(`${API_URL}/comment/reply`, filter);
+    const postresponse = await axios.put(`${IP}/comment/reply`, filter);
     console.log("postresponse", postresponse.data);
     return postresponse.data;
   } catch (error) {
