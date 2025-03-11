@@ -5,7 +5,7 @@ import { handlePostChangeStream, router as postRoutes } from "./api/post.js";
 import { handleCommentChangeStream, router as commentRoutes } from "./api/comment.js";
 import userRoutes from "./api/user.js";
 import threadRoutes from "./api/thread.js";
-import connectDB from "./config/db.js";
+import connectDB from "./connect/db.js";
 import cors from "cors";
 
 const app = express();
