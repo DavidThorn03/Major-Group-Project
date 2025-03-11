@@ -12,6 +12,7 @@ import {
   PostButton,
 } from "./components/MakePostStyles";
 import { Picker } from "@react-native-picker/picker";
+import { createPost } from "./services/postService";
 
 const MakePostPage = () => {
   const navigation = useNavigation();
@@ -24,7 +25,6 @@ const MakePostPage = () => {
       try {
         const user = await AsyncStorage.getItem("User");
         if (user) {
-
           // user.threads should be an array of thread IDs
           if (Array.isArray(user.threads) && user.threads.length > 0) {
             const response = await axios.post(`${IP}/thread/multiple`, {
@@ -58,24 +58,14 @@ const MakePostPage = () => {
         return;
       }
 
-      // Make the POST request to create a new post
-      const response = await axios.post(
-        `${IP}/thread/${selectedThread}/posts`,
-        {
-          content: body,
-          author: user.email,
-        }
-      );
-
-      if (response.status === 201) {
-        const newPost = response.data;
-        // Optionally store the newly created post or navigate
-        navigation.navigate("post", {postID: newPost._id, threadName: newPost.threadName});
-      } else {
-        Alert.alert("Error", "Failed to create post.");
-      }
+      const postData = await createPost(IP, selectedThread, body, user.email);
+      // Handle postData if needed
+      navigation.navigate("post", {
+        postID: postData._id,
+        threadName: postData.threadName,
+      });
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error in makePost component:", error);
       Alert.alert("Error", "An error occurred while creating the post.");
     }
   };
