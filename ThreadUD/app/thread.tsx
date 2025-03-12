@@ -22,7 +22,6 @@ import IP from "../config/IPAddress.js";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import BottomNavBar from "./components/BottomNavBar";
 import { Likes } from "./services/updateLikes";
-import { updateThread } from "./services/threadService";
 
 dayjs.extend(relativeTime);
 
@@ -93,18 +92,26 @@ const Thread = () => {
     const successMessage = joined ? "left" : "joined";
 
     try {
-      await updateThread(
-        IP,
-        user._id,
-        action,
-        threadID,
-        successMessage,
-        joined,
-        setUser,
-        setJoined
-      );
+      const response = await fetch(`${IP}/user/${user._id}/${action}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ threadId: threadID }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error(`Error ${successMessage} thread:`, errorData);
+        return;
+      }
+
+      const updatedUserData = await response.json();
+      setUser(updatedUserData.user);
+      await AsyncStorage.setItem("User", updatedUserData.user);
+      setJoined(!joined);
     } catch (error) {
-      console.error(`Error in thread component:`, error);
+      console.error(`Error making ${successMessage} thread request:`, error);
     }
   };
 

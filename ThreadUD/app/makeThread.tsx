@@ -13,7 +13,6 @@ import {
 } from "./components/MakeThreadStyles";
 import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
-import { createThread } from "./services/threadService";
 
 const MakeThreadPage = () => {
   const navigation = useNavigation();
@@ -28,7 +27,11 @@ const MakeThreadPage = () => {
     }
 
     try {
-      const response = await createThread(IP, threadName, year, course);
+      const response = await axios.post(`${IP}/thread`, {
+        threadName,
+        year: parseInt(year, 10),
+        course,
+      });
 
       if (response.status === 201) {
         Alert.alert("Success", "Thread created successfully!");
