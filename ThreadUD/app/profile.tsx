@@ -160,7 +160,6 @@ const ProfileScreen = () => {
       data={posts}
       keyExtractor={(item) => item._id}
       renderItem={({ item }) => {
-        console.log("Post item:", item);
         return (
           <PostCard>
             <TouchableOpacity

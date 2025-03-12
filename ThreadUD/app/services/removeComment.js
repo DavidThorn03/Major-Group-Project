@@ -6,10 +6,11 @@ export const RemoveComment = async (filter = {}) => {
   console.log("Comment", filter.comment);
 
   try {
-    comment = {_id: filter.comment};
+    comment = filter.comment;
+    replies = filter.replies;
     console.log("Comment", filter.comment);
     const response = await axios.delete(`${IP}/comment/remove`, {
-      data: { comment: comment },
+      data: { comment: comment, replies: replies },
     });
 
     const postresponse = await axios.put(`${IP}/post/comments`, filter);// this works

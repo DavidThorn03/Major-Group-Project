@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import Post from "../models/Post.js"; // Ensure proper model import
+import Thread from "../models/Thread.js"; // Ensure proper model import
 
 const router = express.Router();
 
@@ -56,9 +57,54 @@ router.put("/likes", async (req, res) => {
   }
 });
 
-// Update comments on a post
+router.get("/byThread", async (req, res) => {
+  var ids = req.query.ids;
+  if (typeof ids === "string" && ids.includes(",")) {
+    ids = ids.split(",");
+  } else if (!Array.isArray(ids)) {
+    ids = [ids];
+  }
+
+  if (ids.length === 0) {
+    res.status(400).json({ message: "No valid IDs provided" });
+  }
+  console.log("ids", ids);
+
+  try {
+    const posts = await Post.find({
+      threadID: { $in: ids },
+      flagged: false,
+    }).exec();
+    console.log("posts", posts);
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the posts." });
+  }
+});
+
+router.get("/byYear", async (req, res) => {
+  const year = req.query.year;
+
+  try {
+    const threadIDs = await Thread.distinct("_id", { year });
+    const posts = await Post.find({
+      threadID: { $in: threadIDs },
+      flagged: false,
+    }).exec();
+    console.log("posts", posts);
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the posts." });
+  }
+});
+
 router.put("/comments", async (req, res) => {
-  // THIS WORKS FINE, OTHERS ARE PROBLEM
   console.log("Query Parameters:", req.body);
 
   const post = req.body.post;
