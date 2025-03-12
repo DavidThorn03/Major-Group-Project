@@ -19,13 +19,31 @@ const RegisterPage = () => {
       Alert.alert("Error", "All fields are required!");
       return;
     }
+    if(password.length < 9) {
+      Alert.alert("Error", "Password must be at least 9 characters long!");
+      return;
+    }
+    var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+    if (!regex.test(password)) {
+      Alert.alert("Error", "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character!");
+      return;
+    }
+    if(year < 1 || year > 4) {
+      Alert.alert("Error", "Year must be between 1 and 5!");
+      return;
+    }
+    regex = /^[A-Za-z]{2}\d{3}$/;
+    if (!regex.test(course)) {
+      Alert.alert("Error", "Course must be in the format LLDDD where L is a letter and D is a digit!");
+      return
+    }
     try {
       const userData = {
         userName: name.trim(),
         email: email.toLowerCase(),
         password: password.trim(),
         year: parseInt(year, 10),
-        course: course.trim(),
+        course: course.toUpperCase(),
       };
 
       console.log("User data being sent:", userData);

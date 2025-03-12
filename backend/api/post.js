@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import Post from "../models/Post.js";
+import Thread from "../models/Thread.js";
 
 const router = express.Router();
 
@@ -54,6 +55,45 @@ router.put("/likes", async (req, res) => {
     console.error("Error updating post likes:", error);
     res.status(500).json({ message: error.message });
   }
+});
+
+router.get("/byThread", async (req, res) => {
+  var ids = req.query.ids;
+  if (typeof ids === "string" && ids.includes(",")) {
+    ids = ids.split(","); 
+  } else if (!Array.isArray(ids)) {
+    ids = [ids]; 
+  }
+
+  if (ids.length === 0) {
+    res.status(400).json({ message: "No valid IDs provided" });
+  }
+  console.log("ids", ids);
+
+  try {
+    const posts = await Post.find({ threadID: { $in: ids }, flagged: false }).exec();
+    console.log("posts", posts);
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "An error occurred while fetching the posts." });
+  }
+
+});
+
+router.get("/byYear", async (req, res) => {
+  const year = req.query.year;
+
+  try {
+    const threadIDs = await Thread.distinct("_id", { year });
+    const posts = await Post.find({ threadID: { $in: threadIDs }, flagged: false }).exec();
+    console.log("posts", posts);
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "An error occurred while fetching the posts." });
+  }
+
 });
 
 // Update comments on a post
@@ -140,24 +180,4 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-const handlePostChangeStream = (io) => {
-  const changeStream = Post.watch();
-
-  changeStream.on("change", async (next) => {
-    try {
-      // If a post is inserted, updated, or deleted, send the updated non-flagged posts list.
-      if (
-        next.operationType === "insert" ||
-        next.operationType === "update" ||
-        next.operationType === "delete"
-      ) {
-        const updatedPosts = await getPostsWithThreadDetails();
-        io.emit("update posts", updatedPosts);
-      }
-    } catch (error) {
-      // Handle error silently or log as needed.
-    }
-  });
-};
-
-export { handlePostChangeStream, router };
+export default router;

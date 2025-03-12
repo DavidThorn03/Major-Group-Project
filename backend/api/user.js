@@ -225,30 +225,7 @@ router.get("/posts", async (req, res) => {
   const author = req.query.author;
 
   try {
-    const posts = await Post.aggregate([
-      {
-        $match: { author: author }, 
-      },
-      {
-        $lookup: {
-          from: "Thread", 
-          localField: "threadID",
-          foreignField: "_id",
-          as: "threadData",
-        },
-      },
-      {
-        $project: {
-          threadID: 1,
-          threadName: { $arrayElemAt: ["$threadData.threadName", 0] },
-          postTitle: 1,
-          content: 1,
-          author: 1,
-          likes: 1,
-          comments: 1,
-        },
-      },
-    ]);
+    const posts = await Post.find({ author: author }).exec();
     if (!posts) {
       return res.status(404).json({ message: "Posts not found." });
     }

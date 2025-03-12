@@ -358,7 +358,7 @@ const PostPage = () => {
                 <Icon name="message1" size={15} />
               </TouchableOpacity>
               <GeneralText> {item.replyid.length} </GeneralText>
-              {item.author === user.email && (
+              {user && item.author === user.email && (
                 <TouchableOpacity onPress={() => deleteComment(item, comment)}>
                   <Icon name="delete" size={20} color="red" />
                 </TouchableOpacity>

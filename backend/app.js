@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { router as postRoutes } from "./api/post.js";
+import postRoutes from "./api/post.js";
 import {
   handleCommentChangeStream,
   router as commentRoutes,

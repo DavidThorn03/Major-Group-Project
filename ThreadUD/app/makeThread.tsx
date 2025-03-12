@@ -25,12 +25,21 @@ const MakeThreadPage = () => {
       Alert.alert("Error", "All fields are required!");
       return;
     }
+    if(year < 1 || year > 4) {
+      Alert.alert("Error", "Year must be between 1 and 5!");
+      return;
+    }
+    const regex = /^[A-Za-z]{2}\d{3}$/;
+    if (!regex.test(course)) {
+      Alert.alert("Error", "Course must be in the format LLDDD where L is a letter and D is a digit!");
+      return
+    }
 
     try {
       const response = await axios.post(`${IP}/thread`, {
         threadName,
         year: parseInt(year, 10),
-        course,
+        course: course.toUpperCase(),
       });
 
       if (response.status === 201) {
