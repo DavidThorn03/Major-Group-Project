@@ -4,12 +4,12 @@ import Post from "../models/Post.js"; // Ensure proper model import
 
 const router = express.Router();
 
-// Function to fetch posts with thread details
+// Function to fetch posts with thread details (only non-flagged posts)
 const getPostsWithThreadDetails = async () => {
-  return await Post.find({flagged: false}).exec();
+  return await Post.find({ flagged: false }).exec();
 };
 
-// Get all posts
+// Get all posts (non-flagged posts)
 router.get("/", async (req, res) => {
   console.log("Fetching posts...");
   try {
@@ -34,15 +34,14 @@ router.put("/likes", async (req, res) => {
 
     if (action == -1) {
       updatedQuery = { $pull: { likes: like } };
-    }
-    else {
+    } else {
       updatedQuery = { $push: { likes: like } };
     }
 
     const updatedPost = await Post.findOneAndUpdate(
-      { _id: post }, 
-      updatedQuery, 
-      { new: true }  
+      { _id: post },
+      updatedQuery,
+      { new: true }
     );
 
     if (!updatedPost) {
@@ -57,28 +56,28 @@ router.put("/likes", async (req, res) => {
   }
 });
 
-router.put("/comments", async (req, res) => {   // THIS WORKS FINE, OTHERS ARE PROBLEM
+// Update comments on a post
+router.put("/comments", async (req, res) => {
+  // THIS WORKS FINE, OTHERS ARE PROBLEM
   console.log("Query Parameters:", req.body);
 
   const post = req.body.post;
   const comment = req.body.comment;
   const action = req.body.action;
 
-
   try {
     let updatedQuery = {};
 
     if (action == -1) {
       updatedQuery = { $pull: { comments: comment } };
-    }
-    else {
+    } else {
       updatedQuery = { $push: { comments: comment } };
     }
 
     const updatedPost = await Post.findOneAndUpdate(
-      { _id: post }, 
-      updatedQuery, 
-      { new: true }  
+      { _id: post },
+      updatedQuery,
+      { new: true }
     );
 
     if (!updatedPost) {
@@ -93,6 +92,53 @@ router.put("/comments", async (req, res) => {   // THIS WORKS FINE, OTHERS ARE P
   }
 });
 
+// Get all flagged posts
+router.get("/flagged", async (req, res) => {
+  console.log("Fetching flagged posts...");
+  try {
+    const flaggedPosts = await Post.find({ flagged: true }).exec();
+    res.json(flaggedPosts);
+  } catch (error) {
+    console.error("Error fetching flagged posts:", error);
+    res.status(500).json({ message: "Error fetching flagged posts", error });
+  }
+});
+
+// Approve (unflag) a post
+router.put("/:id/unflag", async (req, res) => {
+  console.log("Unflagging post with id:", req.params.id);
+  try {
+    const updatedPost = await Post.findByIdAndUpdate(
+      req.params.id,
+      { flagged: false },
+      { new: true }
+    );
+    if (!updatedPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    console.log("Post unflagged:", updatedPost);
+    res.json(updatedPost);
+  } catch (error) {
+    console.error("Error unflagging post:", error);
+    res.status(500).json({ message: "Error unflagging post", error });
+  }
+});
+
+// Delete a post
+router.delete("/:id", async (req, res) => {
+  console.log("Deleting post with id:", req.params.id);
+  try {
+    const deletedPost = await Post.findByIdAndDelete(req.params.id);
+    if (!deletedPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    console.log("Post deleted:", deletedPost);
+    res.json({ message: "Post deleted", id: req.params.id });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ message: "Error deleting post", error });
+  }
+});
 
 // Handle real-time post updates via change stream
 const handlePostChangeStream = (io) => {
@@ -100,8 +146,7 @@ const handlePostChangeStream = (io) => {
 
   changeStream.on("change", async (next) => {
     try {
-      //console.log("Change detected in Post collection:", next);
-
+      // If a post is inserted, updated, or deleted, send the updated non-flagged posts list.
       if (
         next.operationType === "insert" ||
         next.operationType === "update" ||
@@ -109,10 +154,9 @@ const handlePostChangeStream = (io) => {
       ) {
         const updatedPosts = await getPostsWithThreadDetails();
         io.emit("update posts", updatedPosts);
-        //console.log("Emitted updated posts");
       }
     } catch (error) {
-      //console.error("Error processing Post change stream:", error);
+      // Handle error silently or log as needed.
     }
   });
 };
