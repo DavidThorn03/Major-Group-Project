@@ -17,7 +17,8 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { Likes } from "./services/updateLikes";
-import io from "socket.io-client";
+import { getPostsByThread } from "./services/getPostsByThread.js";
+import { getPostsByYear } from "./services/getPostsByYear.js";
 import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
 import IP from "../config/IPAddress.js";
@@ -31,7 +32,6 @@ const IndexPage = () => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState([]);
   const [userSearched, setUserSearched] = useState(false);
-  const [socket, setSocket] = useState(null);
 
   const liked = <Icon name="heart" size={25} color="red" />;
   const unliked = <Icon name="hearto" size={25} color="white" />;
@@ -60,9 +60,24 @@ const IndexPage = () => {
     const fetchPosts = async () => {
       try {
         if (userSearched) {
-          const postsData = await getPosts();
-          setPosts(postsData);
-          setLoading(false);
+          if (!user) {
+            const postsData = await getPosts();
+            setPosts(postsData);
+            setLoading(false);
+          }
+          else if (user.threads.length > 0) {
+            const filter = { ids: user.threads };
+            const postsData = await getPostsByThread(filter);
+            setPosts(postsData);
+            setLoading(false);
+          }
+          else {
+            const filter = { year: user.year };
+            const postsData = await getPostsByYear(filter);
+            setPosts(postsData);
+            setLoading(false);
+          }
+
         }
       } catch (err) {
         setError("Failed to load posts.");
@@ -72,27 +87,6 @@ const IndexPage = () => {
 
     fetchPosts();
   }, [userSearched]);
-
-  useEffect(() => {
-    if (socket) {
-      console.log("Disconnecting previous socket before setting up a new one");
-      socket.disconnect();
-    }
-
-    const newSocket = io(IP);
-
-
-    newSocket.on("update posts", (updatePosts) => {
-      console.log("Received updated comments:", updatePosts);
-      setPosts(updatePosts);
-    });
-
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []);
 
   if (loading) {
     return (
@@ -113,11 +107,22 @@ const IndexPage = () => {
   const likePost = async (post) => {
     if (!user) {
       console.log("User not logged in");
-      socket.disconnect();
       navigation.navigate("login");
       return;
     }
     let action;
+
+    const updatedPosts = posts.map((p) => {
+      if (p._id === post._id) {
+        const updatedLikes = p.likes.includes(user.email)
+          ? p.likes.filter((email) => email !== user.email)
+          : [...p.likes, user.email];
+        return { ...p, likes: updatedLikes };
+      }
+      return p;
+    });
+
+    setPosts(updatedPosts);
 
     if (post.likes.includes(user.email)) {
       action = -1;
@@ -149,12 +154,10 @@ const IndexPage = () => {
 
   const navigateToThread = (threadID, threadName) => {
     console.log("Navigating to thread with:", { threadID, threadName });
-    socket.disconnect();
     navigation.navigate("thread", { threadID, threadName });
   };
 
   const ViewPost = (postID, threadName) => {
-    socket.disconnect();
     navigation.navigate("post", { postID, threadName });
   };
 

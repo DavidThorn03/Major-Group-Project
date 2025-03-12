@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { handlePostChangeStream, router as postRoutes } from "./api/post.js";
+import postRoutes from "./api/post.js";
 import { handleCommentChangeStream, router as commentRoutes } from "./api/comment.js";
 import userRoutes from "./api/user.js";
 import threadRoutes from "./api/thread.js";
@@ -29,7 +29,6 @@ app.use("/thread", threadRoutes);
 connectDB();
 
 // Start Real-Time Streams
-handlePostChangeStream(io);
 handleCommentChangeStream(io);
 
 // Error Handling Middleware

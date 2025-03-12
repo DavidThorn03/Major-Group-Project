@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import Post from "../models/Post.js"; // Ensure proper model import
+import Thread from "../models/Thread.js"; // Ensure proper model import
 
 const router = express.Router();
 
@@ -57,7 +58,47 @@ router.put("/likes", async (req, res) => {
   }
 });
 
-router.put("/comments", async (req, res) => {   // THIS WORKS FINE, OTHERS ARE PROBLEM
+router.get("/byThread", async (req, res) => {
+  var ids = req.query.ids;
+  if (typeof ids === "string" && ids.includes(",")) {
+    ids = ids.split(","); 
+  } else if (!Array.isArray(ids)) {
+    ids = [ids]; 
+  }
+
+  if (ids.length === 0) {
+    res.status(400).json({ message: "No valid IDs provided" });
+  }
+  console.log("ids", ids);
+
+  try {
+    const posts = await Post.find({ threadID: { $in: ids }, flagged: false }).exec();
+    console.log("posts", posts);
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "An error occurred while fetching the posts." });
+  }
+
+});
+
+router.get("/byYear", async (req, res) => {
+  const year = req.query.year;
+
+  try {
+    const threadIDs = await Thread.distinct("_id", { year });
+    const posts = await Post.find({ threadID: { $in: threadIDs }, flagged: false }).exec();
+    console.log("posts", posts);
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "An error occurred while fetching the posts." });
+  }
+
+});
+
+
+router.put("/comments", async (req, res) => {   
   console.log("Query Parameters:", req.body);
 
   const post = req.body.post;
@@ -93,28 +134,4 @@ router.put("/comments", async (req, res) => {   // THIS WORKS FINE, OTHERS ARE P
   }
 });
 
-
-// Handle real-time post updates via change stream
-const handlePostChangeStream = (io) => {
-  const changeStream = Post.watch();
-
-  changeStream.on("change", async (next) => {
-    try {
-      //console.log("Change detected in Post collection:", next);
-
-      if (
-        next.operationType === "insert" ||
-        next.operationType === "update" ||
-        next.operationType === "delete"
-      ) {
-        const updatedPosts = await getPostsWithThreadDetails();
-        io.emit("update posts", updatedPosts);
-        //console.log("Emitted updated posts");
-      }
-    } catch (error) {
-      //console.error("Error processing Post change stream:", error);
-    }
-  });
-};
-
-export { handlePostChangeStream, router };
+export default router;

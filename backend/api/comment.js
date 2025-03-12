@@ -43,9 +43,6 @@ router.post("/add", async (req, res) => { // THIS WORKS
   
     try {
       const comments = await Comment.find({ _id: { $in: ids }, flagged: false }).exec();
-      if (!comments || comments.length === 0) {
-        return status(404).json({ message: "No comments found for the provided IDs" });
-      }
       console.log("comments", comments);
       return comments;
     } catch (error) {
@@ -69,9 +66,13 @@ router.post("/add", async (req, res) => { // THIS WORKS
     console.log("Query:", req.body);
     
     const comment = req.body.comment;
+    const replies = req.body.replies;
   
     try {
       const deletedComment = await Comment.findOneAndDelete({ _id: comment });
+      const result = await Comment.deleteMany({ _id: { $in: replies } });
+      console.log("result", result);
+
   
       if (!deletedComment) {
         return res.status(404).json({ message: "No comment found for the provided ID" });

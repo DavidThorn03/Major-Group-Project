@@ -185,6 +185,8 @@ const PostPage = () => {
     } else if (text === "") {
       return;
     }
+    setInput(false);
+    onChangeText("");
     let newComment = { content: text, author: user.email };
 
     try {
@@ -194,9 +196,6 @@ const PostPage = () => {
       const updatedCommentsIDs = [...post.comments, newID];
       const updatedPost = { ...post, comments: updatedCommentsIDs };
       setPost(updatedPost);
-
-      setInput(false);
-      onChangeText("");
     } catch (err) {
       console.error(err);
     }
@@ -285,9 +284,9 @@ const PostPage = () => {
     try {
       const reply = { content: text, author: user.email };
       const filter = { comment: reply, _id: comment._id, action: 1 };
-      const newID = await AddReply(filter);
       setInput(false);
       onChangeText("");
+      const newID = await AddReply(filter);
     } catch (err) {
       console.error(err);
     }
@@ -303,7 +302,7 @@ const PostPage = () => {
     }
     if (parent === null) {
       try {
-        const filter = { comment: comment._id, action: -1, post: post._id };
+        const filter = { comment: comment._id, action: -1, post: post._id, replies: comment.replyid };
         await RemoveComment(filter);
       } catch (err) {
         console.error(err);

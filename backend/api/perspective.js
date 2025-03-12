@@ -10,9 +10,11 @@ const perspectiveAPI = async (comment) => {
     const analyzeRequest = {
       comment: { text: comment },
       requestedAttributes: {
-        SEVERE_TOXICITY: {},
+        TOXICITY: {},
         INSULT: {},
         THREAT: {},
+        SEXUALLY_EXPLICIT: {},
+        IDENTITY_ATTACK: {},
       },
     };
 
@@ -29,7 +31,7 @@ const perspectiveAPI = async (comment) => {
             console.log(JSON.stringify(response.data, null, 2));
             let flag = false;
             for (const attribute in response.data.attributeScores) {
-              if (response.data.attributeScores[attribute].summaryScore.value > 0.6) {
+              if (response.data.attributeScores[attribute].summaryScore.value > 0.4) {
                 flag = true;
                 break;
               }
