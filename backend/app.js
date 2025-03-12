@@ -1,8 +1,11 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import postRoutes from "./api/post.js";
-import { handleCommentChangeStream, router as commentRoutes } from "./api/comment.js";
+import { router as postRoutes } from "./api/post.js";
+import {
+  handleCommentChangeStream,
+  router as commentRoutes,
+} from "./api/comment.js";
 import userRoutes from "./api/user.js";
 import threadRoutes from "./api/thread.js";
 import connectDB from "./connect/db.js";

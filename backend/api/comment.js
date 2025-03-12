@@ -37,26 +37,12 @@ router.post("/add", async (req, res) => {
   }
 });
 
-  const getComments = async ( ids ) => {
-    if (typeof ids === "string" && ids.includes(",")) {
-      ids = ids.split(","); 
-    } else if (!Array.isArray(ids)) {
-      ids = [ids]; 
-    }
-  
-    if (ids.length === 0) {
-      return status(400).json({ message: "No valid IDs provided" });
-    }
-    console.log("ids", ids);
-  
-    try {
-      const comments = await Comment.find({ _id: { $in: ids }, flagged: false }).exec();
-      console.log("comments", comments);
-      return comments;
-    } catch (error) {
-      console.error("Error fetching comments:", error);
-      status(500).json({ message: "An error occurred while fetching the comments." });
-    }
+// Helper function to get comments (only non-flagged)
+const getComments = async (ids) => {
+  if (typeof ids === "string" && ids.includes(",")) {
+    ids = ids.split(",");
+  } else if (!Array.isArray(ids)) {
+    ids = [ids];
   }
 
   if (ids.length === 0) {
@@ -74,28 +60,39 @@ router.post("/add", async (req, res) => {
         .status(404)
         .json({ message: "No comments found for the provided IDs" });
     }
-  });
-  
-  router.delete("/remove", async (req, res) => {
-    console.log("Query:", req.body);
-    
-    const comment = req.body.comment;
-    const replies = req.body.replies;
-  
-    try {
-      const deletedComment = await Comment.findOneAndDelete({ _id: comment });
-      const result = await Comment.deleteMany({ _id: { $in: replies } });
-      console.log("result", result);
+    console.log("comments", comments);
+    return comments;
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    return res.status(500).json({
+      message: "An error occurred while fetching the comments.",
+    });
+  }
+};
 
-  
-      if (!deletedComment) {
-        return res.status(404).json({ message: "No comment found for the provided ID" });
-      }
-  
-      return res.json({ deletedId: deletedComment._id });
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-      res.status(500).json({ message: "An error occurred while deleting the comment." });
+router.get("/comments", async (req, res) => {
+  let ids = req.query.id;
+
+  try {
+    const comments = await getComments(ids);
+    res.json(comments);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching posts", error });
+  }
+});
+
+router.delete("/remove", async (req, res) => {
+  console.log("Query:", req.body);
+
+  const comment = req.body.comment;
+
+  try {
+    const deletedComment = await Comment.findOneAndDelete({ _id: comment });
+
+    if (!deletedComment) {
+      return res
+        .status(404)
+        .json({ message: "No comment found for the provided ID" });
     }
 
     return res.json({ deletedId: deletedComment._id });
