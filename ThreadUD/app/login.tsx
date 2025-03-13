@@ -43,12 +43,15 @@ const LoginScreen = () => {
       Alert.alert("Success", "Logged in successfully!");
       console.log("User logged in:", fetchedUser);
 
-
       // Store user in AsyncStorage (your util automatically stringifies)
       await AsyncStorage.setItem("User", fetchedUser);
 
       // Navigate to the main screen (or index)
-      navigation.navigate("index");
+      if (fetchedUser.admin) {
+        navigation.navigate("adminPosts");
+      } else {
+        navigation.navigate("index");
+      }
     } catch (error) {
       console.error("Error during login:", error);
       Alert.alert("Error", "Something went wrong during login.");

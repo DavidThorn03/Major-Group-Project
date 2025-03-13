@@ -43,6 +43,12 @@ const IndexPage = () => {
         if (userData) {
           setUser(userData);
           console.log("User data:", userData);
+
+          // Check if the user is an admin
+          if (userData.admin) {
+            navigation.navigate("adminPosts");
+            return; // Exit early if navigating
+          }
         } else {
           console.log("No user data found");
           setUser(null);
@@ -64,20 +70,17 @@ const IndexPage = () => {
             const postsData = await getPosts();
             setPosts(postsData);
             setLoading(false);
-          }
-          else if (user.threads.length > 0) {
+          } else if (user.threads.length > 0) {
             const filter = { ids: user.threads };
             const postsData = await getPostsByThread(filter);
             setPosts(postsData);
             setLoading(false);
-          }
-          else {
+          } else {
             const filter = { year: user.year };
             const postsData = await getPostsByYear(filter);
             setPosts(postsData);
             setLoading(false);
           }
-
         }
       } catch (err) {
         setError("Failed to load posts.");

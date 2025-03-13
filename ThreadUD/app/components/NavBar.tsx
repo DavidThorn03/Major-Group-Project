@@ -34,13 +34,11 @@ const NavBar: React.FC = () => {
         await AsyncStorage.removeItem("User");
         setIsLoggedIn(false);
         console.log("User logged out successfully");
-        // Optionally navigate to index or home page
         navigation.navigate("index");
       } catch (error) {
         console.error("Error logging out:", error);
       }
     } else {
-      // Navigate to login page
       navigation.navigate("login");
     }
   };
