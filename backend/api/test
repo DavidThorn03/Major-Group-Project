@@ -1,5 +1,0 @@
-import bcrypt from 'bcrypt';
-const saltRounds = 10;
-  const hash = bcrypt.hashSync("ThreadUDAdmin1", saltRounds);
-
-console.log(hash); // $2b$10$wv3J9J

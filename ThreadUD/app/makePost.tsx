@@ -71,7 +71,12 @@ const MakePostPage = () => {
         const newPost = response.data;
         // Optionally store the newly created post or navigate
         navigation.navigate("post", {postID: newPost._id, threadName: newPost.threadName});
-      } else {
+      } 
+      else if (response.status === 202) {
+        Alert.alert("Post Flagged", "Your post has been flagged for review by a moderator.");
+        navigation.goBack();
+      }
+      else {
         Alert.alert("Error", "Failed to create post.");
       }
     } catch (error) {
