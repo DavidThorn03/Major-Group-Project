@@ -16,6 +16,7 @@
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "gaxios": "^6.7.1",
     "googleapis": "^146.0.0",
@@ -23,7 +24,9 @@
     "mongoose": "^8.11.0",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.10.0",
+    "qrcode": "^1.5.4",
     "socket.io": "^4.8.1",
+    "speakeasy": "^2.0.0",
     "whatwg-url": "latest"
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Switch, View } from "react-native";
 import { Container, Header, Input, Button } from "./components/RegisterStyles";
 import { registerStudent } from "./services/registerStudent";
 import * as AsyncStorage from "../util/AsyncStorage.js";
@@ -10,8 +10,10 @@ const RegisterPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPass, setConfirmPass] = useState("");
   const [year, setYear] = useState("");
   const [course, setCourse] = useState("");
+  const [auth, setAuth] = useState(false);
 
   const handleRegister = async () => {
     console.log("Registering...", name, email, password, year, course);
@@ -28,11 +30,15 @@ const RegisterPage = () => {
       Alert.alert("Error", "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character!");
       return;
     }
+    if (password != confirmPass){
+      Alert.alert("Error", "Passwords do not match!");
+      return;
+    }
     if(year < 1 || year > 4) {
       Alert.alert("Error", "Year must be between 1 and 5!");
       return;
     }
-    regex = /^[A-Za-z]{2}\d{3}$/;
+    var regex = /^[A-Za-z]{2}\d{3}$/;
     if (!regex.test(course)) {
       Alert.alert("Error", "Course must be in the format LLDDD where L is a letter and D is a digit!");
       return
@@ -44,6 +50,7 @@ const RegisterPage = () => {
         password: password.trim(),
         year: parseInt(year, 10),
         course: course.toUpperCase(),
+        auth: auth
       };
 
       console.log("User data being sent:", userData);
@@ -81,8 +88,22 @@ const RegisterPage = () => {
         secureTextEntry
         onChangeText={setPassword}
       />
+      <Input
+        placeholder="Confirm Password"
+        secureTextEntry
+        onChangeText={setConfirmPass}
+      />
       <Input placeholder="Year" keyboardType="numeric" onChangeText={setYear} />
       <Input placeholder="Course" onChangeText={setCourse} />
+      <View style={{ flexDirection: "row" }}>
+      <Switch
+          trackColor={{false: '#767577', true: '#81b0ff'}}
+          thumbColor={auth ? '#f5dd4b' : '#f4f3f4'}
+          onValueChange={() => {setAuth(!auth)}}
+          value={auth}
+        />
+      </View>
+      
       <Button onPress={handleRegister} title="Continue" />
     </Container>
   );
