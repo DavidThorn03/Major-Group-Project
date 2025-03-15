@@ -7,12 +7,13 @@ import Post from "../models/Post.js";
 import Thread from "../models/Thread.js";
 import nodemailer from "nodemailer";
 import emailPass from "../../config/Emailpass.js";
+import verifyOTP from "./verifyOTP.js";
 
 const router = express.Router();
 
 // POST /user/register
 router.post("/register", async (req, res) => {
-  const { userName, email, password, year, course } = req.body;
+  const { userName, email, password, year, course, auth } = req.body;
   const saltRounds = 10;
   const hash = bcrypt.hashSync(password, saltRounds);
 
@@ -34,6 +35,7 @@ router.post("/register", async (req, res) => {
       password: hash,
       year,
       course,
+      auth,
     });
 
     res.status(201).json({
@@ -204,7 +206,7 @@ router.put("/update", async (req, res) => {
   try {
     const updatedUser = await User.findOneAndUpdate(
       { email: email },
-      { userName: update.userName, year: update.year, course: update.course },
+      { userName: update.userName, year: update.year, course: update.course, auth: update.auth },
       { new: true } 
     );
     if (!updatedUser) {	
@@ -297,6 +299,16 @@ router.get("/search", async (req, res) => {
     console.error("Error fetching threads:", error);
     res.status(500).json({ message: "Error fetching threads", error });
   }
+});
+
+router.get("/auth", async (req, res) => {
+  console.log("Query Parameters:", req.query.code);
+
+  const usercode = req.query.code;
+
+  const result = await verifyOTP(usercode);
+  
+  res.json({ result });
 });
 
 

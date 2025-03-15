@@ -54,7 +54,7 @@ const ChangePasswordScreen = () => {
     <Container>
       <Header>Change Password</Header>
       <Text>Enter your old password</Text>
-      <Input placeholder="Password" onChangeText={setPassword} />
+      <Input placeholder="Password" secureTextEntry onChangeText={setPassword} />
       <Button onPress={check} title="Confirm password"/>
     </Container>
   );

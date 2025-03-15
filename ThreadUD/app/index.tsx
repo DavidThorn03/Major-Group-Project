@@ -77,7 +77,6 @@ const IndexPage = () => {
             setPosts(postsData);
             setLoading(false);
           }
-
         }
       } catch (err) {
         setError("Failed to load posts.");
@@ -173,7 +172,6 @@ const IndexPage = () => {
           data={posts}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => {
-            console.log("Post item:", item);
             return (
               <PostCard>
                 <TouchableOpacity
