@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Switch, View } from "react-native";
+import { Alert, Switch, View, Text, Image } from "react-native";
 import { Container, Header, Input, Button } from "./components/RegisterStyles";
 import { registerStudent } from "./services/registerStudent";
 import * as AsyncStorage from "../util/AsyncStorage.js";
@@ -20,7 +20,7 @@ const RegisterPage = () => {
     if (!name || !email || !password || !year || !course) {
       Alert.alert("Error", "All fields are required!");
       return;
-    }
+    }/*
     if(password.length < 9) {
       Alert.alert("Error", "Password must be at least 9 characters long!");
       return;
@@ -29,7 +29,7 @@ const RegisterPage = () => {
     if (!regex.test(password)) {
       Alert.alert("Error", "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character!");
       return;
-    }
+    }*/
     if (password != confirmPass){
       Alert.alert("Error", "Passwords do not match!");
       return;
@@ -95,6 +95,7 @@ const RegisterPage = () => {
       />
       <Input placeholder="Year" keyboardType="numeric" onChangeText={setYear} />
       <Input placeholder="Course" onChangeText={setCourse} />
+      <Text>Enable Google Authentication</Text>
       <View style={{ flexDirection: "row" }}>
       <Switch
           trackColor={{false: '#767577', true: '#81b0ff'}}
@@ -103,7 +104,18 @@ const RegisterPage = () => {
           value={auth}
         />
       </View>
-      
+      {auth && (
+      <View>
+        <Text>Set up google Authentication</Text>
+        <Text>1. Go to Google Authenticator app</Text>
+        <Text>2. Click the '+' button</Text>
+        <Text>3. Click 'Scan QRcode' and scan the code below:</Text>
+        <Image source={require('../assets/images/AuthQR.png')} />
+        <Text>OR</Text>
+        <Text>3. Enter the code below:</Text>
+        <Text>LJXUSZ2XHBTWQZJ4H56TYNJDJA5FOQC6</Text>
+      </View>
+      )}
       <Button onPress={handleRegister} title="Continue" />
     </Container>
   );

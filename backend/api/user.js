@@ -206,7 +206,7 @@ router.put("/update", async (req, res) => {
   try {
     const updatedUser = await User.findOneAndUpdate(
       { email: email },
-      { userName: update.userName, year: update.year, course: update.course },
+      { userName: update.userName, year: update.year, course: update.course, auth: update.auth },
       { new: true } 
     );
     if (!updatedUser) {	

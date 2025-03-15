@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, TextInput, Alert } from "react-native";
-import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { Container, GeneralText } from "./components/LoginStyles";
@@ -42,25 +41,20 @@ const ResetPassord = () => {
   return (
     <Container>
       <GeneralText>Enter your new password</GeneralText>
-      <View style={{ flexDirection: "row" }}>
         <TextInput
           onChangeText={setPassword}
           value={password}
           secureTextEntry
-          placeholder="Enter your code"
+          placeholder="Enter your new password"
           autoFocus={true}
         />
         <TextInput
-          onChangeText={confirmPass}
+          onChangeText={setConfirmPass}
           value={confirmPass}
           secureTextEntry
-          placeholder="Enter your code"
-          autoFocus={true}
+          placeholder="Confirm your new password"
         />
-        <TouchableOpacity onPress={() => reset()}>
-          <Icon name="enter" size={25} />
-        </TouchableOpacity>
-      </View>
+        <Button onPress={reset} title="Reset Password" />
     </Container>
   );
 };
