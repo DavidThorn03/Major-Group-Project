@@ -20,7 +20,7 @@ const RegisterPage = () => {
     if (!name || !email || !password || !year || !course) {
       Alert.alert("Error", "All fields are required!");
       return;
-    }/*
+    }
     if(password.length < 9) {
       Alert.alert("Error", "Password must be at least 9 characters long!");
       return;
@@ -29,7 +29,7 @@ const RegisterPage = () => {
     if (!regex.test(password)) {
       Alert.alert("Error", "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character!");
       return;
-    }*/
+    }
     if (password != confirmPass){
       Alert.alert("Error", "Passwords do not match!");
       return;
@@ -52,7 +52,8 @@ const RegisterPage = () => {
         course: course.toUpperCase(),
         auth: auth
       };
-
+      navigation.navigate("verifyRegister", { user: userData });
+      /*
       console.log("User data being sent:", userData);
 
       const response = await registerStudent(userData);
@@ -65,6 +66,7 @@ const RegisterPage = () => {
       } else {
         Alert.alert("Error", "Registration failed. Please try again.");
       }
+      */
     } catch (error) {
       console.error("Error during registration:", error);
       Alert.alert(

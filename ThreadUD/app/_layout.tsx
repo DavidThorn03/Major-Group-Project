@@ -30,6 +30,7 @@ export default function RootLayout() {
         <Stack.Screen name="updateProfile" />
         <Stack.Screen name="changePassword" />
         <Stack.Screen name="googleAuth" />
+        <Stack.Screen name="verifyRegister" />
       </Stack>
   );
 }

@@ -162,36 +162,48 @@ router.put("/password", async (req, res) => {
   }
 });
 
+const sendEmail = async (email, subject, text) => {
+  var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'threadud123@gmail.com',
+      pass: emailPass
+    }
+  });
+  
+  var mailOptions = {
+    from: '"ThreadUD" <davythornton@gmail.com>',
+    to: email,
+    subject: subject,
+    text: text
+  };
+  
+  transporter.sendMail(mailOptions, function(error, info){
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+
+  return Response.json({message: 'Email sent'})
+
+};
+
+router.get("/confirmRegister", async (req, res) => {
+
+    const user = req.query.email;
+    const code = req.query.code;
+
+    return sendEmail(user, 'Account Confirmation', 'To confirm your account, please enter the following code: ' + code);
+});
+
 router.get("/forgotPassword", async (req, res) => {
 
     const user = req.query.email;
     const code = req.query.code;
-    
-    var transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'threadud123@gmail.com',
-        pass: emailPass
-      }
-    });
-    
-    var mailOptions = {
-      from: '"ThreadUD" <davythornton@gmail.com>',
-      to: user,
-      subject: 'Password Reset',
-      text: 'To reset your password, please enter the following code: ' + code
-    };
-    
-    transporter.sendMail(mailOptions, function(error, info){
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
-    });
-  
-    return Response.json({message: 'Email sent'})
-  
+
+    return sendEmail(user, 'Password Reset', 'To reset your password, please enter the following code: ' + code);
 });
 
 router.put("/update", async (req, res) => {

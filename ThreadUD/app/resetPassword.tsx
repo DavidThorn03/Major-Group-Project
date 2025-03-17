@@ -28,7 +28,7 @@ const ResetPassord = () => {
           return;
         }
     try {
-      const result = await changePassword({ email, password: text });
+      const result = await changePassword({ email, password: password });
       if (result) {
         Alert.alert("Success", "Password changed successfully");
       }
