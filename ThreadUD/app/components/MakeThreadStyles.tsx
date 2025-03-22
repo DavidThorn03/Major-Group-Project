@@ -56,7 +56,7 @@ export const Button = ({ onPress, title }) => (
 export const SubtitleText = ({ children }) => (
   <View
     className="p-4 rounded-lg flex-row justify-center items-center"
-    style={{ backgroundColor: "#0d0430", marginBottom: 11, marginTop: 16 }}
+    style={{ backgroundColor: "#0d0430", marginBottom: 12, marginTop: 12 }}
   >
     <Text
       style={{
