@@ -6,7 +6,8 @@ import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
 import Thread from "../models/Thread.js";
 import nodemailer from "nodemailer";
-import emailPass from "../../config/Emailpass.js";
+import dotenv from "dotenv";
+dotenv.config();
 import verifyOTP from "./verifyOTP.js";
 
 const router = express.Router();
@@ -167,7 +168,7 @@ const sendEmail = async (email, subject, text) => {
     service: 'gmail',
     auth: {
       user: 'threadud123@gmail.com',
-      pass: emailPass
+      pass: process.env.EMAILPASS
     }
   });
   

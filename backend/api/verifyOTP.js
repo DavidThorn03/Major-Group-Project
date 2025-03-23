@@ -1,9 +1,10 @@
-import key from "../../config/AuthKey.js";
+import dotenv from "dotenv";
+dotenv.config();
 import speakeasy from "speakeasy";
 
 const verifyOTP = async (otp) => {
   const verified = speakeasy.totp.verify({
-    secret: key,
+    secret: process.env.AUTHKEY,
     encoding: "base32",
     token: otp,
   });

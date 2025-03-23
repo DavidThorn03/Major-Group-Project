@@ -1,4 +1,5 @@
-import KEY from "../../config/APIKey.js";
+import dotenv from "dotenv";
+dotenv.config();
 import { google } from "googleapis";
 
 const DISCOVERY_URL =
@@ -22,7 +23,7 @@ const perspectiveAPI = async (comment) => {
     return new Promise((resolve, reject) => {
       client.comments.analyze(
         {
-          key: KEY,
+          key: process.env.APIKEY,
           resource: analyzeRequest,
         },
         (err, response) => {
