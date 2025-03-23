@@ -81,11 +81,11 @@ router.get("/byThread", async (req, res) => {
 
 });
 
-router.get("/byYear", async (req, res) => {
-  const year = req.query.year;
+router.get("/byCourse", async (req, res) => {
+  const course = req.query.course;
 
   try {
-    const threadIDs = await Thread.distinct("_id", { year });
+    const threadIDs = await Thread.distinct("_id", { course });
     const posts = await Post.find({ threadID: { $in: threadIDs }, flagged: false }).exec();
     console.log("posts", posts);
     res.json(posts);

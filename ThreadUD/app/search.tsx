@@ -15,14 +15,17 @@ import * as AsyncStorage from "../util/AsyncStorage.js";
 import { TextInput } from "react-native";
 import { searchThreads } from "./services/searchThreads";
 import { getThreads } from "./services/getThreads";
+import { getThreadByCourse } from "./services/getThreadByCourse";
 
 const SearchPage = () => {
   const navigation = useNavigation();
   const [threads, setThreads] = useState([]);
   const [text, onChangeText] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [user, setUser] = useState([]);
   const [userSearched, setUserSearched] = useState(false);
+  const regex = /^TU\d{3}$/;
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -44,7 +47,26 @@ const SearchPage = () => {
   }, []);
 
   useEffect(() => {
-    if (text.length > 2) {
+    if (regex.test(text.toUpperCase())) {
+      const fetchData = async () => {
+        try {
+          const response = await getThreadByCourse({ course: text.toUpperCase() });
+          if (!response || response.length === 0) { 
+            setError("No threads found.");
+            setThreads([]);
+          } else {
+            setError("Threads in course " + text.toUpperCase());
+            setThreads(response);
+          }
+        } catch (error) {
+          console.error("Error fetching search results:", error);
+        }
+      };
+  
+      fetchData();
+    } 
+
+    else if (text.length > 2) {
       const fetchData = async () => {
         try {
           const response = await searchThreads({ name: text });
@@ -52,7 +74,7 @@ const SearchPage = () => {
             setError("No threads found.");
             setThreads([]);
           } else {
-            setError(null);
+            setError("Threads by name");
             setThreads(response);
           }
         } catch (error) {
@@ -71,7 +93,7 @@ const SearchPage = () => {
             setError("No threads found.");
             setThreads([]);
           } else {
-            setError(null);
+            setError("Followed threads:");
             setThreads(response);
           }
         } catch (error) {
@@ -80,6 +102,26 @@ const SearchPage = () => {
       };
       fetchData();
     }
+    else if (user && user.course){
+      const fetchData = async () => {
+        try {
+          const response = await getThreadByCourse({ course: user.course });
+          if (!response || response.length === 0) { 
+            setError("No threads found.");
+            setThreads([]);
+          } else {
+            setError("Threads in your course");
+            setThreads(response);
+          }
+        } catch (error) {
+          console.error("Error fetching search results:", error);
+        }
+      };
+  
+      fetchData();
+    } 
+
+
     else {
       setThreads([]);
       setError("Enter thread to be searched.");
@@ -117,8 +159,8 @@ const SearchPage = () => {
           autoFocus={true}
         />
       </View>
-      {error && <GeneralText>{error}</GeneralText>}
-      {!threads && searched && <GeneralText>No threads found.</GeneralText>}
+      <GeneralText>{error}</GeneralText>
+      {!threads && <GeneralText>No threads found.</GeneralText>}
       {threads.length > 0 && (
         <FlatList
           data={threads}

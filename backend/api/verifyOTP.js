@@ -1,4 +1,4 @@
-import key from "../../config/APIKey.js";
+import key from "../../config/AuthKey.js";
 import speakeasy from "speakeasy";
 
 const verifyOTP = async (otp) => {

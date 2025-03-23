@@ -38,9 +38,10 @@ const RegisterPage = () => {
       Alert.alert("Error", "Year must be between 1 and 5!");
       return;
     }
-    var regex = /^[A-Za-z]{2}\d{3}$/;
+    setCourse(course.toUpperCase());	
+    regex = /^TU\d{3}$/;
     if (!regex.test(course)) {
-      Alert.alert("Error", "Course must be in the format LLDDD where L is a letter and D is a digit!");
+      Alert.alert("Error", "Course must start with 'TU' followed by exactly 3 numbers (e.g., TU123)");
       return
     }
     try {

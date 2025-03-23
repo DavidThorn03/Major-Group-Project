@@ -29,7 +29,8 @@ const MakeThreadPage = () => {
       Alert.alert("Error", "Year must be between 1 and 5!");
       return;
     }
-    const regex = /^[A-Za-z]{2}\d{3}$/;
+    setCourse(course.toUpperCase());
+    const regex = /^[A-Z]{2}\d{3}$/;
     if (!regex.test(course)) {
       Alert.alert("Error", "Course must be in the format LLDDD where L is a letter and D is a digit!");
       return

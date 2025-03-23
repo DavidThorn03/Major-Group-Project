@@ -313,6 +313,19 @@ router.get("/search", async (req, res) => {
   }
 });
 
+router.get("/courseThread", async (req, res) => {
+  console.log("Query Parameters:", req.query);
+  const course = req.query.course;
+
+  try {
+    const threads = await Thread.find({ course: course });
+    res.status(200).json(threads);
+  } catch (error) {
+    console.error("Error fetching threads:", error);
+    res.status(500).json({ message: "Error fetching threads", error });
+  }
+});
+
 router.get("/auth", async (req, res) => {
   console.log("Query Parameters:", req.query.code);
 

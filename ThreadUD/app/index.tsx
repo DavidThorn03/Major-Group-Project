@@ -18,7 +18,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { Likes } from "./services/updateLikes";
 import { getPostsByThread } from "./services/getPostsByThread.js";
-import { getPostsByYear } from "./services/getPostsByYear.js";
+import { getPostsByCourse } from "./services/getPostsByCourse.js";
 import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
 import IP from "../config/IPAddress.js";
@@ -72,8 +72,8 @@ const IndexPage = () => {
             setLoading(false);
           }
           else {
-            const filter = { year: user.year };
-            const postsData = await getPostsByYear(filter);
+            const filter = { course: user.course };
+            const postsData = await getPostsByCourse(filter);
             setPosts(postsData);
             setLoading(false);
           }
