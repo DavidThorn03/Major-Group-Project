@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import {
-  Container,
   Header,
-  PostCard,
+  HeaderText,
+  Container,
   ThreadName,
   GeneralText,
-  Button,
-} from "./components/IndexStyles";
+  Input,
+  PostCard,
+  SubtitleText,
+} from "./components/SearchStyles";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
 import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
-import { TextInput } from "react-native";
 import { searchThreads } from "./services/searchThreads";
 import { getThreads } from "./services/getThreads";
 import { getThreadByCourse } from "./services/getThreadByCourse";
+import BottomNavBar from "./components/BottomNavBar";
 
 const SearchPage = () => {
   const navigation = useNavigation();
@@ -50,8 +52,10 @@ const SearchPage = () => {
     if (regex.test(text.toUpperCase())) {
       const fetchData = async () => {
         try {
-          const response = await getThreadByCourse({ course: text.toUpperCase() });
-          if (!response || response.length === 0) { 
+          const response = await getThreadByCourse({
+            course: text.toUpperCase(),
+          });
+          if (!response || response.length === 0) {
             setError("No threads found.");
             setThreads([]);
           } else {
@@ -62,15 +66,13 @@ const SearchPage = () => {
           console.error("Error fetching search results:", error);
         }
       };
-  
-      fetchData();
-    } 
 
-    else if (text.length > 2) {
+      fetchData();
+    } else if (text.length > 2) {
       const fetchData = async () => {
         try {
           const response = await searchThreads({ name: text });
-          if (!response || response.length === 0) { 
+          if (!response || response.length === 0) {
             setError("No threads found.");
             setThreads([]);
           } else {
@@ -81,10 +83,9 @@ const SearchPage = () => {
           console.error("Error fetching search results:", error);
         }
       };
-  
+
       fetchData();
-    } 
-    else if(user && user.threads && user.threads.length > 0) {  
+    } else if (user && user.threads && user.threads.length > 0) {
       const fetchData = async () => {
         try {
           const filter = { threadIDs: user.threads };
@@ -101,12 +102,11 @@ const SearchPage = () => {
         }
       };
       fetchData();
-    }
-    else if (user && user.course){
+    } else if (user && user.course) {
       const fetchData = async () => {
         try {
           const response = await getThreadByCourse({ course: user.course });
-          if (!response || response.length === 0) { 
+          if (!response || response.length === 0) {
             setError("No threads found.");
             setThreads([]);
           } else {
@@ -117,21 +117,17 @@ const SearchPage = () => {
           console.error("Error fetching search results:", error);
         }
       };
-  
+
       fetchData();
-    } 
-
-
-    else {
+    } else {
       setThreads([]);
       setError("Enter thread to be searched.");
     }
   }, [text, userSearched]);
-  
 
   const displayThread = (thread) => {
     return (
-      <Container>
+      <PostCard>
         <TouchableOpacity
           onPress={() => navigateToThread(thread._id, thread.threadName)}
         >
@@ -139,7 +135,7 @@ const SearchPage = () => {
           <GeneralText>Year: {thread.year}</GeneralText>
           <GeneralText>Course: {thread.course}</GeneralText>
         </TouchableOpacity>
-      </Container>
+      </PostCard>
     );
   };
 
@@ -150,12 +146,15 @@ const SearchPage = () => {
 
   return (
     <Container>
-      <Header>Welcome to the ThreadUD</Header>
+      <Header>
+        <HeaderText>Search for a Thread</HeaderText>
+      </Header>
+      <SubtitleText>Search by Thread Name or Course Code</SubtitleText>
       <View style={{ flexDirection: "row" }}>
-        <TextInput
+        <Input
           onChangeText={onChangeText}
           value={text}
-          placeholder="Add a comment"
+          placeholder="Search..."
           autoFocus={true}
         />
       </View>
@@ -164,12 +163,11 @@ const SearchPage = () => {
       {threads.length > 0 && (
         <FlatList
           data={threads}
-          renderItem={({ item }) => (
-            <Container>{displayThread(item)}</Container>
-          )}
+          renderItem={({ item }) => displayThread(item)}
           keyExtractor={(item) => item._id}
         />
       )}
+      <BottomNavBar />
     </Container>
   );
 };
