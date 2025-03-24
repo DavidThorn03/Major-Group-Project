@@ -2,40 +2,62 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
 export const Container = ({ children }) => (
-  <View className="flex-1 p-2" style={{ backgroundColor: "#3a4b5c" }}>
+  <View
+    className="flex-1 p-2"
+    style={{ backgroundColor: "#3a4b5c", paddingTop: 70 }}
+  >
     {children}
   </View>
 );
 
 export const Header = ({ children }) => (
   <View
-    className="p-4 flex-row justify-between items-center"
-    style={{ backgroundColor: "#1a2b61" }}
+    className="flex-row justify-between items-center"
+    style={{
+      backgroundColor: "#1a2b61",
+      marginBottom: 14,
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 64,
+    }}
   >
     {children}
   </View>
 );
 
 export const HeaderText = ({ children }) => (
-  <Text style={{ color: "white", fontSize: 20, fontWeight: "bold" }}>
-    {children}
-  </Text>
+  <View style={{ alignItems: "center" }}>
+    <Text
+      style={{
+        color: "white",
+        fontSize: 20,
+        fontWeight: "bold",
+        paddingLeft: 16,
+      }}
+    >
+      {children}
+    </Text>
+  </View>
 );
 
 export const JoinButton = ({ onPress, joined }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    style={{
-      backgroundColor: joined ? "grey" : "red",
-      padding: 10,
-      borderRadius: 5,
-      marginLeft: 10,
-    }}
-  >
-    <Text style={{ color: "white", fontWeight: "bold" }}>
-      {joined ? "Joined" : "Join"}
-    </Text>
-  </TouchableOpacity>
+  <View style={{ paddingRight: 17 }}>
+    <TouchableOpacity
+      onPress={onPress}
+      style={{
+        backgroundColor: joined ? "grey" : "red",
+        padding: 11,
+        borderRadius: 5,
+        marginLeft: 10,
+      }}
+    >
+      <Text style={{ color: "white", fontWeight: "bold" }}>
+        {joined ? "Joined" : "Join"}
+      </Text>
+    </TouchableOpacity>
+  </View>
 );
 
 export const PostCard = ({ children }) => (

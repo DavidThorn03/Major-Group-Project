@@ -3,8 +3,16 @@ import { View, Text, TextInput, TouchableOpacity } from "react-native";
 
 export const Header = ({ children }) => (
   <View
-    className="p-4 flex-row justify-center items-center"
-    style={{ backgroundColor: "#1a2b61", marginBottom: 14 }}
+    className="flex-row justify-center items-center"
+    style={{
+      backgroundColor: "#1a2b61",
+      marginBottom: 14,
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 64,
+    }}
   >
     {children}
   </View>
@@ -21,7 +29,7 @@ export const HeaderText = ({ children }) => (
 export const Container = ({ children }) => (
   <View
     className="flex-1 p-2"
-    style={{ padding: 16, backgroundColor: "#3a4b5c" }}
+    style={{ backgroundColor: "#3a4b5c", paddingTop: 100 }}
   >
     {children}
   </View>
@@ -73,7 +81,7 @@ export const PostCard = ({ children }) => (
 export const SubtitleText = ({ children }) => (
   <View
     className="p-4 rounded-lg flex-row justify-center items-center"
-    style={{ backgroundColor: "#0d0430", marginBottom: 24 }}
+    style={{ backgroundColor: "#0d0430", marginBottom: 12 }}
   >
     <Text
       style={{
