@@ -23,3 +23,4 @@ backend/node_modules/
 
 expo-env.d.ts
 # @end expo-cli
+backend/env
