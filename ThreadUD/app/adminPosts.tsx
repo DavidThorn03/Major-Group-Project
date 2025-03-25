@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import IP from "../config/IPAddress.js";
+import AdminNav from "./components/AdminNav";
 
 const SERVER_URL = IP;
 
@@ -18,20 +19,13 @@ interface Post {
   author: string;
 }
 
-interface Comment {
-  _id: string;
-  content: string;
-  author: string;
-}
-
-const AdminScreen: React.FC = () => {
+const AdminPostsScreen: React.FC = () => {
   const [flaggedPosts, setFlaggedPosts] = useState<Post[]>([]);
-  const [flaggedComments, setFlaggedComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchFlaggedPosts = async () => {
     try {
-      const res = await fetch(`${SERVER_URL}/api/posts/flagged`);
+      const res = await fetch(`${SERVER_URL}/post/flagged`);
       if (!res.ok) {
         throw new Error(`Error: ${res.statusText}`);
       }
@@ -43,40 +37,20 @@ const AdminScreen: React.FC = () => {
     }
   };
 
-  const fetchFlaggedComments = async () => {
-    try {
-      const res = await fetch(`${SERVER_URL}/api/comments/flagged`);
-      if (!res.ok) {
-        throw new Error(`Error: ${res.statusText}`);
-      }
-      const data = await res.json();
-      setFlaggedComments(data);
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Unable to fetch flagged comments.");
-    }
-  };
-
-  const loadFlaggedItems = async () => {
-    setLoading(true);
-    await Promise.all([fetchFlaggedPosts(), fetchFlaggedComments()]);
-    setLoading(false);
-  };
-
   useEffect(() => {
-    loadFlaggedItems();
+    setLoading(true);
+    fetchFlaggedPosts().finally(() => setLoading(false));
   }, []);
 
   const handleApprovePost = async (id: string) => {
     try {
-      const res = await fetch(`${SERVER_URL}/api/posts/${id}/unflag`, {
+      const res = await fetch(`${SERVER_URL}/post/${id}/unflag`, {
         method: "PUT",
       });
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText);
       }
-      // Remove approved post from state
       setFlaggedPosts((prev) => prev.filter((post) => post._id !== id));
     } catch (error) {
       console.error(error);
@@ -86,56 +60,15 @@ const AdminScreen: React.FC = () => {
 
   const handleDeletePost = async (id: string) => {
     try {
-      const res = await fetch(`${SERVER_URL}/api/posts/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`${SERVER_URL}/post/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText);
       }
-      // Remove deleted post from state
       setFlaggedPosts((prev) => prev.filter((post) => post._id !== id));
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "Unable to delete post.");
-    }
-  };
-
-  const handleApproveComment = async (id: string) => {
-    try {
-      const res = await fetch(`${SERVER_URL}/api/comments/${id}/unflag`, {
-        method: "PUT",
-      });
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText);
-      }
-      // Remove approved comment from state
-      setFlaggedComments((prev) =>
-        prev.filter((comment) => comment._id !== id)
-      );
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Unable to approve comment.");
-    }
-  };
-
-  const handleDeleteComment = async (id: string) => {
-    try {
-      const res = await fetch(`${SERVER_URL}/api/comments/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText);
-      }
-      // Remove deleted comment from state
-      setFlaggedComments((prev) =>
-        prev.filter((comment) => comment._id !== id)
-      );
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Unable to delete comment.");
     }
   };
 
@@ -149,30 +82,18 @@ const AdminScreen: React.FC = () => {
     </View>
   );
 
-  const renderCommentItem = ({ item }: { item: Comment }) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemContent}>{item.content}</Text>
-      <View style={styles.buttonRow}>
-        <Button
-          title="Approve"
-          onPress={() => handleApproveComment(item._id)}
-        />
-        <Button title="Delete" onPress={() => handleDeleteComment(item._id)} />
-      </View>
-    </View>
-  );
-
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
-        <Text>Loading flagged items...</Text>
+        <Text>Loading flagged posts...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
+      <AdminNav currentScreen="adminPosts" />
       <Text style={styles.header}>Flagged Posts</Text>
       {flaggedPosts.length === 0 ? (
         <Text style={styles.emptyText}>No flagged posts found.</Text>
@@ -181,18 +102,6 @@ const AdminScreen: React.FC = () => {
           data={flaggedPosts}
           keyExtractor={(item) => item._id}
           renderItem={renderPostItem}
-          contentContainerStyle={styles.listContainer}
-        />
-      )}
-
-      <Text style={styles.header}>Flagged Comments</Text>
-      {flaggedComments.length === 0 ? (
-        <Text style={styles.emptyText}>No flagged comments found.</Text>
-      ) : (
-        <FlatList
-          data={flaggedComments}
-          keyExtractor={(item) => item._id}
-          renderItem={renderCommentItem}
           contentContainerStyle={styles.listContainer}
         />
       )}
@@ -240,4 +149,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AdminScreen;
+export default AdminPostsScreen;
