@@ -40,6 +40,11 @@ const LoginScreen = () => {
         return;
       }
 
+      if (fetchedUser.auth){
+        navigation.navigate("googleAuth", {user: fetchedUser});
+        return;
+      }
+
       Alert.alert("Success", "Logged in successfully!");
       console.log("User logged in:", fetchedUser);
 

@@ -25,14 +25,23 @@ const MakeThreadPage = () => {
       Alert.alert("Error", "All fields are required!");
       return;
     }
-    if(year < 1 || year > 4) {
-      Alert.alert("Error", "Year must be between 1 and 5!");
+    if (threadName.length > 24) {
+      Alert.alert("Error", "Thread name cannot exceed 24 characters!");
       return;
     }
-    const regex = /^[A-Za-z]{2}\d{3}$/;
+    if (year < 1 || year > 4) {
+      Alert.alert("Error", "Year must be between 1 and 4!");
+      return;
+    }
+    setCourse(course.toUpperCase());
+    const regex = /^TU\d{3}$/;
+
     if (!regex.test(course)) {
-      Alert.alert("Error", "Course must be in the format LLDDD where L is a letter and D is a digit!");
-      return
+      Alert.alert(
+        "Error",
+        "Course must start with 'TU' followed by exactly 3 numbers (e.g., TU123)"
+      );
+      return;
     }
 
     try {
@@ -61,9 +70,10 @@ const MakeThreadPage = () => {
       </Header>
       <SubtitleText>Please use the same name as the module name</SubtitleText>
       <Input
-        placeholder="Thread Name"
+        placeholder="Thread Name (max 24 chars)"
         onChangeText={setThreadName}
         value={threadName}
+        maxLength={24}
       />
       <Input
         placeholder="Year of Study"
@@ -71,7 +81,12 @@ const MakeThreadPage = () => {
         onChangeText={setYear}
         value={year}
       />
-      <Input placeholder="Course" onChangeText={setCourse} value={course} />
+      <Input
+        placeholder="Course (TU###)"
+        onChangeText={setCourse}
+        value={course}
+        maxLength={5}
+      />
       <Button onPress={handleCreateThread} title="Create Thread" />
       <BottomNavBar />
     </Container>

@@ -31,6 +31,9 @@ export default function RootLayout() {
       <Stack.Screen name="changePassword" />
       <Stack.Screen name="adminPosts" />
       <Stack.Screen name="adminComments" />
-    </Stack>
+      <Stack.Screen name="googleAuth" />
+      <Stack.Screen name="verifyRegister" />
+      </Stack>
+
   );
 }

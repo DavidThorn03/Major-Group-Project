@@ -77,6 +77,9 @@ router.post("/:threadID/posts", async (req, res) => {
       flagged,
     });
     await post.save();
+    if (flagged) {
+      return res.status(202).json(post);
+    }
     res.status(201).json(post);
   } catch (error) {
     console.error("Error creating post:", error);

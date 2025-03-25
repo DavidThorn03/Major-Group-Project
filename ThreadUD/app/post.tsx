@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
+  Alert,
 } from "react-native";
 import {
   Container,
@@ -192,10 +193,10 @@ const PostPage = () => {
     try {
       const commentFilters = { comment: newComment, author: user.email };
       const postFilters = { post: post._id, action: 1 };
-      const newID = await AddComment(commentFilters, postFilters);
-      const updatedCommentsIDs = [...post.comments, newID];
-      const updatedPost = { ...post, comments: updatedCommentsIDs };
-      setPost(updatedPost);
+      const response = await AddComment(commentFilters, postFilters);
+      if (response.flagged) {
+        Alert.alert("Commment flagged", "Your comment was flagged as inappropriate and may not be added.");
+      }
     } catch (err) {
       console.error(err);
     }
@@ -286,7 +287,10 @@ const PostPage = () => {
       const filter = { comment: reply, _id: comment._id, action: 1 };
       setInput(false);
       onChangeText("");
-      const newID = await AddReply(filter);
+      const response = await AddReply(filter);
+      if(response.flagged) {
+        Alert.alert("Reply flagged", "Your reply was flagged as inappropriate and may not be added.");
+      }
     } catch (err) {
       console.error(err);
     }

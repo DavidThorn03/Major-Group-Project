@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
 import Post from "../models/Post.js"; // Ensure the Post model is properly imported
-import connectString from "../../config/DataBase.js";
-
+import dotenv from "dotenv";
+dotenv.config();
 // Function to connect to MongoDB
 const connectDB = async () => {
   try {
-    await mongoose.connect(
-      connectString
-    );
+    await mongoose.connect(process.env.CONNECTSTRING);
     console.log("MongoDB connected successfully");
   } catch (error) {
     console.error("MongoDB connection error:", error.message);

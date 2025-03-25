@@ -1,15 +1,6 @@
 import React from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 
-export const Container = ({ children }) => (
-  <View
-    className="flex-1 p-2"
-    style={{ backgroundColor: "#3a4b5c", paddingTop: 100 }}
-  >
-    {children}
-  </View>
-);
-
 export const Header = ({ children }) => (
   <View
     className="flex-row justify-center items-center"
@@ -35,33 +26,56 @@ export const HeaderText = ({ children }) => (
   </View>
 );
 
+export const Container = ({ children }) => (
+  <View
+    className="flex-1 p-2"
+    style={{ backgroundColor: "#3a4b5c", paddingTop: 100 }}
+  >
+    {children}
+  </View>
+);
+
+export const ThreadName = ({ children }) => (
+  <Text
+    style={{
+      fontSize: 18,
+      fontWeight: "bold",
+      marginBottom: 8,
+      color: "white",
+    }}
+  >
+    {children}
+  </Text>
+);
+
+export const GeneralText = ({ children }) => (
+  <Text style={{ fontSize: 14, color: "#666", marginBottom: 4 }}>
+    {children}
+  </Text>
+);
+
 export const Input = (props) => (
   <TextInput
-    {...props}
     style={{
-      height: 48,
+      height: 40,
+      borderColor: "#ddd",
       borderWidth: 1,
-      borderColor: "#d1d5db",
+      borderRadius: 8,
+      padding: 8,
+      flex: 1,
       marginBottom: 16,
-      paddingHorizontal: 8,
-      borderRadius: 4,
-      backgroundColor: "white",
     }}
+    {...props}
   />
 );
 
-export const Button = ({ onPress, title }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    style={{
-      backgroundColor: "#007bff",
-      padding: 12,
-      borderRadius: 4,
-      alignItems: "center",
-    }}
+export const PostCard = ({ children }) => (
+  <View
+    className="p-4 my-2 rounded-lg shadow-md"
+    style={{ backgroundColor: "#0d0430" }}
   >
-    <Text style={{ color: "white", fontWeight: "bold" }}>{title}</Text>
-  </TouchableOpacity>
+    {children}
+  </View>
 );
 
 export const SubtitleText = ({ children }) => (

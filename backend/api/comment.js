@@ -28,7 +28,7 @@ router.post("/add", async (req, res) => {
       likes: [],
       flagged: flagged,
     });
-    return res.json(comment._id);
+    return res.json({comment: comment._id, flagged: flagged});
   } catch (error) {
     console.error("Error fetching comments:", error);
     res.status(500).json({
@@ -244,6 +244,14 @@ router.delete("/:id", async (req, res) => {
     if (!deletedComment) {
       return res.status(404).json({ message: "Comment not found" });
     }
+    await Post.updateMany(
+      { comments: req.params.id }, 
+      { $pull: { comments: req.params.id } } 
+    );
+    await Comment.updateMany(
+      { replyid: req.params.id }, 
+      { $pull: { replyid: req.params.id } } 
+    );
     console.log("Comment deleted:", deletedComment);
     res.json({ message: "Comment deleted", id: req.params.id });
   } catch (error) {

@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
       ref: "Thread",
       default: [],
     },
+    auth: { type: Boolean, default: false },
   },
   {
     collection: "User", // Explicitly define collection name to avoid pluralization issues
