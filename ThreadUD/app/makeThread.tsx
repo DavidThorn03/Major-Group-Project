@@ -21,7 +21,7 @@ const MakeThreadPage = () => {
   const [course, setCourse] = useState("");
 
   const handleCreateThread = async () => {
-    if (!threadName || !year || !course) {
+    if (!threadName || threadName.trim().length == 0 || !year || !course) {
       Alert.alert("Error", "All fields are required!");
       return;
     }
@@ -36,7 +36,7 @@ const MakeThreadPage = () => {
     setCourse(course.toUpperCase());
     const regex = /^TU\d{3}$/;
 
-    if (!regex.test(course)) {
+    if (!regex.test(course.toUpperCase())) {
       Alert.alert(
         "Error",
         "Course must start with 'TU' followed by exactly 3 numbers (e.g., TU123)"

@@ -47,21 +47,32 @@ const UpdateProfileScreen = () => {
       return;
     }
     
-    if (name === oldUser.userName && year === oldUser.year && course === oldUser.course && auth === oldUser.auth) {
+    if (name.trim() == oldUser.userName && year == oldUser.year && course.trim().toUpperCase() == oldUser.course && auth == oldUser.auth) {
       Alert.alert("Error", "Profile info is unchanged, please try again.");
       return;
+    }
+
+    if(year < 1 || year > 4) {
+      Alert.alert("Error", "Year must be between 1 and 4!");
+      return;
+    }
+
+    var regex = /^TU\d{3}$/;
+    if (!regex.test(course.trim().toUpperCase())) {	
+      Alert.alert("Error", "Course must start with 'TU' followed by exactly 3 numbers (e.g., TU123)");
+      return
     }
     
     try {
       var newUser = {}
-      if(!(name == "" && name != oldUser.userName)) {
-        newUser.userName = name;
+      if(!(name.trim() == "" && name != oldUser.userName)) {
+        newUser.userName = name.trim();
       }
       if(!(year == "" && year != oldUser.year)) {
         newUser.year = year;
       }
-      if(!(course == "" && course != oldUser.course)) {
-        newUser.course = course;
+      if(!(course.trim() == "" && course != oldUser.course)) {
+        newUser.course = course.trim().toUpperCase();
       }
       if(auth != oldUser.auth) {
         newUser.auth = auth;

@@ -46,7 +46,7 @@ const MakePostPage = () => {
   }, []);
 
   const handlePost = async () => {
-    if (!selectedThread || !body) {
+    if (!selectedThread || !body || body.trim().length === 0) {
       Alert.alert("Error", "Please select a thread and enter some text.");
       return;
     }

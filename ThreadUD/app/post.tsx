@@ -183,7 +183,9 @@ const PostPage = () => {
       socket.disconnect();
       navigation.navigate("login");
       return;
-    } else if (text === "") {
+    } else if (text.trim() === "") {
+      onChangeText("");
+      Alert.alert("Error", "Comment cannot be empty.");
       return;
     }
     setInput(false);
@@ -278,7 +280,9 @@ const PostPage = () => {
       socket.disconnect();
       navigation.navigate("login");
       return;
-    } else if (text === "") {
+    } else if (text.trim() === "") {
+      onChangeText("");
+      Alert.alert("Error", "Reply cannot be empty.");
       return;
     }
 
@@ -358,10 +362,14 @@ const PostPage = () => {
                 {getCommentLike(item)}
               </TouchableOpacity>
               <GeneralText> {item.likes.length} </GeneralText>
+              {!comment && 
+              <View style={{ flexDirection: "row" }}>
               <TouchableOpacity onPress={() => enterReply(item)}>
                 <Icon name="message1" size={15} />
               </TouchableOpacity>
               <GeneralText> {item.replyid.length} </GeneralText>
+              </View>
+            }
               {user && item.author === user.email && (
                 <TouchableOpacity onPress={() => deleteComment(item, comment)}>
                   <Icon name="delete" size={20} color="red" />

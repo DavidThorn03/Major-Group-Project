@@ -17,11 +17,11 @@ const RegisterPage = () => {
 
   const handleRegister = async () => {
     console.log("Registering...", name, email, password, year, course);
-    if (!name || !email || !password || !year || !course) {
+    if (name.trim() === "" || email.trim() === "" || password.trim() === "" || confirmPass.trim() === "" || year.trim() === "" || course.trim() === "") {
       Alert.alert("Error", "All fields are required!");
       return;
     }
-    if(password.length < 9) {
+    if(password.trim().length < 9) {
       Alert.alert("Error", "Password must be at least 9 characters long!");
       return;
     }
@@ -30,27 +30,27 @@ const RegisterPage = () => {
       Alert.alert("Error", "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character!");
       return;
     }
-    if (password != confirmPass){
+    if (password.trim() != confirmPass){
       Alert.alert("Error", "Passwords do not match!");
       return;
     }
     if(year < 1 || year > 4) {
-      Alert.alert("Error", "Year must be between 1 and 5!");
+      Alert.alert("Error", "Year must be between 1 and 4!");
       return;
     }
     setCourse(course.toUpperCase());	
     regex = /^TU\d{3}$/;
-    if (!regex.test(course)) {
+    if (!regex.test(course.trim().toUpperCase())) {
       Alert.alert("Error", "Course must start with 'TU' followed by exactly 3 numbers (e.g., TU123)");
       return
     }
     try {
       const userData = {
         userName: name.trim(),
-        email: email.toLowerCase(),
+        email: email.toLowerCase().trim(),
         password: password.trim(),
         year: parseInt(year, 10),
-        course: course.toUpperCase(),
+        course: course.toUpperCase().trim(),
         auth: auth
       };
       navigation.navigate("verifyRegister", { user: userData });
