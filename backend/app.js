@@ -10,6 +10,9 @@ import userRoutes from "./api/user.js";
 import threadRoutes from "./api/thread.js";
 import connectDB from "./connect/db.js";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+
 
 const app = express();
 const server = http.createServer(app);
@@ -27,6 +30,17 @@ app.use("/post", postRoutes);
 app.use("/user", userRoutes);
 app.use("/comment", commentRoutes);
 app.use("/thread", threadRoutes);
+// Define __dirname manually
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static files from 'public' folder
+app.use(express.static(path.join(__dirname, "public")));
+
+// Route to serve account deletion page
+app.get("/delete-account", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "deleteuser.html"));
+});
 
 // Database Connection
 connectDB();
