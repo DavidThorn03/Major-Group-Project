@@ -23,7 +23,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ currentScreen }) => {
   // Handle logout button press
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem("userToken");
+      await AsyncStorage.removeItem("User");
       Alert.alert("Logged out", "You have been logged out.");
       navigation.navigate("login");
     } catch (error) {

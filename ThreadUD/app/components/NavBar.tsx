@@ -65,6 +65,7 @@ const NavBar: React.FC = () => {
       >
         <TouchableOpacity
           style={{ flexDirection: "row", alignItems: "center" }}
+          onPress={() => navigation.navigate("index")}
         >
           <Image
             source={require("../../assets/images/ThreadUD-logo.png")}

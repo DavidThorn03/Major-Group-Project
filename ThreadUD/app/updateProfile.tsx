@@ -28,9 +28,7 @@ const UpdateProfileScreen = () => {
           console.log("User data:", userData);
         } else {
           console.log("No user data found");
-          setName("");
-          setYear("");
-          setCourse("");
+          navigation.navigate("login");
         }
       } catch (err) {
         console.error(err);

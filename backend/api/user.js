@@ -173,7 +173,7 @@ const sendEmail = async (email, subject, text) => {
   });
   
   var mailOptions = {
-    from: '"ThreadUD" <davythornton@gmail.com>',
+    from: '"ThreadUD" <threadud123@gmail.com>',
     to: email,
     subject: subject,
     text: text
@@ -240,7 +240,7 @@ router.get("/posts", async (req, res) => {
   const author = req.query.author;
 
   try {
-    const posts = await Post.find({ author: author }).exec();
+    const posts = await Post.find({ author: author, flagged: false }).exec();
     if (!posts) {
       return res.status(404).json({ message: "Posts not found." });
     }

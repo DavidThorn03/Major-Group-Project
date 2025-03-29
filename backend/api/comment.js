@@ -55,16 +55,11 @@ const getComments = async (ids) => {
       _id: { $in: ids },
       flagged: false,
     }).exec();
-    if (!comments || comments.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No comments found for the provided IDs" });
-    }
     console.log("comments", comments);
     return comments;
   } catch (error) {
     console.error("Error fetching comments:", error);
-    return res.status(500).json({
+    return status(500).json({
       message: "An error occurred while fetching the comments.",
     });
   }
