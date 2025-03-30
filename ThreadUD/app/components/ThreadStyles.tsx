@@ -70,7 +70,9 @@ export const PostCard = ({ children }) => (
 );
 
 export const Author = ({ children }) => (
-  <Text className="font-bold text-lg text-white">{children}</Text>
+  <Text className="font-bold text-lg text-white" style={{ color: "green" }}>
+    {children}
+  </Text>
 );
 
 export const Timestamp = ({ children }) => (

@@ -98,3 +98,5 @@ export const SubtitleText = ({ children }) => (
     </Text>
   </View>
 );
+
+export const ListFooterSpace = () => <View style={{ height: 63.5 }} />;

@@ -45,7 +45,12 @@ export const Timestamp = ({ children }) => (
 );
 
 export const Author = ({ children }) => (
-  <Text className="text-sm text-gray-500 mb-3 mt-1">{children}</Text>
+  <Text
+    className="text-sm mb-3 mt-1"
+    style={{ fontSize: 13, color: "green", opacity: 0.7 }}
+  >
+    {children}
+  </Text>
 );
 
 export const PostContent = ({ children }) => (

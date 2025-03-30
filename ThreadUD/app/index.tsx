@@ -75,8 +75,7 @@ const IndexPage = () => {
             const postsData = await getPostsByThread(filter);
             setPosts(postsData);
             setLoading(false);
-          }
-          else {
+          } else {
             const filter = { course: user.course };
             const postsData = await getPostsByCourse(filter);
             setPosts(postsData);
@@ -191,13 +190,13 @@ const IndexPage = () => {
                 >
                   <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
                   <PostContent>{item.content}</PostContent>
-                  <Author>Author: {item.author}</Author>
+                  <Author>{item.author.split("@")[0]}</Author>
                   <View style={{ flexDirection: "row" }}>
                     <TouchableOpacity onPress={() => likePost(item)}>
                       {getLike(item)}
                     </TouchableOpacity>
                     <GeneralText> {item.likes.length} </GeneralText>
-                    <View style={{ paddingHorizontal: 5 }} />
+                    <View style={{ paddingHorizontal: 4 }} />
                     <TouchableOpacity
                       onPress={() => ViewPost(item._id, item.threadName)}
                     >

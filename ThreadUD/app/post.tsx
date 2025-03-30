@@ -10,6 +10,7 @@ import {
 import {
   Container,
   PostCard,
+  CommentCard,
   ThreadName,
   Timestamp,
   GeneralText,
@@ -17,6 +18,8 @@ import {
   Author,
   Button,
   CommentInput,
+  CommentHeader,
+  ListFooterSpace,
 } from "./components/PostStyles";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
@@ -33,6 +36,8 @@ import io from "socket.io-client";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import IP from "../config/IPAddress.js";
+import BottomNavBar from "./components/BottomNavBar";
+import NavBar from "./components/NavBar";
 
 const PostPage = () => {
   const navigation = useNavigation();
@@ -49,9 +54,9 @@ const PostPage = () => {
   const { postID, threadName } = route.params || {};
 
   const postLiked = <Icon name="heart" size={25} color="red" />;
-  const postUnliked = <Icon name="hearto" size={25} color="red" />;
-  const liked = <Icon name="heart" size={15} color="red" />;
-  const unliked = <Icon name="hearto" size={15} color="red" />;
+  const postUnliked = <Icon name="hearto" size={25} color="white" />;
+  const liked = <Icon name="heart" size={25} color="red" />;
+  const unliked = <Icon name="hearto" size={25} color="white" />;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -116,7 +121,6 @@ const PostPage = () => {
         socket.disconnect();
       }
       const newSocket = io(IP, {
-
         query: { post: post._id },
       });
 
@@ -197,7 +201,10 @@ const PostPage = () => {
       const postFilters = { post: post._id, action: 1 };
       const response = await AddComment(commentFilters, postFilters);
       if (response.flagged) {
-        Alert.alert("Commment flagged", "Your comment was flagged as inappropriate and may not be added.");
+        Alert.alert(
+          "Commment flagged",
+          "Your comment was flagged as inappropriate and may not be added."
+        );
       }
     } catch (err) {
       console.error(err);
@@ -292,8 +299,11 @@ const PostPage = () => {
       setInput(false);
       onChangeText("");
       const response = await AddReply(filter);
-      if(response.flagged) {
-        Alert.alert("Reply flagged", "Your reply was flagged as inappropriate and may not be added.");
+      if (response.flagged) {
+        Alert.alert(
+          "Reply flagged",
+          "Your reply was flagged as inappropriate and may not be added."
+        );
       }
     } catch (err) {
       console.error(err);
@@ -310,7 +320,12 @@ const PostPage = () => {
     }
     if (parent === null) {
       try {
-        const filter = { comment: comment._id, action: -1, post: post._id, replies: comment.replyid };
+        const filter = {
+          comment: comment._id,
+          action: -1,
+          post: post._id,
+          replies: comment.replyid,
+        };
         await RemoveComment(filter);
       } catch (err) {
         console.error(err);
@@ -354,22 +369,24 @@ const PostPage = () => {
       <FlatList
         data={comments}
         renderItem={({ item }) => (
-          <PostCard>
+          <CommentCard>
+            <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
             <GeneralText>{item.content}</GeneralText>
-            <GeneralText>Author: {item.author}</GeneralText>
+            <Author>{item.author.split("@")[0]}</Author>
             <View style={{ flexDirection: "row" }}>
               <TouchableOpacity onPress={() => likeComment(item)}>
                 {getCommentLike(item)}
               </TouchableOpacity>
               <GeneralText> {item.likes.length} </GeneralText>
-              {!comment && 
-              <View style={{ flexDirection: "row" }}>
-              <TouchableOpacity onPress={() => enterReply(item)}>
-                <Icon name="message1" size={15} />
-              </TouchableOpacity>
-              <GeneralText> {item.replyid.length} </GeneralText>
-              </View>
-            }
+              <View style={{ paddingHorizontal: 4 }} />
+              {!comment && (
+                <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity onPress={() => enterReply(item)}>
+                    <Icon name="message1" size={25} color="white" />
+                  </TouchableOpacity>
+                  <GeneralText> {item.replyid.length} </GeneralText>
+                </View>
+              )}
               {user && item.author === user.email && (
                 <TouchableOpacity onPress={() => deleteComment(item, comment)}>
                   <Icon name="delete" size={20} color="red" />
@@ -401,7 +418,7 @@ const PostPage = () => {
                 />
               </View>
             )}
-          </PostCard>
+          </CommentCard>
         )}
         keyExtractor={(item) => item._id}
       />
@@ -410,24 +427,30 @@ const PostPage = () => {
 
   return (
     <Container>
-      <TouchableOpacity onPress={() => navigateToThread()}>
-        <GeneralText>{post.threadName}</GeneralText>
-      </TouchableOpacity>
-      <Timestamp>{dayjs(post.createdAt).fromNow()}</Timestamp>
-      <GeneralText>{post.content}</GeneralText>
-      <GeneralText>Author: {post.author}</GeneralText>
-      <View style={{ flexDirection: "row" }}>
-        <TouchableOpacity onPress={() => likePost()}>
-          {getPostLike()}
+      <NavBar />
+      <PostCard>
+        <TouchableOpacity onPress={() => navigateToThread()}>
+          <ThreadName>{post.threadName}</ThreadName>
         </TouchableOpacity>
-        <GeneralText> {post.likes ? post.likes.length : 0} </GeneralText>
-
-        <TouchableOpacity onPress={() => commentInput()}>
-          <Icon name="message1" size={25} />
-        </TouchableOpacity>
-        <GeneralText> {post.comments ? post.comments.length : 0} </GeneralText>
-      </View>
-      <GeneralText>Comments</GeneralText>
+        <Timestamp>{dayjs(post.createdAt).fromNow()}</Timestamp>
+        <GeneralText>{post.content}</GeneralText>
+        <Author>{post.author.split("@")[0]}</Author>
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity onPress={() => likePost()}>
+            {getPostLike()}
+          </TouchableOpacity>
+          <GeneralText> {post.likes ? post.likes.length : 0} </GeneralText>
+          <View style={{ paddingHorizontal: 4 }} />
+          <TouchableOpacity onPress={() => commentInput()}>
+            <Icon name="message1" size={25} color="white" />
+          </TouchableOpacity>
+          <GeneralText>
+            {" "}
+            {post.comments ? post.comments.length : 0}{" "}
+          </GeneralText>
+        </View>
+      </PostCard>
+      <CommentHeader>Comments</CommentHeader>
       {input && (
         <View style={{ flexDirection: "row" }}>
           <CommentInput
@@ -441,7 +464,13 @@ const PostPage = () => {
           </TouchableOpacity>
         </View>
       )}
-      {printComments(comments, null)}
+      <FlatList
+        data={comments}
+        renderItem={({ item }) => printComments([item], null)}
+        keyExtractor={(item) => item._id}
+        ListFooterComponent={<ListFooterSpace />}
+      />
+      <BottomNavBar />
     </Container>
   );
 };

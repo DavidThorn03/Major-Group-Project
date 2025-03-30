@@ -174,7 +174,7 @@ const Thread = () => {
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => navigateToPost(item._id)}>
             <PostCard>
-              <Author>{item.author}</Author>
+              <Author>{item.author.split("@")[0]}</Author>
               <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
               <Content>{item.content}</Content>
               <ButtonContainer>
@@ -186,7 +186,7 @@ const Thread = () => {
                 </Text>
                 <TouchableOpacity
                   onPress={() => navigateToPost(item._id)}
-                  style={{ marginLeft: 15 }}
+                  style={{ marginLeft: 12 }}
                 >
                   <Icon name="message1" size={25} color="white" />
                 </TouchableOpacity>
