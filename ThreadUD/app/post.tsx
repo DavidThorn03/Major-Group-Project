@@ -17,6 +17,7 @@ import {
   PostContent,
   Author,
   Button,
+  Button2,
   CommentInput,
   CommentHeader,
   ListFooterSpace,
@@ -412,7 +413,7 @@ const PostPage = () => {
             {item.replies && (
               <View>
                 {printComments(item.replies, item)}
-                <Button
+                <Button2
                   title="Hide Replies"
                   onPress={() => hideReplies(item)}
                 />

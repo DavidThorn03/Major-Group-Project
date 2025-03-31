@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import Icon from "react-native-vector-icons/AntDesign";
+import Icon2 from "react-native-vector-icons/MaterialCommunityIcons";
 
 export const Container = ({ children }) => (
   <View
@@ -91,14 +92,28 @@ export const Button = ({ onPress, title }) => (
   <TouchableOpacity
     onPress={onPress}
     style={{
-      backgroundColor: "#1a2b61",
-      padding: 12,
-      borderRadius: 8,
+      flexDirection: "row",
       alignItems: "center",
-      marginVertical: 8,
+      gap: 5,
+      marginTop: 10,
     }}
   >
-    <Text style={{ color: "white", fontWeight: "bold" }}>{title}</Text>
+    <Text style={{ color: "white", fontSize: 13 }}>{title}</Text>
+    <Icon name="down" color="white" style={{ marginBottom: -6 }} />
+  </TouchableOpacity>
+);
+
+export const Button2 = ({ onPress, title }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={{
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+    }}
+  >
+    <Text style={{ color: "white", fontSize: 13 }}>{title}</Text>
+    <Icon name="up" color="white" style={{ marginBottom: -6 }} />
   </TouchableOpacity>
 );
 
@@ -129,11 +144,11 @@ export const CommentHeader = ({ children }) => (
     className="p-4 rounded-lg flex-row justify-center items-center"
     style={{ backgroundColor: "#0d0430", marginTop: 6 }}
   >
-    <Icon
-      name="down"
-      size={15}
+    <Icon2
+      name="tilde"
+      size={16}
       color="red"
-      style={{ marginBottom: -7, marginRight: 3 }}
+      style={{ marginBottom: -6, marginRight: 3 }}
     />
     <Text
       style={{
@@ -148,11 +163,11 @@ export const CommentHeader = ({ children }) => (
     >
       {children}
     </Text>
-    <Icon
-      name="down"
-      size={15}
+    <Icon2
+      name="tilde"
+      size={16}
       color="red"
-      style={{ marginBottom: -7, marginLeft: 3 }}
+      style={{ marginBottom: -6, marginLeft: 3 }}
     />
   </View>
 );
