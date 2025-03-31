@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   FlatList,
   View,
@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   Text,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
 } from "react-native";
 import {
   Container,
@@ -19,11 +22,23 @@ import {
   Button,
   Button2,
   CommentInput,
+  ReplyInput,
   CommentHeader,
   ListFooterSpace,
+  DeleteButton,
+  ReplyDeleteButton,
+  ReplyInputContainer,
+  ReplyInputHeader,
+  ReplyingToText,
+  ReplyInputWrapper,
+  ReplySubmitButton,
+  BottomNavContainer,
+  CommentInputContainer,
+  CommentInputWrapper,
 } from "./components/PostStyles";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
+import Icon2 from "react-native-vector-icons/Entypo";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { Likes } from "./services/updateLikes";
 import { CommentLikes } from "./services/updateCommentLikes";
@@ -53,6 +68,9 @@ const PostPage = () => {
   const [socket, setSocket] = useState(null);
   const route = useRoute();
   const { postID, threadName } = route.params || {};
+  const flatListRef = useRef(null);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [activeReplyComment, setActiveReplyComment] = useState(null);
 
   const postLiked = <Icon name="heart" size={25} color="red" />;
   const postUnliked = <Icon name="hearto" size={25} color="white" />;
@@ -136,6 +154,26 @@ const PostPage = () => {
       };
     }
   }, [postSearched, post?._id]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -283,6 +321,16 @@ const PostPage = () => {
     setInput(!input);
   };
 
+  const enterReply = (comment) => {
+    setActiveReplyComment(comment);
+    onChangeText("");
+  };
+
+  const dismissReply = () => {
+    setActiveReplyComment(null);
+    onChangeText("");
+  };
+
   const reply = async (comment) => {
     if (!user) {
       socket.disconnect();
@@ -297,7 +345,7 @@ const PostPage = () => {
     try {
       const reply = { content: text, author: user.email };
       const filter = { comment: reply, _id: comment._id, action: 1 };
-      setInput(false);
+      setActiveReplyComment(null);
       onChangeText("");
       const response = await AddReply(filter);
       if (response.flagged) {
@@ -346,17 +394,6 @@ const PostPage = () => {
     }
   };
 
-  const enterReply = (comment) => {
-    comment.replyInput = true;
-    const updatedComments = comments.map((c) => {
-      if (c._id === comment._id) {
-        c.replyInput = true;
-      }
-      return c;
-    });
-    setComments(updatedComments);
-  };
-
   const navigateToThread = () => {
     socket.disconnect();
     navigation.navigate("thread", {
@@ -388,25 +425,16 @@ const PostPage = () => {
                   <GeneralText> {item.replyid.length} </GeneralText>
                 </View>
               )}
-              {user && item.author === user.email && (
-                <TouchableOpacity onPress={() => deleteComment(item, comment)}>
-                  <Icon name="delete" size={20} color="red" />
-                </TouchableOpacity>
-              )}
+              {user &&
+                item.author === user.email &&
+                (comment ? (
+                  <ReplyDeleteButton
+                    onPress={() => deleteComment(item, comment)}
+                  />
+                ) : (
+                  <DeleteButton onPress={() => deleteComment(item, comment)} />
+                ))}
             </View>
-            {item.replyInput && (
-              <View style={{ flexDirection: "row" }}>
-                <CommentInput
-                  onChangeText={onChangeText}
-                  value={text}
-                  placeholder="Reply to comment"
-                  autoFocus={true}
-                />
-                <TouchableOpacity onPress={() => reply(item)}>
-                  <Icon name="plus" size={25} />
-                </TouchableOpacity>
-              </View>
-            )}
             {item.replyid.length > 0 && !item.replies && (
               <Button title="View Replies" onPress={() => getReplies(item)} />
             )}
@@ -427,52 +455,136 @@ const PostPage = () => {
   };
 
   return (
-    <Container>
-      <NavBar />
-      <PostCard>
-        <TouchableOpacity onPress={() => navigateToThread()}>
-          <ThreadName>{post.threadName}</ThreadName>
-        </TouchableOpacity>
-        <Timestamp>{dayjs(post.createdAt).fromNow()}</Timestamp>
-        <GeneralText>{post.content}</GeneralText>
-        <Author>{post.author.split("@")[0]}</Author>
-        <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity onPress={() => likePost()}>
-            {getPostLike()}
-          </TouchableOpacity>
-          <GeneralText> {post.likes ? post.likes.length : 0} </GeneralText>
-          <View style={{ paddingHorizontal: 4 }} />
-          <TouchableOpacity onPress={() => commentInput()}>
-            <Icon name="message1" size={25} color="white" />
-          </TouchableOpacity>
-          <GeneralText>
-            {" "}
-            {post.comments ? post.comments.length : 0}{" "}
-          </GeneralText>
-        </View>
-      </PostCard>
-      <CommentHeader>Comments</CommentHeader>
-      {input && (
-        <View style={{ flexDirection: "row" }}>
-          <CommentInput
-            onChangeText={onChangeText}
-            value={text}
-            placeholder="Add a comment"
-            autoFocus={true}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
+    >
+      <View style={{ flex: 1, backgroundColor: "#3a4b5c" }}>
+        <Container>
+          <NavBar />
+          <PostCard>
+            <TouchableOpacity onPress={() => navigateToThread()}>
+              <ThreadName>{post.threadName}</ThreadName>
+            </TouchableOpacity>
+            <Timestamp>{dayjs(post.createdAt).fromNow()}</Timestamp>
+            <GeneralText>{post.content}</GeneralText>
+            <Author>{post.author.split("@")[0]}</Author>
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity onPress={() => likePost()}>
+                {getPostLike()}
+              </TouchableOpacity>
+              <GeneralText> {post.likes ? post.likes.length : 0} </GeneralText>
+              <View style={{ paddingHorizontal: 4 }} />
+              <TouchableOpacity onPress={() => commentInput()}>
+                <Icon name="message1" size={25} color="white" />
+              </TouchableOpacity>
+              <GeneralText>
+                {" "}
+                {post.comments ? post.comments.length : 0}{" "}
+              </GeneralText>
+            </View>
+          </PostCard>
+          <CommentHeader>Comments</CommentHeader>
+          {input && (
+            <CommentInputContainer
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                paddingBottom: isKeyboardVisible
+                  ? 15
+                  : Platform.OS === "ios"
+                  ? 25
+                  : 10,
+              }}
+            >
+              <ReplyInputHeader>
+                <ReplyingToText>
+                  Commenting on: {post.author?.split("@")[0]}'s post
+                </ReplyingToText>
+                <TouchableOpacity onPress={() => setInput(false)}>
+                  <Icon name="close" size={20} color="white" />
+                </TouchableOpacity>
+              </ReplyInputHeader>
+              <CommentInputWrapper>
+                <CommentInput
+                  onChangeText={onChangeText}
+                  value={text}
+                  placeholder="Add a comment"
+                  autoFocus={true}
+                />
+                <ReplySubmitButton onPress={() => addComment()}>
+                  <Icon2 name="reply" size={30} color="green" />
+                </ReplySubmitButton>
+              </CommentInputWrapper>
+            </CommentInputContainer>
+          )}
+          <FlatList
+            ref={flatListRef}
+            data={comments}
+            renderItem={({ item }) => printComments([item], null)}
+            keyExtractor={(item) => item._id}
+            ListFooterComponent={<ListFooterSpace />}
+            onScrollToIndexFailed={(info) => {
+              const wait = new Promise((resolve) => setTimeout(resolve, 500));
+              wait.then(() => {
+                if (flatListRef.current) {
+                  flatListRef.current.scrollToIndex({
+                    index: info.index,
+                    animated: true,
+                    viewPosition: 0.1,
+                  });
+                }
+              });
+            }}
           />
-          <TouchableOpacity onPress={() => addComment()}>
-            <Icon name="plus" size={25} />
-          </TouchableOpacity>
-        </View>
-      )}
-      <FlatList
-        data={comments}
-        renderItem={({ item }) => printComments([item], null)}
-        keyExtractor={(item) => item._id}
-        ListFooterComponent={<ListFooterSpace />}
-      />
-      <BottomNavBar />
-    </Container>
+        </Container>
+        {!isKeyboardVisible && !activeReplyComment && (
+          <BottomNavContainer>
+            <BottomNavBar />
+          </BottomNavContainer>
+        )}
+
+        {activeReplyComment && (
+          <ReplyInputContainer
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              paddingBottom: isKeyboardVisible
+                ? 15
+                : Platform.OS === "ios"
+                ? 25
+                : 10,
+            }}
+          >
+            <ReplyInputHeader>
+              <ReplyingToText>
+                Replying to: {activeReplyComment.author?.split("@")[0]}
+              </ReplyingToText>
+              <TouchableOpacity onPress={dismissReply}>
+                <Icon name="close" size={20} color="white" />
+              </TouchableOpacity>
+            </ReplyInputHeader>
+            <ReplyInputWrapper>
+              <ReplyInput
+                onChangeText={onChangeText}
+                value={text}
+                placeholder="Reply to comment"
+                autoFocus={true}
+                style={{ flex: 1 }}
+              />
+              <ReplySubmitButton onPress={() => reply(activeReplyComment)}>
+                <Icon2 name="reply" size={30} color="green" />
+              </ReplySubmitButton>
+            </ReplyInputWrapper>
+          </ReplyInputContainer>
+        )}
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
