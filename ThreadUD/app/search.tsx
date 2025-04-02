@@ -9,6 +9,7 @@ import {
   Input,
   PostCard,
   SubtitleText,
+  ListFooterSpace,
 } from "./components/SearchStyles";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
@@ -165,6 +166,7 @@ const SearchPage = () => {
           data={threads}
           renderItem={({ item }) => displayThread(item)}
           keyExtractor={(item) => item._id}
+          ListFooterComponent={<ListFooterSpace />}
         />
       )}
       <BottomNavBar />

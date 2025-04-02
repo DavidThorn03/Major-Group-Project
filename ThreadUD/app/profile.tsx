@@ -12,6 +12,7 @@ import {
   Timestamp,
   PostContent,
   Author,
+  ListFooterSpace,
 } from "./components/ProfileStyles";
 import { NavigatorContext } from "expo-router/build/views/Navigator.js";
 import { useNavigation } from "@react-navigation/native";
@@ -188,6 +189,9 @@ const ProfileScreen = () => {
             </PostCard>
           );
         }}
+        ListFooterComponent={<ListFooterSpace />}
+        showsVerticalScrollIndicator={true}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
     );
   };
@@ -214,6 +218,9 @@ const ProfileScreen = () => {
             </Container>
           );
         }}
+        ListFooterComponent={<ListFooterSpace />}
+        showsVerticalScrollIndicator={true}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
     );
   };
