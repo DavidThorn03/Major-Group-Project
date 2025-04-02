@@ -213,7 +213,7 @@ export const Author = ({ children }: AuthorProps) => (
     className="text-sm mb-3 mt-1"
     style={{ fontSize: 13, color: "green", opacity: 0.7 }}
   >
-    {typeof children === "string" ? children.split("@")[0] : children}
+    {children}
   </Text>
 );
 
