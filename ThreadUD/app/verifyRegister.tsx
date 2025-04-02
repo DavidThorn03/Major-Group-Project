@@ -15,25 +15,26 @@ const VerifyRegister = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const sendEmail = async () => {
-        const code = Math.floor(1000 + Math.random() * 9000);
-        console.log("Generated code:", code);
-        setCode(code);
-
-        console.log("Sending email...");
-        console.log(code);
-
-        try {
-        const filter = { email: user.email, code: code };
-        const result = confirmRegister(filter);
-        console.log("Email sent to:", text.toLowerCase());
-        } catch (error) {
-        console.error("Error sending email:", error);
-        }
-        setText("");
-        };
         sendEmail();
   }, []);
+
+  const sendEmail = async () => {
+    const code = Math.floor(1000 + Math.random() * 9000);
+    console.log("Generated code:", code);
+    setCode(code);
+
+    console.log("Sending email...");
+    console.log(code);
+
+    try {
+    const filter = { email: user.email, code: code };
+    const result = confirmRegister(filter);
+    console.log("Email sent to:", text.toLowerCase());
+    } catch (error) {
+    console.error("Error sending email:", error);
+    }
+    setText("");
+    };
 
   const verify = async () => {
     if (parseInt(text) === code) {
