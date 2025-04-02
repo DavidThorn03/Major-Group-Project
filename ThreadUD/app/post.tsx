@@ -71,6 +71,8 @@ const PostPage = () => {
   const flatListRef = useRef(null);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [activeReplyComment, setActiveReplyComment] = useState(null);
+  const [showingReply, setShowingReply] = useState({});
+
 
   const postLiked = <Icon name="heart" size={25} color="red" />;
   const postUnliked = <Icon name="hearto" size={25} color="white" />;
@@ -296,26 +298,44 @@ const PostPage = () => {
     }
   };
 
-  const getReplies = async (comment) => {
-    const replies = await getComments({ id: comment.replyid });
-    const updatedComments = comments.map((c) => {
-      if (c._id === comment._id) {
-        c.replies = replies;
-      }
-      return c;
-    });
-    setComments(updatedComments);
+  const replyVisibility = async (comment) => {
+    if (showingReply[comment._id]) {
+      setShowingReply((prev) => ({ ...prev, [comment._id]: false }));
+    } else {
+      await getReplies(comment); 
+      setShowingReply((prev) => ({ ...prev, [comment._id]: true }));
+    }
   };
+  
 
-  const hideReplies = (comment) => {
-    const updatedComments = comments.map((c) => {
-      if (c._id === comment._id) {
-        c.replies = null;
-      }
-      return c;
-    });
-    setComments(updatedComments);
+  const recursiveSearch = async (comment) => {
+    if (!comment.replyid || comment.replyid.length === 0) return [];
+  
+    const replies = await getComments({ id: comment.replyid });
+  
+    for (let reply of replies) {
+      reply.replies = await recursiveSearch(reply);
+    }
+  
+    return replies;
   };
+  
+  const getReplies = async (comment) => {
+    try {
+      const nestedReplies = await recursiveSearch(comment);
+  
+      const updatedComments = comments.map((c) => {
+        if (c._id === comment._id) {
+          return { ...c, replies: nestedReplies };
+        }
+        return c;
+      });
+  
+      setComments(updatedComments);
+    } catch (err) {
+      console.error("Error fetching nested replies:", err);
+    }
+  };  
 
   const commentInput = () => {
     setInput(!input);
@@ -417,14 +437,10 @@ const PostPage = () => {
               </TouchableOpacity>
               <GeneralText> {item.likes.length} </GeneralText>
               <View style={{ paddingHorizontal: 4 }} />
-              {!comment && (
-                <View style={{ flexDirection: "row" }}>
-                  <TouchableOpacity onPress={() => enterReply(item)}>
-                    <Icon name="message1" size={25} color="white" />
-                  </TouchableOpacity>
-                  <GeneralText> {item.replyid.length} </GeneralText>
-                </View>
-              )}
+              <TouchableOpacity onPress={() => enterReply(item)}>
+                <Icon name="message1" size={25} color="white" />
+              </TouchableOpacity>
+              <GeneralText> {item.replyid.length} </GeneralText>
               {user &&
                 item.author === user.email &&
                 (comment ? (
@@ -435,15 +451,17 @@ const PostPage = () => {
                   <DeleteButton onPress={() => deleteComment(item, comment)} />
                 ))}
             </View>
-            {item.replyid.length > 0 && !item.replies && (
-              <Button title="View Replies" onPress={() => getReplies(item)} />
+  
+            {item.replyid.length > 0 && !showingReply[item._id] && (
+              <Button title="View Replies" onPress={() => replyVisibility(item)} />
             )}
-            {item.replies && (
+            
+            {showingReply[item._id] && (
               <View>
                 {printComments(item.replies, item)}
                 <Button2
                   title="Hide Replies"
-                  onPress={() => hideReplies(item)}
+                  onPress={() => replyVisibility(item)}
                 />
               </View>
             )}
@@ -453,6 +471,7 @@ const PostPage = () => {
       />
     );
   };
+  
 
   return (
     <KeyboardAvoidingView

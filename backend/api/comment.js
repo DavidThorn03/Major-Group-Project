@@ -265,7 +265,7 @@ const handleCommentChangeStream = (io) => {
 
     const handleCommentChange = async (next) => {
       try {
-        if (next.operationType === "update") {
+        if (next.operationType === "update" || next.operationType === "delete") {
           const post = await getSinglePost(id);
           if (!post) return;
 
