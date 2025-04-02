@@ -27,6 +27,10 @@ interface PostCardProps {
   children: ReactNode;
 }
 
+interface ThreadCardProps {
+  children: ReactNode;
+}
+
 interface ThreadNameProps {
   children: ReactNode;
 }
@@ -57,6 +61,15 @@ interface ButtonProps {
   style?: string;
 }
 
+interface UserInfoProps {
+  children: ReactNode;
+}
+
+interface UserInfoItemProps {
+  label: string;
+  value: string;
+}
+
 export const Container = ({ children }: ContainerProps) => (
   <View
     style={{
@@ -71,7 +84,7 @@ export const Container = ({ children }: ContainerProps) => (
 );
 
 export const Header = ({ children }: HeaderProps) => {
-  const navigation = useNavigation<any>(); // Using any temporarily to fix the error
+  const navigation = useNavigation<any>(); // using any temporarily to fix the error
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Check if user is logged in
@@ -167,8 +180,28 @@ export const PostCard = ({ children }: PostCardProps) => (
   </View>
 );
 
+export const ThreadCard = ({ children }: ThreadCardProps) => (
+  <View
+    style={{
+      backgroundColor: "#0d0430",
+      borderRadius: 8,
+      padding: 16,
+      marginVertical: 8,
+      shadowColor: "#000",
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+    }}
+  >
+    {children}
+  </View>
+);
+
 export const ThreadName = ({ children }: ThreadNameProps) => (
   <Text className="text-2xl font-bold text-white">{children}</Text>
+);
+
+export const ThreadInfo = ({ children }: GeneralTextProps) => (
+  <Text className="text-base text-white mb-2">{children}</Text>
 );
 
 export const Timestamp = ({ children }: TimestampProps) => (
@@ -180,7 +213,7 @@ export const Author = ({ children }: AuthorProps) => (
     className="text-sm mb-3 mt-1"
     style={{ fontSize: 13, color: "green", opacity: 0.7 }}
   >
-    {children}
+    {typeof children === "string" ? children.split("@")[0] : children}
   </Text>
 );
 
@@ -192,8 +225,18 @@ export const ButtonContainer = ({ children }: ButtonContainerProps) => (
   <View className="mt-4 items-center">{children}</View>
 );
 
-export const GeneralText = ({ children }: GeneralTextProps) => (
-  <Text className="text-base text-white">{children}</Text>
+export const ButtonGroupContainer = ({ children }: ButtonContainerProps) => (
+  <View
+    style={{
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: 16,
+      gap: 10,
+    }}
+  >
+    {children}
+  </View>
 );
 
 export const Button = ({ onPress, title, style }: ButtonProps) => (
@@ -206,3 +249,42 @@ export const Button = ({ onPress, title, style }: ButtonProps) => (
 );
 
 export const ListFooterSpace = () => <View style={{ height: 63 }} />;
+
+export const UserInfo = ({ children }: UserInfoProps) => (
+  <View
+    style={{
+      backgroundColor: "#1B1711",
+      borderRadius: 8,
+      padding: 16,
+      marginTop: 12,
+      shadowColor: "#000",
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+    }}
+  >
+    {children}
+  </View>
+);
+
+export const UserInfoItem = ({ label, value }: UserInfoItemProps) => (
+  <View style={{ flexDirection: "row", marginBottom: 8 }}>
+    <Text
+      style={{ color: "#a0a0a0", fontWeight: "bold", width: 75, fontSize: 16 }}
+    >
+      {label}:
+    </Text>
+    <Text style={{ color: "white", flex: 1, fontSize: 17, fontWeight: "bold" }}>
+      {value}
+    </Text>
+  </View>
+);
+
+export const GeneralText = ({ children }: GeneralTextProps) => (
+  <Text className="text-base text-white">{children}</Text>
+);
+
+export const PostActionsContainer = ({ children }: ButtonContainerProps) => (
+  <View style={{ flexDirection: "row" }}>{children}</View>
+);
+
+export const PostActionSpacer = () => <View style={{ paddingHorizontal: 5 }} />;

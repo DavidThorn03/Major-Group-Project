@@ -13,6 +13,13 @@ import {
   PostContent,
   Author,
   ListFooterSpace,
+  ThreadCard,
+  ThreadInfo,
+  UserInfo,
+  UserInfoItem,
+  ButtonGroupContainer,
+  PostActionsContainer,
+  PostActionSpacer,
 } from "./components/ProfileStyles";
 import { NavigatorContext } from "expo-router/build/views/Navigator.js";
 import { useNavigation } from "@react-navigation/native";
@@ -174,27 +181,28 @@ const ProfileScreen = () => {
                 <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
                 <PostContent>{item.content}</PostContent>
                 <Author>Author: {item.author}</Author>
-                <View style={{ flexDirection: "row" }}>
+                <PostActionsContainer>
                   <TouchableOpacity onPress={() => likePost(item)}>
                     {getLike(item)}
                   </TouchableOpacity>
                   <GeneralText> {item.likes.length} </GeneralText>
-                  <View style={{ paddingHorizontal: 5 }} />
+                  <PostActionSpacer />
                   <TouchableOpacity onPress={() => ViewPost(item)}>
                     <Icon name="message1" size={25} color="white" />
                   </TouchableOpacity>
                   <GeneralText> {item.comments.length} </GeneralText>
-                </View>
+                </PostActionsContainer>
               </TouchableOpacity>
             </PostCard>
           );
         }}
         ListFooterComponent={<ListFooterSpace />}
         showsVerticalScrollIndicator={true}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        style={{ flex: 1 }}
       />
     );
   };
+
   const displayThread = () => {
     if (threads.length === 0) {
       return <GeneralText>You arent following any threads!</GeneralText>;
@@ -207,20 +215,21 @@ const ProfileScreen = () => {
         renderItem={({ item }) => {
           console.log("Thread item:", item);
           return (
-            <Container>
+            <ThreadCard>
               <TouchableOpacity
                 onPress={() => navigateToThread(item._id, item.threadName)}
               >
                 <ThreadName>{item.threadName}</ThreadName>
-                <GeneralText>Year: {item.year}</GeneralText>
-                <GeneralText>Course: {item.course}</GeneralText>
+                <ThreadInfo>Year: {item.year}</ThreadInfo>
+                <ThreadInfo>Course: {item.course}</ThreadInfo>
               </TouchableOpacity>
-            </Container>
+            </ThreadCard>
           );
         }}
         ListFooterComponent={<ListFooterSpace />}
         showsVerticalScrollIndicator={true}
         contentContainerStyle={{ paddingBottom: 20 }}
+        style={{ flex: 1 }}
       />
     );
   };
@@ -239,31 +248,35 @@ const ProfileScreen = () => {
       <Header>
         <HeaderText>Profile Page</HeaderText>
       </Header>
-      <View>
-        <Text>User Name: {user.userName}</Text>
-        <Text>Email: {user.email}</Text>
-        <Text>Course: {user.course}</Text>
-        <Text>Year: {user.year}</Text>
-        <Button title="Log Out" onPress={logOut} style={{ marginTop: 8 }} />
-        <View style={{ flexDirection: "row" }}>
+      <View style={{ flex: 1 }}>
+        <UserInfo>
+          <UserInfoItem label="Name" value={user.userName} />
+          <UserInfoItem label="Email" value={user.email} />
+          <UserInfoItem label="Course" value={user.course} />
+          <UserInfoItem label="Year" value={user.year} />
+        </UserInfo>
+        <ButtonGroupContainer>
           <Button
             title="My Posts"
             onPress={() => setPostsActive(true)}
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 0 }}
           />
           <Button
             title="Threads"
             onPress={() => setPostsActive(false)}
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 0 }}
           />
           <Button
             title="Update Profile"
             onPress={() => navigation.navigate("updateProfile")}
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 0 }}
           />
-        </View>
-        {postsActive && <View>{displayPosts()}</View>}
-        {!postsActive && <View>{displayThread()}</View>}
+        </ButtonGroupContainer>
+        {postsActive ? (
+          <View style={{ flex: 1 }}>{displayPosts()}</View>
+        ) : (
+          <View style={{ flex: 1 }}>{displayThread()}</View>
+        )}
       </View>
       <BottomNavBar />
     </Container>
