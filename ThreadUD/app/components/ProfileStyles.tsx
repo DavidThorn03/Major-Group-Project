@@ -64,6 +64,7 @@ interface ButtonProps {
   onPress: () => void;
   title: string;
   style?: string;
+  isActive?: boolean;
 }
 
 interface UserInfoProps {
@@ -260,12 +261,16 @@ export const ButtonGroupContainer = ({ children }: ButtonContainerProps) => (
   </View>
 );
 
-export const Button = ({ onPress, title, style }: ButtonProps) => (
+export const Button = ({ onPress, title, style, isActive }: ButtonProps) => (
   <TouchableOpacity
-    className={`bg-blue-500 p-4 rounded-lg items-center my-2 ${style}`}
+    className={`p-4 rounded-lg items-center my-2 ${style} ${
+      isActive ? "bg-blue-700 border-2 border-black" : "bg-blue-500"
+    }`}
     onPress={onPress}
   >
-    <Text className="text-white font-bold">{title}</Text>
+    <Text className={`text-white font-bold ${isActive ? "text-lg" : ""}`}>
+      {title}
+    </Text>
   </TouchableOpacity>
 );
 

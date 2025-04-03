@@ -160,7 +160,7 @@ const ProfileScreen = () => {
     if (posts.length === 0) {
       return (
         <GeneralText>
-          No posts available. Start by creating a new post!
+          No posts available.{"\n"}Start by creating a new post!
         </GeneralText>
       );
     }
@@ -260,11 +260,13 @@ const ProfileScreen = () => {
             title="My Posts"
             onPress={() => setPostsActive(true)}
             style={{ marginTop: 0 }}
+            isActive={postsActive}
           />
           <Button
             title="Threads"
             onPress={() => setPostsActive(false)}
             style={{ marginTop: 0 }}
+            isActive={!postsActive}
           />
           <Button
             title="Update Profile"
