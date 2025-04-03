@@ -35,6 +35,7 @@ import {
   BottomNavContainer,
   CommentInputContainer,
   CommentInputWrapper,
+  AuthorWithIcon,
 } from "./components/PostStyles";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
@@ -72,7 +73,6 @@ const PostPage = () => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [activeReplyComment, setActiveReplyComment] = useState(null);
   const [showingReply, setShowingReply] = useState({});
-
 
   const postLiked = <Icon name="heart" size={25} color="red" />;
   const postUnliked = <Icon name="hearto" size={25} color="white" />;
@@ -302,40 +302,39 @@ const PostPage = () => {
     if (showingReply[comment._id]) {
       setShowingReply((prev) => ({ ...prev, [comment._id]: false }));
     } else {
-      await getReplies(comment); 
+      await getReplies(comment);
       setShowingReply((prev) => ({ ...prev, [comment._id]: true }));
     }
   };
-  
 
   const recursiveSearch = async (comment) => {
     if (!comment.replyid || comment.replyid.length === 0) return [];
-  
+
     const replies = await getComments({ id: comment.replyid });
-  
+
     for (let reply of replies) {
       reply.replies = await recursiveSearch(reply);
     }
-  
+
     return replies;
   };
-  
+
   const getReplies = async (comment) => {
     try {
       const nestedReplies = await recursiveSearch(comment);
-  
+
       const updatedComments = comments.map((c) => {
         if (c._id === comment._id) {
           return { ...c, replies: nestedReplies };
         }
         return c;
       });
-  
+
       setComments(updatedComments);
     } catch (err) {
       console.error("Error fetching nested replies:", err);
     }
-  };  
+  };
 
   const commentInput = () => {
     setInput(!input);
@@ -430,7 +429,7 @@ const PostPage = () => {
           <CommentCard>
             <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
             <GeneralText>{item.content}</GeneralText>
-            <Author>{item.author.split("@")[0]}</Author>
+            <AuthorWithIcon>{item.author.split("@")[0]}</AuthorWithIcon>
             <View style={{ flexDirection: "row" }}>
               <TouchableOpacity onPress={() => likeComment(item)}>
                 {getCommentLike(item)}
@@ -451,11 +450,14 @@ const PostPage = () => {
                   <DeleteButton onPress={() => deleteComment(item, comment)} />
                 ))}
             </View>
-  
+
             {item.replyid.length > 0 && !showingReply[item._id] && (
-              <Button title="View Replies" onPress={() => replyVisibility(item)} />
+              <Button
+                title="View Replies"
+                onPress={() => replyVisibility(item)}
+              />
             )}
-            
+
             {showingReply[item._id] && (
               <View>
                 {printComments(item.replies, item)}
@@ -471,7 +473,6 @@ const PostPage = () => {
       />
     );
   };
-  
 
   return (
     <KeyboardAvoidingView
@@ -488,7 +489,7 @@ const PostPage = () => {
             </TouchableOpacity>
             <Timestamp>{dayjs(post.createdAt).fromNow()}</Timestamp>
             <GeneralText>{post.content}</GeneralText>
-            <Author>{post.author.split("@")[0]}</Author>
+            <AuthorWithIcon>{post.author.split("@")[0]}</AuthorWithIcon>
             <View style={{ flexDirection: "row" }}>
               <TouchableOpacity onPress={() => likePost()}>
                 {getPostLike()}

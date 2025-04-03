@@ -2,6 +2,7 @@ import React, { useState, useEffect, ReactNode } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import * as AsyncStorage from "../../util/AsyncStorage.js";
+import { FontAwesome } from "@expo/vector-icons";
 
 // Define navigation types
 type RootStackParamList = {
@@ -40,6 +41,10 @@ interface TimestampProps {
 }
 
 interface AuthorProps {
+  children: ReactNode;
+}
+
+interface AuthorWithIconProps {
   children: ReactNode;
 }
 
@@ -209,12 +214,28 @@ export const Timestamp = ({ children }: TimestampProps) => (
 );
 
 export const Author = ({ children }: AuthorProps) => (
-  <Text
-    className="text-sm mb-3 mt-1"
-    style={{ fontSize: 13, color: "green", opacity: 0.7 }}
-  >
+  <Text style={{ fontSize: 13, color: "grey", opacity: 0.8, marginBottom: 3 }}>
     {children}
   </Text>
+);
+
+export const AuthorWithIcon = ({ children }: AuthorWithIconProps) => (
+  <View
+    style={{
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 10,
+      marginTop: 3,
+    }}
+  >
+    <FontAwesome
+      name="user-circle-o"
+      size={18}
+      color="grey"
+      style={{ marginRight: 5, opacity: 0.9 }}
+    />
+    <Author>{children}</Author>
+  </View>
 );
 
 export const PostContent = ({ children }: PostContentProps) => (

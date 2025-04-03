@@ -8,6 +8,7 @@ import {
   GeneralText,
   PostContent,
   Author,
+  AuthorWithIcon,
   ListFooterSpace,
 } from "./components/IndexStyles";
 import { getPosts } from "./services/getPost";
@@ -190,7 +191,7 @@ const IndexPage = () => {
                 >
                   <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
                   <PostContent>{item.content}</PostContent>
-                  <Author>{item.author.split("@")[0]}</Author>
+                  <AuthorWithIcon>{item.author.split("@")[0]}</AuthorWithIcon>
                   <View style={{ flexDirection: "row" }}>
                     <TouchableOpacity onPress={() => likePost(item)}>
                       {getLike(item)}

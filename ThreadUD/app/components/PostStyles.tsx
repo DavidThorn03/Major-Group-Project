@@ -1,9 +1,61 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import Icon from "react-native-vector-icons/AntDesign";
 import Icon2 from "react-native-vector-icons/MaterialCommunityIcons";
+import { FontAwesome } from "@expo/vector-icons";
 
-export const Container = ({ children }) => (
+interface ContainerProps {
+  children: ReactNode;
+}
+
+interface HeaderProps {
+  children: ReactNode;
+}
+
+interface HeaderTextProps {
+  children: ReactNode;
+}
+
+interface PostCardProps {
+  children: ReactNode;
+}
+
+interface ThreadNameProps {
+  children: ReactNode;
+}
+
+interface TimestampProps {
+  children: ReactNode;
+}
+
+interface PostContentProps {
+  children: ReactNode;
+}
+
+interface ButtonProps {
+  onPress: () => void;
+  title: string;
+}
+
+interface AuthorProps {
+  children: ReactNode;
+}
+
+interface AuthorWithIconProps {
+  children: ReactNode;
+}
+
+interface CommentCardProps {
+  children: ReactNode;
+}
+
+interface CommentInputProps {
+  value: string;
+  onChangeText: (text: string) => void;
+  onSubmitEditing: () => void;
+}
+
+export const Container = ({ children }: ContainerProps) => (
   <View
     style={{
       flex: 1,
@@ -16,7 +68,7 @@ export const Container = ({ children }) => (
   </View>
 );
 
-export const PostCard = ({ children }) => (
+export const PostCard = ({ children }: PostCardProps) => (
   <View
     style={{
       backgroundColor: "#0d0430",
@@ -32,7 +84,7 @@ export const PostCard = ({ children }) => (
   </View>
 );
 
-export const CommentCard = ({ children }) => (
+export const CommentCard = ({ children }: CommentCardProps) => (
   <View
     style={{
       backgroundColor: "#1B1711",
@@ -48,13 +100,13 @@ export const CommentCard = ({ children }) => (
   </View>
 );
 
-export const ThreadName = ({ children }) => (
+export const ThreadName = ({ children }: ThreadNameProps) => (
   <Text style={{ fontSize: 22, fontWeight: "bold", color: "white" }}>
     {children}
   </Text>
 );
 
-export const Timestamp = ({ children }) => (
+export const Timestamp = ({ children }: TimestampProps) => (
   <Text style={{ fontSize: 12, color: "gray", marginBottom: 8 }}>
     {children}
   </Text>
@@ -66,7 +118,7 @@ export const GeneralText = ({ children }) => (
   </Text>
 );
 
-export const PostContent = ({ children }) => (
+export const PostContent = ({ children }: PostContentProps) => (
   <Text
     style={{
       fontSize: 16,
@@ -79,16 +131,32 @@ export const PostContent = ({ children }) => (
   </Text>
 );
 
-export const Author = ({ children }) => (
-  <Text
-    className="text-sm mb-3 mt-1"
-    style={{ fontSize: 13, color: "yellow", opacity: 0.7 }}
-  >
+export const Author = ({ children }: AuthorProps) => (
+  <Text style={{ fontSize: 13, color: "grey", opacity: 0.8, marginBottom: 3 }}>
     {children}
   </Text>
 );
 
-export const Button = ({ onPress, title }) => (
+export const AuthorWithIcon = ({ children }: AuthorWithIconProps) => (
+  <View
+    style={{
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 10,
+      marginTop: 3,
+    }}
+  >
+    <FontAwesome
+      name="user-circle-o"
+      size={18}
+      color="grey"
+      style={{ marginRight: 5, opacity: 0.9 }}
+    />
+    <Author>{children}</Author>
+  </View>
+);
+
+export const Button = ({ onPress, title }: ButtonProps) => (
   <TouchableOpacity
     onPress={onPress}
     style={{
@@ -150,24 +218,39 @@ export const CommentInputWrapper = ({ children }) => (
 );
 
 export const CommentInput = ({
-  onChangeText,
   value,
-  placeholder,
-  autoFocus,
-}) => (
-  <TextInput
-    onChangeText={onChangeText}
-    value={value}
-    placeholder={placeholder}
-    autoFocus={autoFocus}
+  onChangeText,
+  onSubmitEditing,
+}: CommentInputProps) => (
+  <View
     style={{
-      backgroundColor: "white",
-      padding: 12,
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#1a2b61",
       borderRadius: 8,
-      flex: 1,
-      marginRight: 8,
+      padding: 8,
+      marginTop: 8,
     }}
-  />
+  >
+    <Icon2
+      name="comment-text-outline"
+      size={24}
+      color="white"
+      style={{ marginRight: 8 }}
+    />
+    <TextInput
+      style={{
+        flex: 1,
+        color: "white",
+        padding: 8,
+      }}
+      placeholder="Add a comment..."
+      placeholderTextColor="#a0a0a0"
+      value={value}
+      onChangeText={onChangeText}
+      onSubmitEditing={onSubmitEditing}
+    />
+  </View>
 );
 
 export const ReplyInput = ({ onChangeText, value, placeholder, autoFocus }) => (

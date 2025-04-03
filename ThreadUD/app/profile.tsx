@@ -11,7 +11,7 @@ import {
   Button,
   Timestamp,
   PostContent,
-  Author,
+  AuthorWithIcon,
   ListFooterSpace,
   ThreadCard,
   ThreadInfo,
@@ -180,7 +180,7 @@ const ProfileScreen = () => {
               <TouchableOpacity onPress={() => ViewPost(item)}>
                 <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
                 <PostContent>{item.content}</PostContent>
-                <Author>Author: {item.author}</Author>
+                <AuthorWithIcon>{item.author.split("@")[0]}</AuthorWithIcon>
                 <PostActionsContainer>
                   <TouchableOpacity onPress={() => likePost(item)}>
                     {getLike(item)}
