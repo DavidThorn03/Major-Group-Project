@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 
 export const Container = ({ children }) => (
   <View
@@ -70,9 +71,36 @@ export const PostCard = ({ children }) => (
 );
 
 export const Author = ({ children }) => (
-  <Text className="font-bold text-lg text-white" style={{ color: "green" }}>
+  <Text
+    style={{
+      fontSize: 22,
+      color: "white",
+      opacity: 0.6,
+      marginBottom: 3,
+      fontWeight: "bold",
+    }}
+  >
     {children}
   </Text>
+);
+
+export const AuthorWithIcon = ({ children }) => (
+  <View
+    style={{
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 10,
+      marginTop: 3,
+    }}
+  >
+    <FontAwesome
+      name="user-circle-o"
+      size={24}
+      color="white"
+      style={{ marginRight: 6, opacity: 0.7 }}
+    />
+    <Author>{children}</Author>
+  </View>
 );
 
 export const Timestamp = ({ children }) => (

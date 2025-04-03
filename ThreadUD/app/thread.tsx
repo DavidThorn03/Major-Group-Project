@@ -10,6 +10,7 @@ import {
   JoinButton,
   PostCard,
   Author,
+  AuthorWithIcon,
   Timestamp,
   Content,
   ButtonContainer,
@@ -174,7 +175,7 @@ const Thread = () => {
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => navigateToPost(item._id)}>
             <PostCard>
-              <Author>{item.author.split("@")[0]}</Author>
+              <AuthorWithIcon>{item.author.split("@")[0]}</AuthorWithIcon>
               <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
               <Content>{item.content}</Content>
               <ButtonContainer>
