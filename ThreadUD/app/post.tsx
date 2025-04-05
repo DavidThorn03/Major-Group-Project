@@ -149,10 +149,17 @@ const PostPage = () => {
         setComments(updatedComments);
       });
 
-      setSocket(newSocket);
+      setSocket(newSocket); 
+
+
+    // Screen loses focus (e.g., header/footer nav)
+    const unsubscribeBlur = navigation.addListener("blur", () => {
+      newSocket.disconnect();
+    });
 
       return () => {
         newSocket.disconnect();
+        unsubscribeBlur();
       };
     }
   }, [postSearched, post?._id]);
