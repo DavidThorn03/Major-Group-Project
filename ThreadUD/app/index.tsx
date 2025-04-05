@@ -22,7 +22,6 @@ import { getPostsByThread } from "./services/getPostsByThread.js";
 import { getPostsByCourse } from "./services/getPostsByCourse.js";
 import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
-import IP from "../config/IPAddress.js";
 
 dayjs.extend(relativeTime);
 

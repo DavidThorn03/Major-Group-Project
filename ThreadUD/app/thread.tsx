@@ -2,7 +2,6 @@ import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
 import { getPostsByThread } from "./services/getThreadPosts";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { useUser } from "./context/UserContext";
 import {
   Container,
   Header,

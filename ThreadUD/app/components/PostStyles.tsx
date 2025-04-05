@@ -50,9 +50,10 @@ interface CommentCardProps {
 }
 
 interface CommentInputProps {
-  value: string;
-  onChangeText: (text: string) => void;
-  onSubmitEditing: () => void;
+  onChangeText: (text: string) => void,
+  value: string,
+  placeholder: string,
+  autoFocus: boolean,
 }
 
 export const Container = ({ children }: ContainerProps) => (
@@ -213,17 +214,9 @@ export const CommentInputWrapper = ({ children }) => (
       flexDirection: "row",
     }}
   >
-    {children}
-  </View>
-);
-
-export const CommentInput = ({
-  value,
-  onChangeText,
-  onSubmitEditing,
-}: CommentInputProps) => (
-  <View
+    <View
     style={{
+      flex: 1,
       flexDirection: "row",
       alignItems: "center",
       backgroundColor: "#1a2b61",
@@ -238,19 +231,34 @@ export const CommentInput = ({
       color="white"
       style={{ marginRight: 8 }}
     />
+
+    {children}
+    </View>
+  </View>
+);
+
+export const CommentInput = ({
+  onChangeText,
+  value,
+  placeholder,
+  autoFocus,
+}: CommentInputProps) => (
     <TextInput
       style={{
+        backgroundColor: "white",
+        padding: 12,
+        borderRadius: 8,
+        marginVertical: 8,
         flex: 1,
-        color: "white",
-        padding: 8,
+        marginRight: 8,
       }}
-      placeholder="Add a comment..."
       placeholderTextColor="#a0a0a0"
       value={value}
       onChangeText={onChangeText}
-      onSubmitEditing={onSubmitEditing}
+      placeholder = {placeholder}
+      autoFocus={autoFocus}
     />
-  </View>
+
 );
 
 export const ReplyInput = ({ onChangeText, value, placeholder, autoFocus }) => (
