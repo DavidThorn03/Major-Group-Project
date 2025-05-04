@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Text, Alert } from "react-native";
+import { Alert, Image, View } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { getUser } from "./services/getUser";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import {
   Container,
   Header,
@@ -14,12 +14,18 @@ import {
 } from "./components/LoginStyles";
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
 
   const handleLogin = async () => {
     console.log("Loading user...");
+
+    if (Email.trim() === "" || Password.trim() === "") {
+      Alert.alert("Error", "Email and password are required!");
+      return;
+    }
+
     const filters = {
       email: Email,
       password: Password,
@@ -40,8 +46,11 @@ const LoginScreen = () => {
         return;
       }
 
-      if (fetchedUser.auth){
-        navigation.navigate("googleAuth", {user: fetchedUser});
+      if (fetchedUser.auth) {
+        router.push({
+          pathname: "/googleAuth",
+          params: { user: JSON.stringify(fetchedUser) },
+        });
         return;
       }
 
@@ -53,9 +62,9 @@ const LoginScreen = () => {
 
       // Navigate to the main screen (or index)
       if (fetchedUser.admin) {
-        navigation.navigate("adminPosts");
+        router.push("/adminPosts");
       } else {
-        navigation.navigate("index");
+        router.push("/");
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -65,31 +74,34 @@ const LoginScreen = () => {
 
   return (
     <Container>
-      <Header>Log in</Header>
-      <Input
-        placeholder="Email"
-        onChangeText={(text) => setEmail(text.toLowerCase())}
-      />
-      <Input
-        placeholder="Password"
-        onChangeText={(text) => setPassword(text)}
-        secureTextEntry={true}
-      />
-      <ButtonContainer>
-        <Button title="Log in" onPress={handleLogin} />
-      </ButtonContainer>
-      <ButtonContainer>
-        <GeneralText>Don't have an account?</GeneralText>
+      <Header>Log in to ThreadUD</Header>
+      <View style={{ marginTop: 10 }}>
+        <Input
+          placeholder="Email Address"
+          keyboardType="email-address"
+          onChangeText={(text) => setEmail(text.toLowerCase())}
+        />
+        <Input
+          placeholder="Password"
+          secureTextEntry={true}
+          onChangeText={(text) => setPassword(text)}
+        />
+      </View>
+      <Button onPress={handleLogin} title="Log in" style="" />
+      <ForgotPasswordButton
+        onPress={() => router.push("/forgotPassword")}
+        style=""
+      >
+        <GeneralText style="text-blue-400">Forgot Password?</GeneralText>
+      </ForgotPasswordButton>
+      <View style={{ marginTop: 20 }}>
+        <GeneralText style="">Don't have an account?</GeneralText>
         <Button
           title="Register new user"
-          onPress={() => navigation.navigate("register")}
+          onPress={() => router.push("/register")}
+          style=""
         />
-      </ButtonContainer>
-      <ForgotPasswordButton
-        onPress={() => navigation.navigate("forgotPassword")}
-      >
-        <GeneralText style={{ color: "#3b82f6" }}>Forgot Password?</GeneralText>
-      </ForgotPasswordButton>
+      </View>
     </Container>
   );
 };
