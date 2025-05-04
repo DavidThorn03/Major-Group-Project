@@ -29,7 +29,7 @@ interface TextWithStyleProps extends ChildrenProps, StyleProps {}
 export const Container: React.FC<ChildrenProps> = ({ children }) => (
   <View style={{ flex: 1, backgroundColor: "#3a4b5c" }}>
     <ScrollView
-      contentContainerStyle={{ paddingTop: 80, paddingHorizontal: 8 }}
+      contentContainerStyle={{ paddingTop: 80, paddingHorizontal: 16 }}
     >
       {children}
     </ScrollView>
@@ -61,16 +61,13 @@ export const Input: React.FC<any> = (props) => (
   <TextInput
     {...props}
     className="border border-gray-300 rounded-lg p-2 mb-4 text-base bg-white"
+    style={{ marginTop: 8 }}
   />
-);
-
-export const ButtonContainer: React.FC<ChildrenProps> = ({ children }) => (
-  <View style={{ marginTop: 16, alignItems: "center" }}>{children}</View>
 );
 
 export const Button: React.FC<ButtonProps> = ({ onPress, title, style }) => (
   <TouchableOpacity
-    className={`bg-blue-500 p-4 rounded-lg items-center my-2 mb-2 ${style}`}
+    className={`bg-blue-500 p-4 rounded-lg items-center my-4 ${style}`}
     onPress={onPress}
   >
     <Text className="text-white font-bold">{title}</Text>
@@ -81,15 +78,12 @@ export const GeneralText: React.FC<TextWithStyleProps> = ({
   children,
   style,
 }) => (
-  <Text className={`text-base text-white text-center ${style}`}>
+  <Text className={`text-base text-white text-center my-4 ${style}`}>
     {children}
   </Text>
 );
 
-export const ForgotPasswordButton: React.FC<
-  TextWithStyleProps & { onPress: () => void }
-> = ({ onPress, style, children }) => (
-  <TouchableOpacity onPress={onPress} className={`mt-2 self-center ${style}`}>
-    {children}
-  </TouchableOpacity>
-);
+export const InstructionText: React.FC<TextWithStyleProps> = ({
+  children,
+  style,
+}) => <Text className={`text-sm text-white mb-1 ${style}`}>{children}</Text>;

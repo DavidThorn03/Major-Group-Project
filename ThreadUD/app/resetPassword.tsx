@@ -1,62 +1,92 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Button, TextInput, Alert } from "react-native";
-import * as AsyncStorage from "../util/AsyncStorage.js";
-import { useRoute, useNavigation } from "@react-navigation/native";
-import { Container, GeneralText } from "./components/LoginStyles";
-import Icon from "react-native-vector-icons/AntDesign";
+import React, { useState } from "react";
+import { Alert } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Container,
+  Header,
+  Input,
+  Button,
+  GeneralText,
+  InstructionText,
+} from "./components/ResetPassStyles";
 import { changePassword } from "./services/changePassword.js";
 
-const ResetPassord = () => {
+const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  const route = useRoute();
-  const { email } = route.params || {};
-  const navigator = useNavigation();
+  const params = useLocalSearchParams();
+  const router = useRouter();
+  const email = params.email as string;
 
   const reset = async () => {
-    if(password.length < 9) {
-          Alert.alert("Error", "Password must be at least 9 characters long!");
-          return;
-        }
-        var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
-        if (!regex.test(password)) {
-          Alert.alert("Error", "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character!");
-          return;
-        }
-        if (password != confirmPass){
-          Alert.alert("Error", "Passwords do not match!");
-          return;
-        }
+    if (!email) {
+      Alert.alert("Error", "Email information is missing");
+      router.push("/forgotPassword");
+      return;
+    }
+
+    if (password.length < 9) {
+      Alert.alert("Error", "Password must be at least 9 characters long!");
+      return;
+    }
+
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+    if (!regex.test(password)) {
+      Alert.alert(
+        "Error",
+        "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character!"
+      );
+      return;
+    }
+
+    if (password !== confirmPass) {
+      Alert.alert("Error", "Passwords do not match!");
+      return;
+    }
+
     try {
       const result = await changePassword({ email, password: password });
       if (result) {
         Alert.alert("Success", "Password changed successfully");
       }
-      navigator.navigate("login");
-    } catch (err) {
+      router.push("/login");
+    } catch (err: any) {
       Alert.alert("Error", err.message);
     }
   };
 
   return (
     <Container>
-      <GeneralText>Enter your new password</GeneralText>
-        <TextInput
-          onChangeText={setPassword}
-          value={password}
-          secureTextEntry
-          placeholder="Enter your new password"
-          autoFocus={true}
-        />
-        <TextInput
-          onChangeText={setConfirmPass}
-          value={confirmPass}
-          secureTextEntry
-          placeholder="Confirm your new password"
-        />
-        <Button onPress={reset} title="Reset Password" />
+      <Header>Reset Password</Header>
+
+      <GeneralText>Enter your new password below</GeneralText>
+
+      <InstructionText>New Password</InstructionText>
+      <Input
+        onChangeText={setPassword}
+        value={password}
+        secureTextEntry
+        placeholder="Enter your new password"
+        autoFocus={true}
+      />
+
+      <InstructionText>Confirm Password</InstructionText>
+      <Input
+        onChangeText={setConfirmPass}
+        value={confirmPass}
+        secureTextEntry
+        placeholder="Confirm your new password"
+      />
+
+      <Button onPress={reset} title="Reset Password" style="" />
+
+      <GeneralText style="text-xs">
+        Password must be at least 9 characters and include uppercase, lowercase,
+        number, and special character.
+      </GeneralText>
     </Container>
   );
 };
 
-export default ResetPassord;
+export default ResetPassword;
