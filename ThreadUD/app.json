@@ -29,8 +29,15 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-dev-client",
+        {
+          "launchMode": "most-recent"
+        }
+      ]
     ],
+
     "experiments": {
       "typedRoutes": true
     },
@@ -41,6 +48,9 @@
       "eas": {
         "projectId": "c0b35055-d713-4131-9755-47d953ef0b29"
       }
+    },
+    "updates": {
+      "enabled": false
     }
   }
 }
