@@ -19,75 +19,58 @@ const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  // generate a 4-digit code once
   useEffect(() => {
-    const generateCode = async () => {
-      const newCode = Math.floor(1000 + Math.random() * 9000);
-      console.log("Generated code:", newCode);
-      setCode(newCode);
-    };
-    generateCode();
+    const newCode = Math.floor(1000 + Math.random() * 9000);
+    console.log("Generated code:", newCode);
+    setCode(newCode);
   }, []);
 
-  const sendEmail = async (inputText: string) => {
-    if (!inputText || inputText.trim() === "") {
+  const sendEmail = (inputText: string) => {
+    if (!inputText.trim()) {
       Alert.alert("Error", "Please enter a valid email address");
       return;
     }
 
-    console.log("Sending email...");
-    console.log("Generated code:", code);
+    const emailToSend = inputText.toLowerCase();
+
+    // 1) go to the verification UI right away
+    setEmail(emailToSend);
+    setText("");
+    setShowVerification(true);
     setIsLoading(true);
 
-    try {
-      const emailToSend = inputText.toLowerCase();
-      console.log("Preparing to send to:", emailToSend);
-
-      const filter = { email: emailToSend, code: code };
-      await forgotPassword(filter);
-
-      console.log("Email successfully sent to:", emailToSend);
-      setEmail(emailToSend);
-      // Stop loading and immediately show verification UI
-      setIsLoading(false);
-      setText(""); // Clear input
-      setShowVerification(true);
-      Alert.alert("Success", "Email sent with verification code");
-    } catch (error) {
-      console.error("Error sending email:", error);
-      Alert.alert("Error", "Failed to send email. Please try again.", [
-        { text: "OK" },
-      ]);
-    } finally {
-      // Ensure loading state is reset
-      setIsLoading(false);
-    }
+    // 2) fire & forget the API call
+    const filter = { email: emailToSend, code };
+    forgotPassword(filter)
+      .then((data) => {
+        console.log("Email sent:", data);
+        Alert.alert("Success", "Email sent with verification code");
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+        // roll back if it fails
+        setShowVerification(false);
+        Alert.alert("Error", "Failed to send email. Please try again.");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
-  const verify = async () => {
-    if (!text || text.trim() === "") {
+  const verify = () => {
+    if (!text.trim()) {
       Alert.alert("Error", "Please enter the verification code");
       return;
     }
-
-    console.log("Verifying code: Input:", text, "Expected:", code);
-
-    try {
-      if (parseInt(text) === code) {
-        console.log("Code verified successfully!");
-        Alert.alert(
-          "Success",
-          "Code verified. You can now reset your password."
-        );
-        router.push({
-          pathname: "/resetPassword",
-          params: { email },
-        });
-      } else {
-        Alert.alert("Error", "Incorrect code. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error during verification:", error);
-      Alert.alert("Error", "Failed to verify code. Please try again.");
+    if (parseInt(text, 10) === code) {
+      Alert.alert("Success", "Code verified. You can now reset your password.");
+      router.push({
+        pathname: "/resetPassword",
+        params: { email },
+      });
+    } else {
+      Alert.alert("Error", "Incorrect code. Please try again.");
     }
   };
 
@@ -96,27 +79,15 @@ const ForgotPassword = () => {
     setShowVerification(false);
   };
 
-  console.log("Current UI state:", {
-    email,
-    showVerification,
-    isLoading,
-    codeGenerated: code > 0,
-  });
-
   return (
     <View style={{ flex: 1, backgroundColor: "#3a4b5c" }}>
+      {/* Header */}
       <View
         style={{
           backgroundColor: "#1a2b61",
-          marginBottom: 14,
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
           height: 64,
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 10,
         }}
       >
         <Text style={{ color: "white", fontSize: 20, fontWeight: "bold" }}>
@@ -124,41 +95,30 @@ const ForgotPassword = () => {
         </Text>
       </View>
 
-      <ScrollView
-        contentContainerStyle={{ paddingTop: 80, paddingHorizontal: 16 }}
-      >
+      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 80 }}>
         {!showVerification ? (
+          /* STEP 1: Email Entry */
           <View style={{ width: "100%" }}>
-            <Text
-              style={{
-                color: "white",
-                fontSize: 16,
-                textAlign: "center",
-                marginVertical: 16,
-              }}
-            >
+            <Text style={{ color: "white", fontSize: 16, textAlign: "center" }}>
               Enter your email to reset your password
             </Text>
-
             <TextInput
-              onChangeText={(value) => setText(value)}
-              value={text}
-              placeholder="Enter your email"
               style={{
                 backgroundColor: "white",
                 borderColor: "#d1d5db",
                 borderWidth: 1,
                 borderRadius: 8,
                 padding: 12,
-                marginBottom: 16,
-                marginTop: 8,
+                marginVertical: 16,
               }}
+              placeholder="Enter your email"
               keyboardType="email-address"
               autoCapitalize="none"
+              value={text}
+              onChangeText={setText}
               editable={!isLoading}
-              autoFocus={true}
+              autoFocus
             />
-
             <TouchableOpacity
               onPress={() => sendEmail(text)}
               disabled={isLoading}
@@ -166,17 +126,16 @@ const ForgotPassword = () => {
                 backgroundColor: isLoading ? "#9ca3af" : "#3b82f6",
                 padding: 16,
                 borderRadius: 8,
-                alignItems: "center",
-                marginVertical: 8,
                 flexDirection: "row",
                 justifyContent: "center",
+                alignItems: "center",
               }}
             >
               {isLoading && (
                 <ActivityIndicator
                   size="small"
                   color="white"
-                  style={{ marginRight: 10 }}
+                  style={{ marginRight: 8 }}
                 />
               )}
               <Text style={{ color: "white", fontWeight: "bold" }}>
@@ -185,39 +144,26 @@ const ForgotPassword = () => {
             </TouchableOpacity>
           </View>
         ) : (
+          /* STEP 2: Code Verification */
           <View style={{ width: "100%" }}>
-            <Text
-              style={{
-                color: "white",
-                fontSize: 16,
-                textAlign: "center",
-                marginVertical: 16,
-              }}
-            >
+            <Text style={{ color: "white", fontSize: 16, textAlign: "center" }}>
               Verification code sent to {email}
             </Text>
-
-            <Text style={{ color: "white", fontSize: 14, marginBottom: 4 }}>
-              Enter verification code
-            </Text>
-
             <TextInput
-              onChangeText={(value) => setText(value)}
-              value={text}
-              placeholder="Enter 4-digit code"
               style={{
                 backgroundColor: "white",
                 borderColor: "#d1d5db",
                 borderWidth: 1,
                 borderRadius: 8,
                 padding: 12,
-                marginBottom: 16,
-                marginTop: 8,
+                marginVertical: 16,
               }}
+              placeholder="Enter 4-digit code"
               keyboardType="numeric"
-              autoFocus={true}
+              value={text}
+              onChangeText={setText}
+              autoFocus
             />
-
             <TouchableOpacity
               onPress={verify}
               style={{
@@ -225,25 +171,16 @@ const ForgotPassword = () => {
                 padding: 16,
                 borderRadius: 8,
                 alignItems: "center",
-                marginVertical: 8,
+                marginBottom: 12,
               }}
             >
               <Text style={{ color: "white", fontWeight: "bold" }}>
                 Verify Code
               </Text>
             </TouchableOpacity>
-
-            <Text
-              style={{
-                color: "white",
-                fontSize: 14,
-                textAlign: "center",
-                marginTop: 32,
-              }}
-            >
+            <Text style={{ color: "white", textAlign: "center" }}>
               Didn't receive the code?
             </Text>
-
             <TouchableOpacity
               onPress={() => sendEmail(email)}
               style={{
@@ -258,17 +195,14 @@ const ForgotPassword = () => {
                 Resend Code
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               onPress={resetAndGoBack}
               style={{
-                backgroundColor: "transparent",
                 borderColor: "#d1d5db",
                 borderWidth: 1,
                 padding: 16,
                 borderRadius: 8,
                 alignItems: "center",
-                marginVertical: 8,
               }}
             >
               <Text style={{ color: "white" }}>Back to Email Entry</Text>

@@ -92,9 +92,11 @@ const LoginScreen = () => {
         onPress={() => router.push("/forgotPassword")}
         style=""
       >
-        <GeneralText style="text-blue-400">Forgot Password?</GeneralText>
+        <GeneralText style="text-red-400 underline">
+          Forgot Password?
+        </GeneralText>
       </ForgotPasswordButton>
-      <View style={{ marginTop: 20 }}>
+      <View style={{ marginTop: 40 }}>
         <GeneralText style="">Don't have an account?</GeneralText>
         <Button
           title="Register new user"
