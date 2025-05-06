@@ -10,6 +10,7 @@ import {
   InstructionText,
 } from "./components/ResetPassStyles";
 import { changePassword } from "./services/changePassword.js";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -56,6 +57,7 @@ const ResetPassword = () => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <Container>
       <Header>Reset Password</Header>
 
@@ -85,6 +87,7 @@ const ResetPassword = () => {
         number, and special character.
       </GeneralText>
     </Container>
+    </SafeAreaView>
   );
 };
 

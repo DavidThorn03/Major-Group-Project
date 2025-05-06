@@ -6,7 +6,6 @@ import * as AsyncStorage from "../../util/AsyncStorage.js";
 
 const BottomNavBar = () => {
   const route = useRoute();
-
   const router = useRouter();
 
 

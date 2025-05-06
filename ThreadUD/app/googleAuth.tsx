@@ -4,6 +4,7 @@ import { Container, Header, Input, Button } from "./components/RegisterStyles";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { authCheck } from "./services/authCheck.js";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const GoogleAuthScreen = () => {
@@ -24,7 +25,8 @@ const GoogleAuthScreen = () => {
           return;
         }
         Alert.alert("Success", "Logged in successfully!");
-        await AsyncStorage.setItem("User", user);
+        let userData = JSON.parse(user);
+        await AsyncStorage.setItem("User", userData);
         router.replace("/");
       } catch (error) {
         console.error("Error verifying:", error);
@@ -33,12 +35,14 @@ const GoogleAuthScreen = () => {
 
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <Container>
       <Header>Google Authentication</Header>
       <Text>Enter your authentication code</Text>
       <Input placeholder="code" keyboardType="numeric" onChangeText={setCode} />
       <Button onPress={check} title="Enter Code"/>
     </Container>
+    </SafeAreaView>
   );
 };
 

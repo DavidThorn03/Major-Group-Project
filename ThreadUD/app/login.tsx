@@ -12,6 +12,7 @@ import {
   GeneralText,
   ForgotPasswordButton,
 } from "./components/LoginStyles";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const LoginScreen = () => {
   const router = useRouter();
@@ -73,6 +74,7 @@ const LoginScreen = () => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <Container>
       <Header>Log in to ThreadUD</Header>
       <View style={{ marginTop: 10 }}>
@@ -105,6 +107,7 @@ const LoginScreen = () => {
         />
       </View>
     </Container>
+    </SafeAreaView>
   );
 };
 

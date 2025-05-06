@@ -4,7 +4,7 @@ import { Container, Header, Input, Button } from "./components/RegisterStyles";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { checkPassword } from "./services/checkPassword";
 import { useRouter } from "expo-router";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const ChangePasswordScreen = () => {
@@ -52,12 +52,15 @@ const ChangePasswordScreen = () => {
 
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
+    
     <Container>
       <Header>Change Password</Header>
       <Text>Enter your old password</Text>
       <Input placeholder="Password" secureTextEntry onChangeText={setPassword} />
       <Button onPress={check} title="Confirm password"/>
     </Container>
+    </SafeAreaView>
   );
 };
 

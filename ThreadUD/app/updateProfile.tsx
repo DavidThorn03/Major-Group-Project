@@ -21,6 +21,7 @@ import * as AsyncStorage from "../util/AsyncStorage.js";
 import { updateProfile } from "./services/updateProfile";
 import BottomNavBar from "./components/BottomNavBar";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const UpdateProfileScreen = () => {
   const router = useRouter();
@@ -120,6 +121,7 @@ const UpdateProfileScreen = () => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <Container>
       <Header>
         <HeaderText>Update Profile</HeaderText>
@@ -191,6 +193,7 @@ const UpdateProfileScreen = () => {
       </ScrollView>
       <BottomNavBar />
     </Container>
+    </SafeAreaView>
   );
 };
 

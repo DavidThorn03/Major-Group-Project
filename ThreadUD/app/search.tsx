@@ -19,6 +19,7 @@ import { getThreads } from "./services/getThreads";
 import { getThreadByCourse } from "./services/getThreadByCourse";
 import BottomNavBar from "./components/BottomNavBar";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const SearchPage = () => {
   const router = useRouter();
@@ -146,6 +147,7 @@ const SearchPage = () => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <Container>
       <Header>
         <HeaderText>Search for a Thread</HeaderText>
@@ -171,6 +173,7 @@ const SearchPage = () => {
       )}
       <BottomNavBar />
     </Container>
+    </SafeAreaView>
   );
 };
 

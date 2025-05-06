@@ -31,6 +31,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { Likes } from "./services/updateLikes";
 import { getThreads } from "./services/getThreads";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const ProfileScreen = () => {
@@ -235,16 +236,11 @@ const ProfileScreen = () => {
     );
   };
 
-  const logOut = async () => {
-    await AsyncStorage.removeItem("User");
-    setUser(null);
-    router.replace("/");
-  };
-
   if (!user) {
     return <Text>Loading user...</Text>;
   }
   return (
+  <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <Container>
       <Header>
         <HeaderText>Profile Page</HeaderText>
@@ -283,6 +279,7 @@ const ProfileScreen = () => {
       </View>
       <BottomNavBar />
     </Container>
+  </SafeAreaView>
   );
 };
 

@@ -409,6 +409,7 @@ export const BottomNavContainer = ({ children }) => (
       right: 0,
       zIndex: 5,
       backgroundColor: "#132236",
+      marginBottom: 20,
     }}
   >
     {children}

@@ -13,9 +13,8 @@ import {
   AuthQRCode,
   AuthCode,
 } from "./components/RegisterStyles";
-import { registerStudent } from "./services/registerStudent";
-import * as AsyncStorage from "../util/AsyncStorage.js";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -90,6 +89,7 @@ const RegisterPage = () => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <Container>
       <Header>Create an Account</Header>
       <Input placeholder="Full Name" onChangeText={setName} />
@@ -144,6 +144,7 @@ const RegisterPage = () => {
       )}
       <Button onPress={handleRegister} title="Continue" style="" />
     </Container>
+    </SafeAreaView>
   );
 };
 

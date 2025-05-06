@@ -22,6 +22,7 @@ import { getPostsByCourse } from "./services/getPostsByCourse.js";
 import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 dayjs.extend(relativeTime);
@@ -71,7 +72,7 @@ const IndexPage = () => {
             const postsData = await getPosts();
             setPosts(postsData);
             setLoading(false);
-          } else if (user.threads.length > 0) {
+          } else if (user.threads && user.threads.length > 0) {
             const filter = { ids: user.threads };
             const postsData = await getPostsByThread(filter);
             setPosts(postsData);
@@ -166,7 +167,8 @@ const IndexPage = () => {
   };
 
   return (
-    <Container>
+<SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
+  <Container>
       <NavBar />
       {posts.length === 0 ? (
         <GeneralText>
@@ -214,6 +216,7 @@ const IndexPage = () => {
       )}
       <BottomNavBar />
     </Container>
+  </SafeAreaView>
   );
 };
 

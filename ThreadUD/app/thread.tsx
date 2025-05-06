@@ -22,6 +22,7 @@ import * as AsyncStorage from "../util/AsyncStorage.js";
 import BottomNavBar from "./components/BottomNavBar";
 import { Likes } from "./services/updateLikes";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 dayjs.extend(relativeTime);
@@ -163,6 +164,7 @@ const Thread = () => {
   };
 
   return (
+  <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <Container>
       <Header>
         <HeaderText>{threadName}</HeaderText>
@@ -201,6 +203,7 @@ const Thread = () => {
       />
       <BottomNavBar />
     </Container>
+    </SafeAreaView>
   );
 };
 

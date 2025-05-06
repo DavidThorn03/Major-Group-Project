@@ -37,7 +37,7 @@ import {
   CommentInputWrapper,
   AuthorWithIcon,
 } from "./components/PostStyles";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
 import Icon2 from "react-native-vector-icons/Entypo";
 import * as AsyncStorage from "../util/AsyncStorage.js";
@@ -58,6 +58,7 @@ import NavBar from "./components/NavBar";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const PostPage = () => {
@@ -71,7 +72,6 @@ const PostPage = () => {
   const [text, onChangeText] = useState("");
   const [input, setInput] = useState(false);
   const [socket, setSocket] = useState(null);
-  const route = useRoute();
   const { postID, threadName } = useLocalSearchParams();
   const flatListRef = useRef(null);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
@@ -221,6 +221,7 @@ const PostPage = () => {
         action: action,
       };
       await Likes(filters);
+      setShowingReply({});
     } catch (err) {
       console.error(err);
     }
@@ -249,6 +250,7 @@ const PostPage = () => {
           "Commment flagged",
           "Your comment was flagged as inappropriate and may not be added."
         );
+        setShowingReply({});
       }
     } catch (err) {
       console.error(err);
@@ -276,6 +278,7 @@ const PostPage = () => {
         action: action,
       };
       await CommentLikes(filters);
+      setShowingReply({});
     } catch (err) {
       console.error(err);
     }
@@ -376,6 +379,7 @@ const PostPage = () => {
           "Your reply was flagged as inappropriate and may not be added."
         );
       }
+      setShowingReply({});
     } catch (err) {
       console.error(err);
     }
@@ -478,12 +482,13 @@ const PostPage = () => {
   };
 
   return (
+    <View style={{ flex: 1, backgroundColor: "#3a4b5c" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
       keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
     >
-      <View style={{ flex: 1, backgroundColor: "#3a4b5c" }}>
         <Container>
           <NavBar />
           <PostCard>
@@ -509,10 +514,10 @@ const PostPage = () => {
             </View>
           </PostCard>
           <CommentHeader>Comments</CommentHeader>
-          {input && (
+          
+        {input && (
             <CommentInputContainer
               style={{
-                position: "absolute",
                 bottom: 0,
                 left: 0,
                 right: 0,
@@ -544,7 +549,8 @@ const PostPage = () => {
               </CommentInputWrapper>
             </CommentInputContainer>
           )}
-          <FlatList
+        <FlatList
+            keyboardShouldPersistTaps="handled"
             ref={flatListRef}
             data={comments}
             renderItem={({ item }) => printComments([item], null)}
@@ -564,16 +570,10 @@ const PostPage = () => {
             }}
           />
         </Container>
-        {!isKeyboardVisible && !activeReplyComment && (
-          <BottomNavContainer>
-            <BottomNavBar />
-          </BottomNavContainer>
-        )}
 
         {activeReplyComment && (
           <ReplyInputContainer
             style={{
-              position: "absolute",
               bottom: 0,
               left: 0,
               right: 0,
@@ -606,8 +606,15 @@ const PostPage = () => {
             </ReplyInputWrapper>
           </ReplyInputContainer>
         )}
-      </View>
-    </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+        {!isKeyboardVisible && !activeReplyComment && (
+          <BottomNavContainer>
+            <BottomNavBar />
+          </BottomNavContainer>
+        )}
+        </SafeAreaView>
+
+    </View>
   );
 };
 

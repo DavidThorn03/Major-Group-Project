@@ -12,6 +12,7 @@ import {
 } from "./components/MakePostStyles";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const MakePostPage = () => {
@@ -87,8 +88,9 @@ const MakePostPage = () => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#23364a" }}>
     <Container>
-      <CloseButton onPress={() => navigation.goBack()} />
+      <CloseButton onPress={() => router.back()} />
 
       {/* Drop-down (Picker) */}
       <StyledPicker
@@ -113,6 +115,7 @@ const MakePostPage = () => {
 
       <PostButton onPress={handlePost} />
     </Container>
+    </SafeAreaView>
   );
 };
 

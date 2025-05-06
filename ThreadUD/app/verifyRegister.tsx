@@ -5,6 +5,7 @@ import { Container, GeneralText } from "./components/LoginStyles";
 import { confirmRegister } from "./services/confirmRegister.js";	
 import { registerStudent } from "./services/registerStudent.js";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const VerifyRegister = () => {
   const router = useRouter();
@@ -52,6 +53,7 @@ const VerifyRegister = () => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <Container>
         <GeneralText>Email sent to {email}</GeneralText>
         <GeneralText>Enter code to confirm your email</GeneralText>
@@ -66,6 +68,7 @@ const VerifyRegister = () => {
         <GeneralText>Didnt recieve email?</GeneralText>
         <Button title="Resend email" onPress={() => sendEmail(email)} />
     </Container>
+    </SafeAreaView>
   );
 };
 

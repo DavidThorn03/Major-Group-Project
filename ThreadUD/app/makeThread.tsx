@@ -13,6 +13,7 @@ import {
 import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const MakeThreadPage = () => {
@@ -65,6 +66,7 @@ const MakeThreadPage = () => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <Container>
       <Header>
         <HeaderText>Create a New Thread</HeaderText>
@@ -91,6 +93,7 @@ const MakeThreadPage = () => {
       <Button onPress={handleCreateThread} title="Create Thread" />
       <BottomNavBar />
     </Container>
+    </SafeAreaView>
   );
 };
 

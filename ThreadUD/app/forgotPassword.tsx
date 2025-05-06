@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { forgotPassword } from "./services/forgotPassword.js";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -80,6 +81,8 @@ const ForgotPassword = () => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
+    
     <View style={{ flex: 1, backgroundColor: "#3a4b5c" }}>
       {/* Header */}
       <View
@@ -211,6 +214,7 @@ const ForgotPassword = () => {
         )}
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 
