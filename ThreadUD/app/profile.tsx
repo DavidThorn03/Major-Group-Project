@@ -22,7 +22,6 @@ import {
   PostActionSpacer,
 } from "./components/ProfileStyles";
 import { NavigatorContext } from "expo-router/build/views/Navigator.js";
-import { useNavigation } from "@react-navigation/native";
 import NavBar from "./components/NavBar";
 import BottomNavBar from "./components/BottomNavBar";
 import { getUserPosts } from "./services/getUserPosts";
@@ -31,9 +30,11 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Likes } from "./services/updateLikes";
 import { getThreads } from "./services/getThreads";
+import { useRouter } from "expo-router";
+
 
 const ProfileScreen = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [threads, setThreads] = useState([]);
@@ -51,7 +52,7 @@ const ProfileScreen = () => {
         console.log("User from storage: ", storedUser);
       } else {
         console.log("No user found in storage");
-        navigation.navigate("login");
+        router.push("/login");
       }
     };
 
@@ -103,20 +104,20 @@ const ProfileScreen = () => {
 
   const navigateToThread = (threadID, threadName) => {
     console.log("Navigating to thread with:", { threadID, threadName });
-    navigation.navigate("thread", { threadID, threadName });
+    router.push({pathname: "/thread", params: { threadID, threadName }});
   };
 
   const ViewPost = (post) => {
-    navigation.navigate("post", {
+    router.push({pathname: "/post", params: {
       postID: post._id,
       threadName: post.threadName,
-    });
+    }});
   };
 
   const likePost = async (post) => {
     if (!user) {
       console.log("User not logged in");
-      navigation.navigate("login");
+      router.push("/login");
       return;
     }
     let action;
@@ -237,7 +238,7 @@ const ProfileScreen = () => {
   const logOut = async () => {
     await AsyncStorage.removeItem("User");
     setUser(null);
-    navigation.navigate("index");
+    router.replace("/");
   };
 
   if (!user) {
@@ -270,7 +271,7 @@ const ProfileScreen = () => {
           />
           <Button
             title="Update Profile"
-            onPress={() => navigation.navigate("updateProfile")}
+            onPress={() => router.push("/updateProfile")}
             style={{ marginTop: 0 }}
           />
         </ButtonGroupContainer>

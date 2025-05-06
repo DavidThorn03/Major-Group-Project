@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Alert, Text } from "react-native";
 import { Container, Header, Input, Button } from "./components/RegisterStyles";
 import * as AsyncStorage from "../util/AsyncStorage.js";
-import { useNavigation } from "@react-navigation/native";
 import { checkPassword } from "./services/checkPassword";
+import { useRouter } from "expo-router";
+
 
 
 const ChangePasswordScreen = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
@@ -43,7 +44,7 @@ const ChangePasswordScreen = () => {
           Alert.alert("Error", "Incorrect password.");
           return;
         }
-        navigation.navigate("resetPassword", { email });
+        router.replace({pathname: "/resetPassword", params: { email }});
       } catch (error) {
         console.error("Error comparing passwords:", error);
       }

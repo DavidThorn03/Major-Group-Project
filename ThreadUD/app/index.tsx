@@ -12,7 +12,6 @@ import {
   ListFooterSpace,
 } from "./components/IndexStyles";
 import { getPosts } from "./services/getPost";
-import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -22,11 +21,13 @@ import { getPostsByThread } from "./services/getPostsByThread.js";
 import { getPostsByCourse } from "./services/getPostsByCourse.js";
 import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
+import { useRouter } from "expo-router";
+
 
 dayjs.extend(relativeTime);
 
 const IndexPage = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,7 +47,7 @@ const IndexPage = () => {
 
           // Check if the user is an admin
           if (userData.admin) {
-            navigation.navigate("adminPosts");
+            router.replace("/adminPosts");
             return; // Exit early if navigating
           }
         } else {
@@ -110,7 +111,7 @@ const IndexPage = () => {
   const likePost = async (post) => {
     if (!user) {
       console.log("User not logged in");
-      navigation.navigate("login");
+      router.push("/login");
       return;
     }
     let action;
@@ -157,11 +158,11 @@ const IndexPage = () => {
 
   const navigateToThread = (threadID, threadName) => {
     console.log("Navigating to thread with:", { threadID, threadName });
-    navigation.navigate("thread", { threadID, threadName });
+    router.push({pathname: "/thread", params: { threadID, threadName }});
   };
 
   const ViewPost = (postID, threadName) => {
-    navigation.navigate("post", { postID, threadName });
+    router.push({pathname: "/post", params: { postID, threadName }});
   };
 
   return (

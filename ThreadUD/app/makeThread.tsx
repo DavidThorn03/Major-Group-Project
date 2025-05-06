@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Alert } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import IP from "../config/IPAddress.js";
 import {
@@ -13,9 +12,11 @@ import {
 } from "./components/MakeThreadStyles";
 import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
+import { useRouter } from "expo-router";
+
 
 const MakeThreadPage = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [threadName, setThreadName] = useState("");
   const [year, setYear] = useState("");
   const [course, setCourse] = useState("");
@@ -53,7 +54,7 @@ const MakeThreadPage = () => {
 
       if (response.status === 201) {
         Alert.alert("Success", "Thread created successfully!");
-        navigation.navigate("index");
+        router.replace("/");
       } else {
         Alert.alert("Error", "Failed to create thread.");
       }

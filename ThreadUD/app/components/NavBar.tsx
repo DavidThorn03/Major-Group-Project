@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, TouchableOpacity, Text } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import * as AsyncStorage from "../../util/AsyncStorage.js";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 const NavBar: React.FC = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check if user is logged in
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        const userData = await AsyncStorage.getItem("User");
-        setIsLoggedIn(!!userData);
-      } catch (error) {
-        console.error("Error checking login status:", error);
-        setIsLoggedIn(false);
-      }
-    };
-
-    checkLoginStatus();
-
-    // Set up listener for when the component is focused again
-    const unsubscribe = navigation.addListener("focus", checkLoginStatus);
-    return unsubscribe;
-  }, [navigation]);
+  useFocusEffect(
+    useCallback(() => {
+      const checkLoginStatus = async () => {
+        try {
+          const userData = await AsyncStorage.getItem("User");
+          setIsLoggedIn(!!userData);
+        } catch (error) {
+          console.error("Error checking login status:", error);
+          setIsLoggedIn(false);
+        }
+      };
+  
+      checkLoginStatus();
+  
+      return () => {};
+    }, [])
+  );
 
   // Handle login/logout button press
   const handleAuthAction = async () => {
@@ -34,12 +35,12 @@ const NavBar: React.FC = () => {
         await AsyncStorage.removeItem("User");
         setIsLoggedIn(false);
         console.log("User logged out successfully");
-        navigation.navigate("index");
+        router.replace("/");
       } catch (error) {
         console.error("Error logging out:", error);
       }
     } else {
-      navigation.navigate("login");
+      router.replace("/login");
     }
   };
 
@@ -65,7 +66,7 @@ const NavBar: React.FC = () => {
       >
         <TouchableOpacity
           style={{ flexDirection: "row", alignItems: "center" }}
-          onPress={() => navigation.navigate("index")}
+          onPress={() => router.push("/")}
         >
           <Image
             source={require("../../assets/images/ThreadUD-logo.png")}

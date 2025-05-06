@@ -11,7 +11,6 @@ import {
   SubtitleText,
   ListFooterSpace,
 } from "./components/SearchStyles";
-import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/AntDesign";
 import { TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
@@ -19,9 +18,10 @@ import { searchThreads } from "./services/searchThreads";
 import { getThreads } from "./services/getThreads";
 import { getThreadByCourse } from "./services/getThreadByCourse";
 import BottomNavBar from "./components/BottomNavBar";
+import { useRouter } from "expo-router";
 
 const SearchPage = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [threads, setThreads] = useState([]);
   const [text, onChangeText] = useState("");
   const [error, setError] = useState("");
@@ -142,7 +142,7 @@ const SearchPage = () => {
 
   const navigateToThread = (threadID, threadName) => {
     console.log("Navigating to thread with:", { threadID, threadName });
-    navigation.navigate("thread", { threadID, threadName });
+    router.push({pathname: "/thread", params: { threadID, threadName }});
   };
 
   return (

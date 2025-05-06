@@ -14,9 +14,8 @@ import { changePassword } from "./services/changePassword.js";
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  const params = useLocalSearchParams();
   const router = useRouter();
-  const email = params.email as string;
+  const email = useLocalSearchParams();
 
   const reset = async () => {
     if (!email) {
@@ -50,7 +49,7 @@ const ResetPassword = () => {
       if (result) {
         Alert.alert("Success", "Password changed successfully");
       }
-      router.push("/login");
+      router.replace("/login");
     } catch (err: any) {
       Alert.alert("Error", err.message);
     }

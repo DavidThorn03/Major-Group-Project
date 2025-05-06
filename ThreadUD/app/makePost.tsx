@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Alert, View, Text } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import axios from "axios";
 import IP from "../config/IPAddress.js";
@@ -12,9 +11,11 @@ import {
   PostButton,
 } from "./components/MakePostStyles";
 import { Picker } from "@react-native-picker/picker";
+import { useRouter } from "expo-router";
+
 
 const MakePostPage = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [body, setBody] = useState("");
   const [selectedThread, setSelectedThread] = useState("");
   const [threads, setThreads] = useState([]);
@@ -70,11 +71,11 @@ const MakePostPage = () => {
       if (response.status === 201) {
         const newPost = response.data;
         // Optionally store the newly created post or navigate
-        navigation.navigate("post", {postID: newPost._id, threadName: newPost.threadName});
+        router.replace({pathname: "/post", params: {postID: newPost._id, threadName: newPost.threadName}});
       } 
       else if (response.status === 202) {
         Alert.alert("Post Flagged", "Your post has been flagged for review by a moderator.");
-        navigation.goBack();
+        router.back();
       }
       else {
         Alert.alert("Error", "Failed to create post.");

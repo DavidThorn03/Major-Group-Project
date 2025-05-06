@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
 import { getPostsByThread } from "./services/getThreadPosts";
-import { useRoute, useNavigation } from "@react-navigation/native";
 import {
   Container,
   Header,
@@ -22,14 +21,15 @@ import IP from "../config/IPAddress.js";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import BottomNavBar from "./components/BottomNavBar";
 import { Likes } from "./services/updateLikes";
+import { useRouter, useLocalSearchParams } from "expo-router";
+
 
 dayjs.extend(relativeTime);
 
 const Thread = () => {
+  const router = useRouter();
   const [user, setUser] = useState(null);
-  const route = useRoute();
-  const navigation = useNavigation();
-  const { threadID, threadName } = route.params || {};
+  const { threadID, threadName } = useLocalSearchParams();
 
   console.log("Thread parameters:", { threadID, threadName });
 
@@ -84,7 +84,7 @@ const Thread = () => {
   const handleJoinLeaveThread = async () => {
     if (!user) {
       console.log("User not logged in");
-      navigation.navigate("login");
+      router.push("/login");
       return;
     }
 
@@ -118,7 +118,7 @@ const Thread = () => {
   const likePost = async (post) => {
     if (!user) {
       console.log("User not logged in");
-      navigation.navigate("login");
+      router.push("/login");
       return;
     }
     let action;
@@ -159,7 +159,7 @@ const Thread = () => {
   };
 
   const navigateToPost = (postID) => {
-    navigation.navigate("post", { postID, threadName });
+    router.push({pathname: "/post", params: { postID, threadName }});
   };
 
   return (

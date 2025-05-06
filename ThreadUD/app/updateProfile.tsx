@@ -18,12 +18,12 @@ import {
   ChangePasswordContainer,
 } from "./components/UpdateProfileStyles";
 import * as AsyncStorage from "../util/AsyncStorage.js";
-import { useNavigation } from "@react-navigation/native";
 import { updateProfile } from "./services/updateProfile";
 import BottomNavBar from "./components/BottomNavBar";
+import { useRouter } from "expo-router";
 
 const UpdateProfileScreen = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [name, setName] = useState("");
   const [year, setYear] = useState("");
   const [course, setCourse] = useState("");
@@ -44,7 +44,7 @@ const UpdateProfileScreen = () => {
           console.log("User data:", userData);
         } else {
           console.log("No user data found");
-          navigation.navigate("login");
+          router.push("/login");
         }
       } catch (err) {
         console.error(err);
@@ -106,7 +106,7 @@ const UpdateProfileScreen = () => {
       if (response) {
         Alert.alert("Success", "Account updated successfully!");
         await AsyncStorage.setItem("User", response);
-        navigation.navigate("profile");
+        router.replace("/profile");
       } else {
         Alert.alert("Error", "Update failed. Please try again.");
       }
@@ -176,7 +176,7 @@ const UpdateProfileScreen = () => {
               style={{ flex: 1, marginRight: 10 }}
             />
             <Button
-              onPress={() => navigation.navigate("profile")}
+              onPress={() => router.replace("/profile")}
               title="Cancel"
               style={{ flex: 1, marginLeft: 10 }}
             />
@@ -184,7 +184,7 @@ const UpdateProfileScreen = () => {
         </ButtonGroupContainer>
         <ChangePasswordContainer>
           <Button
-            onPress={() => navigation.navigate("changePassword")}
+            onPress={() => router.replace("/changePassword")}
             title="Change Password"
           />
         </ChangePasswordContainer>

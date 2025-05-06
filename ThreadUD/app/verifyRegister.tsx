@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, TextInput, Alert } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
-import { useNavigation, useRoute } from "@react-navigation/native";
 import { Container, GeneralText } from "./components/LoginStyles";
 import { confirmRegister } from "./services/confirmRegister.js";	
 import { registerStudent } from "./services/registerStudent.js";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 const VerifyRegister = () => {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [text, setText] = useState("");
   const [code, setCode] = useState("");
-  const route = useRoute();
-  const user = route.params.user;
-  const navigation = useNavigation();
+  const user = useLocalSearchParams();
 
   useEffect(() => {
         sendEmail();
@@ -43,7 +42,7 @@ const VerifyRegister = () => {
       if (response && response.user) {
         Alert.alert("Success", "Account created successfully!");
         await AsyncStorage.setItem("User", response.user);
-        navigation.navigate("index");
+        router.replace("/");
       } else {
         Alert.alert("Error", "Registration failed. Please try again.");
       }

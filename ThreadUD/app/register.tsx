@@ -15,10 +15,10 @@ import {
 } from "./components/RegisterStyles";
 import { registerStudent } from "./services/registerStudent";
 import * as AsyncStorage from "../util/AsyncStorage.js";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 
 const RegisterPage = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -79,7 +79,7 @@ const RegisterPage = () => {
         course: course.toUpperCase().trim(),
         auth: auth,
       };
-      navigation.navigate("verifyRegister", { user: userData });
+      router.push({pathname: "/verifyRegister", params: { user: userData }});
     } catch (error: any) {
       console.error("Error during registration:", error);
       Alert.alert(

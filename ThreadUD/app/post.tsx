@@ -55,9 +55,13 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import IP from "../config/IPAddress.js";
 import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+import { useRouter, useLocalSearchParams } from "expo-router";
+
 
 const PostPage = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [post, setPost] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,7 +72,7 @@ const PostPage = () => {
   const [input, setInput] = useState(false);
   const [socket, setSocket] = useState(null);
   const route = useRoute();
-  const { postID, threadName } = route.params || {};
+  const { postID, threadName } = useLocalSearchParams();
   const flatListRef = useRef(null);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [activeReplyComment, setActiveReplyComment] = useState(null);
@@ -136,33 +140,25 @@ const PostPage = () => {
     fetchComments();
   }, [postSearched]);
 
-  useEffect(() => {
-    if (postSearched && post?._id) {
-      if (socket) {
-        socket.disconnect();
-      }
+  useFocusEffect(
+    useCallback(() => {
+      if (!postSearched || !post?._id) return;
+  
       const newSocket = io(IP, {
         query: { post: post._id },
       });
-
+  
       newSocket.on("update comments", (updatedComments) => {
         setComments(updatedComments);
       });
-
-      setSocket(newSocket); 
-
-
-    // Screen loses focus (e.g., header/footer nav)
-    const unsubscribeBlur = navigation.addListener("blur", () => {
-      newSocket.disconnect();
-    });
-
+  
+      setSocket(newSocket);
+  
       return () => {
         newSocket.disconnect();
-        unsubscribeBlur();
       };
-    }
-  }, [postSearched, post?._id]);
+    }, [postSearched, post?._id])
+  );
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -203,7 +199,7 @@ const PostPage = () => {
   const likePost = async () => {
     if (!user) {
       socket.disconnect();
-      navigation.navigate("login");
+      router.push("/login");
       return;
     }
     let action;
@@ -233,7 +229,7 @@ const PostPage = () => {
   const addComment = async () => {
     if (!user) {
       socket.disconnect();
-      navigation.navigate("login");
+      router.push("/login");
       return;
     } else if (text.trim() === "") {
       onChangeText("");
@@ -262,7 +258,7 @@ const PostPage = () => {
   const likeComment = async (comment) => {
     if (!user) {
       socket.disconnect();
-      navigation.navigate("login");
+      router.push("/login");
       return;
     }
     let action;
@@ -360,7 +356,7 @@ const PostPage = () => {
   const reply = async (comment) => {
     if (!user) {
       socket.disconnect();
-      navigation.navigate("login");
+      router.push("/login");
       return;
     } else if (text.trim() === "") {
       onChangeText("");
@@ -388,7 +384,7 @@ const PostPage = () => {
   const deleteComment = async (comment, parent) => {
     if (!user) {
       socket.disconnect();
-      navigation.navigate("login");
+      router.push("/login");
       return;
     } else if (comment.author !== user.email) {
       return;
@@ -422,10 +418,10 @@ const PostPage = () => {
 
   const navigateToThread = () => {
     socket.disconnect();
-    navigation.navigate("thread", {
+    router.push({pathname: "/thread", params: {
       threadID: post.threadID,
       threadName: post.threadName,
-    });
+    }});
   };
 
   const printComments = (comments, comment) => {

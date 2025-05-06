@@ -10,7 +10,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import * as AsyncStorage from "../../util/AsyncStorage.js";
 
 interface AdminNavProps {
@@ -18,14 +18,14 @@ interface AdminNavProps {
 }
 
 const AdminNav: React.FC<AdminNavProps> = ({ currentScreen }) => {
-  const navigation = useNavigation();
+  const router = useRouter();
 
   // Handle logout button press
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem("User");
       Alert.alert("Logged out", "You have been logged out.");
-      navigation.navigate("login");
+      router.replace("/login");
     } catch (error) {
       console.error("Error logging out:", error);
       Alert.alert("Error", "Unable to log out.");
@@ -39,7 +39,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ currentScreen }) => {
           styles.navItem,
           currentScreen === "adminPosts" && styles.activeNavItem,
         ]}
-        onPress={() => navigation.navigate("adminPosts")}
+        onPress={() => router.replace("/adminPosts")}
       >
         <Text style={styles.navText}>Posts</Text>
       </TouchableOpacity>
@@ -48,7 +48,7 @@ const AdminNav: React.FC<AdminNavProps> = ({ currentScreen }) => {
           styles.navItem,
           currentScreen === "adminComments" && styles.activeNavItem,
         ]}
-        onPress={() => navigation.navigate("adminComments")}
+        onPress={() => router.replace("/adminComments")}
       >
         <Text style={styles.navText}>Comments</Text>
       </TouchableOpacity>
