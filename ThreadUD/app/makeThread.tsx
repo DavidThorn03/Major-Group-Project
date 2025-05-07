@@ -89,6 +89,8 @@ const MakeThreadPage = () => {
         onChangeText={setCourse}
         value={course}
         maxLength={5}
+        returnKeyType="done"
+        onSubmitEditing={handleCreateThread}
       />
       <Button onPress={handleCreateThread} title="Create Thread" />
       <BottomNavBar />

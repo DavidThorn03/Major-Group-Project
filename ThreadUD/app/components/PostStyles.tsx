@@ -54,6 +54,7 @@ interface CommentInputProps {
   value: string,
   placeholder: string,
   autoFocus: boolean,
+  method: () => void,
 }
 
 export const Container = ({ children }: ContainerProps) => (
@@ -242,6 +243,7 @@ export const CommentInput = ({
   value,
   placeholder,
   autoFocus,
+  method,
 }: CommentInputProps) => (
     <TextInput
       style={{
@@ -257,16 +259,20 @@ export const CommentInput = ({
       onChangeText={onChangeText}
       placeholder = {placeholder}
       autoFocus={autoFocus}
+      returnKeyType="done"
+      onSubmitEditing={method}
     />
 
 );
 
-export const ReplyInput = ({ onChangeText, value, placeholder, autoFocus }) => (
+export const ReplyInput = ({ onChangeText, value, placeholder, autoFocus, method }) => (
   <TextInput
     onChangeText={onChangeText}
     value={value}
     placeholder={placeholder}
     autoFocus={autoFocus}
+    returnKeyType="done"
+    onSubmitEditing={method}
     style={{
       backgroundColor: "white",
       padding: 12,

@@ -418,6 +418,7 @@ const PostPage = () => {
         console.error(err);
       }
     }
+    setShowingReply({});
   };
 
   const navigateToThread = () => {
@@ -562,6 +563,7 @@ const PostPage = () => {
                   value={text}
                   placeholder="Add a comment"
                   autoFocus={true}
+                  method={() => addComment()}
                 />
                 <ReplySubmitButton onPress={() => addComment()}>
                   <Icon2 name="reply" size={30} color="green" />
@@ -597,6 +599,7 @@ const PostPage = () => {
                 placeholder="Reply to comment"
                 autoFocus={true}
                 style={{ flex: 1 }}
+                method={() => reply(activeReplyComment)}
               />
               <ReplySubmitButton onPress={() => reply(activeReplyComment)}>
                 <Icon2 name="reply" size={30} color="green" />

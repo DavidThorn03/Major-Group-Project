@@ -79,6 +79,8 @@ const ResetPassword = () => {
         value={confirmPass}
         secureTextEntry
         placeholder="Confirm your new password"
+        returnKeyType="done"
+        onSubmitEditing={reset}
       />
 
       <Button onPress={reset} title="Reset Password" style="" />

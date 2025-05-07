@@ -111,6 +111,8 @@ const MakePostPage = () => {
         onChangeText={setBody}
         value={body}
         placeholder="Enter post content"
+        returnKeyType="done"
+        onSubmitEditing={handlePost}
       />
 
       <PostButton onPress={handlePost} />

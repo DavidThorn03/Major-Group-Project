@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Image, View } from "react-native";
+import { Alert, Image, View, TouchableOpacity } from "react-native";
 import * as AsyncStorage from "../util/AsyncStorage.js";
 import { getUser } from "./services/getUser";
 import { useRouter } from "expo-router";
@@ -86,6 +86,8 @@ const LoginScreen = () => {
         <Input
           placeholder="Password"
           secureTextEntry={true}
+          returnKeyType="done"
+          onSubmitEditing={handleLogin}
           onChangeText={(text) => setPassword(text)}
         />
       </View>
