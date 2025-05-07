@@ -35,7 +35,7 @@ const perspectiveAPI = async (comment) => {
             for (const attribute in response.data.attributeScores) {
               if (
                 response.data.attributeScores[attribute].summaryScore.value >
-                0.4
+                0.5
               ) {
                 flag = true;
                 break;

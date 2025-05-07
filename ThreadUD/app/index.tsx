@@ -25,7 +25,6 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPostsByYear } from "./services/getPostsByYear.js";
 
-
 dayjs.extend(relativeTime);
 
 const IndexPage = () => {
@@ -74,8 +73,7 @@ const IndexPage = () => {
             setPosts(postsData);
             setLoading(false);
             return;
-          }
-          else if (user.threads && user.threads.length > 0 ) {
+          } else if (user.threads && user.threads.length > 0) {
             const filter = { ids: user.threads };
             const postsData = await getPostsByThread(filter);
             setPosts(postsData);
@@ -92,7 +90,7 @@ const IndexPage = () => {
             return;
           }
           const yearPosts = await getPostsByYear({ year: user.year });
-          if (yearPosts.length > 0){
+          if (yearPosts.length > 0) {
             setPosts(yearPosts);
             setLoading(false);
             return;
@@ -176,64 +174,64 @@ const IndexPage = () => {
 
   const navigateToThread = (threadID, threadName) => {
     console.log("Navigating to thread with:", { threadID, threadName });
-    router.push({pathname: "/thread", params: { threadID, threadName }});
+    router.push({ pathname: "/thread", params: { threadID, threadName } });
   };
 
   const ViewPost = (postID, threadName) => {
-    router.push({pathname: "/post", params: { postID, threadName }});
+    router.push({ pathname: "/post", params: { postID, threadName } });
   };
 
   return (
-<SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
-  <Container>
-      <NavBar />
-      {posts.length === 0 ? (
-        <GeneralText>
-          No posts available. Start by creating a new post!
-        </GeneralText>
-      ) : (
-        <FlatList
-          data={posts}
-          keyExtractor={(item) => item._id}
-          renderItem={({ item }) => {
-            return (
-              <PostCard>
-                <TouchableOpacity
-                  onPress={() =>
-                    navigateToThread(item.threadID, item.threadName)
-                  }
-                >
-                  <ThreadName>{item.threadName}</ThreadName>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => ViewPost(item._id, item.threadName)}
-                >
-                  <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
-                  <PostContent>{item.content}</PostContent>
-                  <AuthorWithIcon>{item.author.split("@")[0]}</AuthorWithIcon>
-                  <View style={{ flexDirection: "row" }}>
-                    <TouchableOpacity onPress={() => likePost(item)}>
-                      {getLike(item)}
-                    </TouchableOpacity>
-                    <GeneralText> {item.likes.length} </GeneralText>
-                    <View style={{ paddingHorizontal: 4 }} />
-                    <TouchableOpacity
-                      onPress={() => ViewPost(item._id, item.threadName)}
-                    >
-                      <Icon name="message1" size={25} color="white" />
-                    </TouchableOpacity>
-                    <GeneralText> {item.comments.length} </GeneralText>
-                  </View>
-                </TouchableOpacity>
-              </PostCard>
-            );
-          }}
-          ListFooterComponent={<ListFooterSpace />}
-        />
-      )}
-      <BottomNavBar />
-    </Container>
-  </SafeAreaView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
+      <Container>
+        <NavBar />
+        {posts.length === 0 ? (
+          <GeneralText>
+            No posts available. Start by creating a new post!
+          </GeneralText>
+        ) : (
+          <FlatList
+            data={posts}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => {
+              return (
+                <PostCard>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigateToThread(item.threadID, item.threadName)
+                    }
+                  >
+                    <ThreadName>{item.threadName}</ThreadName>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => ViewPost(item._id, item.threadName)}
+                  >
+                    <Timestamp>{dayjs(item.createdAt).fromNow()}</Timestamp>
+                    <PostContent>{item.content}</PostContent>
+                    <AuthorWithIcon>{item.author.split("@")[0]}</AuthorWithIcon>
+                    <View style={{ flexDirection: "row" }}>
+                      <TouchableOpacity onPress={() => likePost(item)}>
+                        {getLike(item)}
+                      </TouchableOpacity>
+                      <GeneralText> {item.likes.length} </GeneralText>
+                      <View style={{ paddingHorizontal: 4 }} />
+                      <TouchableOpacity
+                        onPress={() => ViewPost(item._id, item.threadName)}
+                      >
+                        <Icon name="message1" size={25} color="white" />
+                      </TouchableOpacity>
+                      <GeneralText> {item.comments.length} </GeneralText>
+                    </View>
+                  </TouchableOpacity>
+                </PostCard>
+              );
+            }}
+            ListFooterComponent={<ListFooterSpace />}
+          />
+        )}
+        <BottomNavBar />
+      </Container>
+    </SafeAreaView>
   );
 };
 
