@@ -69,36 +69,38 @@ const IndexPage = () => {
     const fetchPosts = async () => {
       try {
         if (userSearched) {
+          let postData = []
           if (!user) {
-            const postsData = await getPosts();
-            setPosts(postsData);
+            postData = await getPosts();
+            setPosts(postData);
             setLoading(false);
             return;
           }
           else if (user.threads && user.threads.length > 0 ) {
             const filter = { ids: user.threads };
-            const postsData = await getPostsByThread(filter);
-            setPosts(postsData);
+            postData = await getPostsByThread(filter);
+            setPosts(postData);
             setLoading(false);
-            if (postsData.length > 0) {
+            if (postData.length > 0) {
               return;
             }
           }
           const filter = { course: user.course };
-          const postsData = await getPostsByCourse(filter);
-          if (postsData.length > 0) {
-            setPosts(postsData);
+          postData = await getPostsByCourse(filter);
+          if (postData.length > 0) {
+            setPosts(postData);
             setLoading(false);
             return;
           }
-          const yearPosts = await getPostsByYear({ year: user.year });
-          if (yearPosts.length > 0){
-            setPosts(yearPosts);
+          postData = await getPostsByYear({ year: user.year });
+          console.log("Post data by year:", postData);
+          if (postData.length > 0){
+            setPosts(postData);
             setLoading(false);
             return;
           }
-          const allPosts = await getPosts();
-          setPosts(allPosts);
+          postData = await getPosts();
+          setPosts(postData);
           setLoading(false);
         }
       } catch (err) {
