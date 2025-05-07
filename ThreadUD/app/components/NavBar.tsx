@@ -40,7 +40,7 @@ const NavBar: React.FC = () => {
         console.error("Error logging out:", error);
       }
     } else {
-      router.replace("/login");
+      router.push("/login");
     }
   };
 

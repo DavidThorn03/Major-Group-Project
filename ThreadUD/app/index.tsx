@@ -23,6 +23,7 @@ import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { getPostsByYear } from "./services/getPostsByYear.js";
 
 
 dayjs.extend(relativeTime);
@@ -72,17 +73,33 @@ const IndexPage = () => {
             const postsData = await getPosts();
             setPosts(postsData);
             setLoading(false);
-          } else if (user.threads && user.threads.length > 0) {
+            return;
+          }
+          else if (user.threads && user.threads.length > 0 ) {
             const filter = { ids: user.threads };
             const postsData = await getPostsByThread(filter);
             setPosts(postsData);
             setLoading(false);
-          } else {
-            const filter = { course: user.course };
-            const postsData = await getPostsByCourse(filter);
+            if (postsData.length > 0) {
+              return;
+            }
+          }
+          const filter = { course: user.course };
+          const postsData = await getPostsByCourse(filter);
+          if (postsData.length > 0) {
             setPosts(postsData);
             setLoading(false);
+            return;
           }
+          const yearPosts = await getPostsByYear({ year: user.year });
+          if (yearPosts.length > 0){
+            setPosts(yearPosts);
+            setLoading(false);
+            return;
+          }
+          const allPosts = await getPosts();
+          setPosts(allPosts);
+          setLoading(false);
         }
       } catch (err) {
         setError("Failed to load posts.");

@@ -46,7 +46,8 @@ const ResetPassword = () => {
     }
 
     try {
-      const result = await changePassword({ email, password: password });
+      const emailString = email.email;
+      const result = await changePassword({ email: emailString, password: password });
       if (result) {
         Alert.alert("Success", "Password changed successfully");
       }

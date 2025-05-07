@@ -11,17 +11,17 @@ const BottomNavBar = () => {
 
   // Function to check if user is logged in before navigating
   const navigateWithAuthCheck = async (route) => {
-    if (route === "makeThread" || route === "makePost") {
+    if (route === "/makeThread" || route === "/makePost" || route === "/profile") {
       try {
         const userData = await AsyncStorage.getItem("User");
         if (!userData) {
           console.log("User not logged in, redirecting to login page");
-          router.replace("/login");
+          router.push("/login");
           return;
         }
       } catch (error) {
         console.error("Error checking authentication:", error);
-        router.replace("/login");
+        router.push("/login");
         return;
       }
     }
@@ -86,7 +86,7 @@ const BottomNavBar = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={getButtonStyle("makeThread")}
-        onPress={() => navigateWithAuthCheck("makeThread")}
+        onPress={() => navigateWithAuthCheck("/makeThread")}
       >
         <Image
           source={require("../../assets/icons/makeThread.png")}
@@ -95,7 +95,7 @@ const BottomNavBar = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={getButtonStyle("profile")}
-        onPress={() => router.push("/profile")}
+        onPress={() => navigateWithAuthCheck("/profile")}
       >
         <Image
           source={require("../../assets/icons/profile.png")}

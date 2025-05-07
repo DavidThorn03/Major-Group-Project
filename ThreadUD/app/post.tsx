@@ -514,7 +514,27 @@ const PostPage = () => {
             </View>
           </PostCard>
           <CommentHeader>Comments</CommentHeader>
-          
+        <FlatList
+            keyboardShouldPersistTaps="handled"
+            ref={flatListRef}
+            data={comments}
+            renderItem={({ item }) => printComments([item], null)}
+            keyExtractor={(item) => item._id}
+            ListFooterComponent={<ListFooterSpace />}
+            onScrollToIndexFailed={(info) => {
+              const wait = new Promise((resolve) => setTimeout(resolve, 500));
+              wait.then(() => {
+                if (flatListRef.current) {
+                  flatListRef.current.scrollToIndex({
+                    index: info.index,
+                    animated: true,
+                    viewPosition: 0.1,
+                  });
+                }
+              });
+            }}
+          />
+        </Container>
         {input && (
             <CommentInputContainer
               style={{
@@ -549,28 +569,6 @@ const PostPage = () => {
               </CommentInputWrapper>
             </CommentInputContainer>
           )}
-        <FlatList
-            keyboardShouldPersistTaps="handled"
-            ref={flatListRef}
-            data={comments}
-            renderItem={({ item }) => printComments([item], null)}
-            keyExtractor={(item) => item._id}
-            ListFooterComponent={<ListFooterSpace />}
-            onScrollToIndexFailed={(info) => {
-              const wait = new Promise((resolve) => setTimeout(resolve, 500));
-              wait.then(() => {
-                if (flatListRef.current) {
-                  flatListRef.current.scrollToIndex({
-                    index: info.index,
-                    animated: true,
-                    viewPosition: 0.1,
-                  });
-                }
-              });
-            }}
-          />
-        </Container>
-
         {activeReplyComment && (
           <ReplyInputContainer
             style={{

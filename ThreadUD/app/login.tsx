@@ -63,9 +63,9 @@ const LoginScreen = () => {
 
       // Navigate to the main screen (or index)
       if (fetchedUser.admin) {
-        router.push("/adminPosts");
+        router.replace("/adminPosts");
       } else {
-        router.push("/");
+        router.replace("/");
       }
     } catch (error) {
       console.error("Error during login:", error);

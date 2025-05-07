@@ -96,6 +96,21 @@ router.get("/byCourse", async (req, res) => {
 
 });
 
+router.get("/byYear", async (req, res) => {
+  const year = req.query.year;
+
+  try {
+    const threadIDs = await Thread.distinct("_id", { year });
+    const posts = await Post.find({ threadID: { $in: threadIDs }, flagged: false }).exec();
+    console.log("posts", posts);
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "An error occurred while fetching the posts." });
+  }
+
+});
+
 // Update comments on a post
 router.put("/comments", async (req, res) => {
   // THIS WORKS FINE, OTHERS ARE PROBLEM

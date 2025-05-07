@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import IP from "../config/IPAddress.js";
 import AdminNav from "./components/AdminNav";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const SERVER_URL = IP;
 
@@ -101,6 +102,7 @@ const AdminCommentsScreen: React.FC = () => {
   }
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
     <View style={styles.container}>
       <AdminNav currentScreen="adminComments" />
       <Text style={styles.header}>Flagged Comments</Text>
@@ -115,13 +117,13 @@ const AdminCommentsScreen: React.FC = () => {
         />
       )}
     </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: "#fff",
   },
   loadingContainer: {
