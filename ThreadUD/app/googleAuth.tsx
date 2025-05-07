@@ -39,7 +39,13 @@ const GoogleAuthScreen = () => {
     <Container>
       <Header>Google Authentication</Header>
       <Text>Enter your authentication code</Text>
-      <Input placeholder="code" keyboardType="numeric" onChangeText={setCode} />
+      <Input 
+        placeholder="code" 
+        keyboardType="numeric" 
+        onChangeText={setCode} 
+        returnKeyType="done"
+        onSubmitEditing={check} 
+      />
       <Button onPress={check} title="Enter Code"/>
     </Container>
     </SafeAreaView>

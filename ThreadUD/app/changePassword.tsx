@@ -57,7 +57,13 @@ const ChangePasswordScreen = () => {
     <Container>
       <Header>Change Password</Header>
       <Text>Enter your old password</Text>
-      <Input placeholder="Password" secureTextEntry onChangeText={setPassword} />
+      <Input 
+          placeholder="Password" 
+          secureTextEntry 
+          returnKeyType="done"
+          onSubmitEditing={check} 
+          onChangeText={setPassword} 
+        />
       <Button onPress={check} title="Confirm password"/>
     </Container>
     </SafeAreaView>
