@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import axios from "axios";
 import IP from "../config/IPAddress.js";
 import {
@@ -14,6 +14,7 @@ import BottomNavBar from "./components/BottomNavBar";
 import NavBar from "./components/NavBar";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAvoidingView } from "react-native";
 
 
 const MakeThreadPage = () => {
@@ -67,6 +68,11 @@ const MakeThreadPage = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
+    >
     <Container>
       <Header>
         <HeaderText>Create a New Thread</HeaderText>
@@ -77,24 +83,31 @@ const MakeThreadPage = () => {
         onChangeText={setThreadName}
         value={threadName}
         maxLength={24}
+        textColor="#000000"
+        placeholderTextColor="#000000"
       />
       <Input
         placeholder="Year of Study"
         keyboardType="numeric"
         onChangeText={setYear}
         value={year}
+        textColor="#000000"
+        placeholderTextColor="#000000"
       />
       <Input
         placeholder="Course (TU###)"
         onChangeText={setCourse}
         value={course}
         maxLength={5}
+        textColor="#000000"
+        placeholderTextColor="#000000"
         returnKeyType="done"
         onSubmitEditing={handleCreateThread}
       />
       <Button onPress={handleCreateThread} title="Create Thread" />
-      <BottomNavBar />
     </Container>
+    </KeyboardAvoidingView>
+    <BottomNavBar />
     </SafeAreaView>
   );
 };

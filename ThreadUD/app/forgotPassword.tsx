@@ -123,6 +123,7 @@ const ForgotPassword = () => {
               autoFocus
               returnKeyType="done"
               onSubmitEditing={() => sendEmail(text)}
+              placeholderTextColor="#000000"
             />
             <TouchableOpacity
               onPress={() => sendEmail(text)}
@@ -170,6 +171,7 @@ const ForgotPassword = () => {
               autoFocus
               returnKeyType="done"
               onSubmitEditing={verify}
+              placeholderTextColor="#000000"
             />
             <TouchableOpacity
               onPress={verify}

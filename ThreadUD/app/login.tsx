@@ -81,6 +81,8 @@ const LoginScreen = () => {
         <Input
           placeholder="Email Address"
           keyboardType="email-address"
+          textColor="#000000"
+          placeholderTextColor="#000000"
           onChangeText={(text) => setEmail(text.toLowerCase())}
         />
         <Input
@@ -88,6 +90,8 @@ const LoginScreen = () => {
           secureTextEntry={true}
           returnKeyType="done"
           onSubmitEditing={handleLogin}
+          textColor="#000000"
+          placeholderTextColor="#000000"
           onChangeText={(text) => setPassword(text)}
         />
       </View>

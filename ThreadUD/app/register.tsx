@@ -96,24 +96,34 @@ const RegisterPage = () => {
       <Input
         placeholder="Email Address"
         keyboardType="email-address"
+        textColor="#000000"
+        placeholderTextColor="#000000"
         onChangeText={(email: string) => setEmail(email.toLowerCase())}
       />
       <Input
         placeholder="Password"
         secureTextEntry
+        textColor="#000000"
+        placeholderTextColor="#000000"
         onChangeText={setPassword}
       />
       <Input
         placeholder="Confirm Password"
         secureTextEntry
+        textColor="#000000"
+        placeholderTextColor="#000000"
         onChangeText={setConfirmPass}
       />
       <Input
         placeholder="Year of Study"
         keyboardType="numeric"
+        textColor="#000000"
+        placeholderTextColor="#000000"
         onChangeText={setYear}
       />
-      <Input placeholder="Course Code" onChangeText={setCourse} />
+      <Input placeholder="Course Code" onChangeText={setCourse} 
+              textColor="#000000"
+              placeholderTextColor="#000000" />
       <Text
         style={{
           color: "white",

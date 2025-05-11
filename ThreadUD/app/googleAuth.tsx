@@ -45,6 +45,8 @@ const GoogleAuthScreen = () => {
         onChangeText={setCode} 
         returnKeyType="done"
         onSubmitEditing={check} 
+        textColor="#000000"
+        placeholderTextColor="#000000"
       />
       <Button onPress={check} title="Enter Code"/>
     </Container>

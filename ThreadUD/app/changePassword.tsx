@@ -63,6 +63,8 @@ const ChangePasswordScreen = () => {
           returnKeyType="done"
           onSubmitEditing={check} 
           onChangeText={setPassword} 
+          textColor="#000000"
+          placeholderTextColor="#000000"
         />
       <Button onPress={check} title="Confirm password"/>
     </Container>

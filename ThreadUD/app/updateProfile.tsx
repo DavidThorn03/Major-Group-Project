@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Alert, View, ScrollView } from "react-native";
+import { Alert, View, ScrollView, Platform } from "react-native";
 import {
   Container,
   Header,
@@ -22,6 +22,7 @@ import { updateProfile } from "./services/updateProfile";
 import BottomNavBar from "./components/BottomNavBar";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAvoidingView } from "react-native";
 
 const UpdateProfileScreen = () => {
   const router = useRouter();
@@ -122,6 +123,11 @@ const UpdateProfileScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
+    >
     <Container>
       <Header>
         <HeaderText>Update Profile</HeaderText>
@@ -191,8 +197,9 @@ const UpdateProfileScreen = () => {
           />
         </ChangePasswordContainer>
       </ScrollView>
-      <BottomNavBar />
     </Container>
+    </KeyboardAvoidingView>
+    <BottomNavBar />
     </SafeAreaView>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, View, Platform } from "react-native";
 import {
   Header,
   HeaderText,
@@ -20,6 +20,7 @@ import { getThreadByCourse } from "./services/getThreadByCourse";
 import BottomNavBar from "./components/BottomNavBar";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAvoidingView } from "react-native";
 
 const SearchPage = () => {
   const router = useRouter();
@@ -148,6 +149,11 @@ const SearchPage = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#1a2b61" }}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
+    >
     <Container>
       <Header>
         <HeaderText>Search for a Thread</HeaderText>
@@ -171,8 +177,9 @@ const SearchPage = () => {
           ListFooterComponent={<ListFooterSpace />}
         />
       )}
-      <BottomNavBar />
     </Container>
+    </KeyboardAvoidingView>
+    <BottomNavBar />
     </SafeAreaView>
   );
 };
