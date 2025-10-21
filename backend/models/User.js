@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
     auth: { type: Boolean, default: false },
   },
   {
-    collection: "User", // Explicitly define collection name to avoid pluralization issues
+    collection: "User", 
     versionKey: false,
   }
 );
